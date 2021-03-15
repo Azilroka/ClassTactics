@@ -1,0 +1,5 @@
+<Ui>
+	<Script file="Core.lua"/>
+	<Script file="Logic.lua"/>
+	<Script file="Options.lua"/>
+</Ui>

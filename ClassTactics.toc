@@ -1,0 +1,8 @@
+## Interface: 90002
+## Title: |cff16C3F2Class|r|cFFFFFFFFTactics|r
+## Version: 1.00
+## Author: Azilroka
+## SavedVariables: ClassTacticsDB
+## OptionalDeps: ElvUI, AddOnSkins, ProjectAzilroka
+
+Load.xml
