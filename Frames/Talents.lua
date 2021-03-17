@@ -157,7 +157,7 @@ function CT:TalentProfiles_Create()
 		Frame[Button]:SetSize(20, 20)
 		Frame[Button]:RegisterForClicks('AnyDown')
 		Frame[Button]:StripTextures(true)
-		Frame[Button]:SetTemplate()
+		Frame[Button]:SetTemplate('Transparent')
 	end
 
 	Frame.Load:SetWidth(190)
@@ -302,9 +302,9 @@ function CT:SkinTalentManager()
 		_G.ClassTacticsTalentProfiles:SetTemplate('Transparent')
 
 		_G.ClassTacticsTalentProfiles.NewButton:StripTextures(true)
-		_G.ClassTacticsTalentProfiles.NewButton:SetTemplate()
+		_G.ClassTacticsTalentProfiles.NewButton:SetTemplate('Transparent')
 
 		_G.ClassTacticsTalentProfiles.ToggleButton:StripTextures(true)
-		_G.ClassTacticsTalentProfiles.ToggleButton:SetTemplate()
+		_G.ClassTacticsTalentProfiles.ToggleButton:SetTemplate('Transparent')
 	end
 end
