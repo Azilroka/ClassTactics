@@ -4,6 +4,8 @@ local AddOn = _G.LibStub('AceAddon-3.0'):NewAddon('ClassTactics', 'AceEvent-3.0'
 Engine[1] = AddOn
 --Engine[2] = _G.LibStub("AceLocale-3.0"):GetLocale('ClassTactics', false)
 
+_G.ClassTactics = AddOn
+
 _G.ClassTactics = Engine
 _G.ClassTactics.Classic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 _G.ClassTactics.Retail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
@@ -11,16 +13,26 @@ _G.ClassTactics.Retail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local _G = _G
 local select = select
 local tonumber = tonumber
+local type = type
 local format = format
 local unpack = unpack
 
 local CreateFrame = CreateFrame
+local GetAddOnEnableState = GetAddOnEnableState
 local GetAddOnMetadata = GetAddOnMetadata
 local GetPhysicalScreenSize = GetPhysicalScreenSize
 local GetRealmName = GetRealmName
 local UIParent = UIParent
 local UnitClass, UnitName = UnitClass, UnitName
 local UnitFactionGroup = UnitFactionGroup
+
+-- Project Data
+function AddOn:IsAddOnEnabled(addon, character)
+	if (type(character) == 'boolean' and character == true) then
+		character = nil
+	end
+	return GetAddOnEnableState(character, addon) == 2
+end
 
 AddOn.Title = GetAddOnMetadata('ClassTactics', 'Title')
 AddOn.Version = tonumber(GetAddOnMetadata('ClassTactics', 'Version'))
@@ -47,7 +59,7 @@ AddOn.ACR = _G.LibStub('AceConfigRegistry-3.0')
 AddOn.ACD = _G.LibStub('AceConfigDialog-3.0')
 AddOn.ACL = Engine[2]
 AddOn.ADB = _G.LibStub('AceDB-3.0')
-AddOn.AS = unpack(_G.AddOnSkins)
+AddOn.AddOnSkins = AddOn:IsAddOnEnabled('AddOnSkins', AddOn.MyName)
 
 AddOn.ScreenWidth, AddOn.ScreenHeight = GetPhysicalScreenSize()
 

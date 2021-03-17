@@ -158,7 +158,9 @@ function CT:TalentProfiles_Create()
 		Frame[Button]:RegisterForClicks('AnyDown')
 		Frame[Button]:StripTextures(true)
 		Frame[Button]:SetTemplate('Transparent')
-		CT.AS:SkinButton(Frame[Button])
+		if CT.AddOnSkins then
+			_G.AddOnSkins[1]:SkinButton(Frame[Button])
+		end
 	end
 
 	Frame.Load:SetWidth(190)
@@ -301,14 +303,20 @@ function CT:SkinTalentManager()
 	if _G.ClassTacticsTalentProfiles.SetBackdrop and _G.ClassTacticsTalentProfiles.SetTemplate then
 		_G.ClassTacticsTalentProfiles:StripTextures()
 		_G.ClassTacticsTalentProfiles:SetTemplate('Transparent')
-		CT.AS:SkinFrame(_G.ClassTacticsTalentProfiles)
+		if CT.AddOnSkins then
+			_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
+		end
 
 		_G.ClassTacticsTalentProfiles.NewButton:StripTextures(true)
 		_G.ClassTacticsTalentProfiles.NewButton:SetTemplate('Transparent')
-		CT.AS:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
+		if CT.AddOnSkins then
+			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
+		end
 
 		_G.ClassTacticsTalentProfiles.ToggleButton:StripTextures(true)
 		_G.ClassTacticsTalentProfiles.ToggleButton:SetTemplate('Transparent')
-		CT.AS:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
+		if CT.AddOnSkins then
+			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
+		end
 	end
 end
