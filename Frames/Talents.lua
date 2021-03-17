@@ -103,7 +103,7 @@ function CT:TalentProfiles()
 	ProfileMenu.Gradients[2] = CT:AddGradientColor(ProfileMenu, 240, 5, { 1, 1, 0 })
 
 	ProfileMenu.Title = ProfileMenu:CreateFontString(nil, 'OVERLAY')
-	ProfileMenu.Title:SetFont(CT.LSM:Fetch('font', 'Arial'), 12, 'OUTLINE')
+	ProfileMenu.Title:SetFont(CT.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
 	ProfileMenu.Title:SetText('Talent Profiles')
 	ProfileMenu.Title:SetPoint('TOP', 0, -5)
 	ProfileMenu.Title:SetJustifyH('CENTER')
@@ -158,6 +158,7 @@ function CT:TalentProfiles_Create()
 		Frame[Button]:RegisterForClicks('AnyDown')
 		Frame[Button]:StripTextures(true)
 		Frame[Button]:SetTemplate('Transparent')
+		CT.AS:SkinButton(Frame[Button])
 	end
 
 	Frame.Load:SetWidth(190)
@@ -300,11 +301,14 @@ function CT:SkinTalentManager()
 	if _G.ClassTacticsTalentProfiles.SetBackdrop and _G.ClassTacticsTalentProfiles.SetTemplate then
 		_G.ClassTacticsTalentProfiles:StripTextures()
 		_G.ClassTacticsTalentProfiles:SetTemplate('Transparent')
+		CT.AS:SkinFrame(_G.ClassTacticsTalentProfiles)
 
 		_G.ClassTacticsTalentProfiles.NewButton:StripTextures(true)
 		_G.ClassTacticsTalentProfiles.NewButton:SetTemplate('Transparent')
+		CT.AS:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
 
 		_G.ClassTacticsTalentProfiles.ToggleButton:StripTextures(true)
 		_G.ClassTacticsTalentProfiles.ToggleButton:SetTemplate('Transparent')
+		CT.AS:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
 	end
 end

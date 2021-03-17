@@ -12,6 +12,7 @@ local _G = _G
 local select = select
 local tonumber = tonumber
 local format = format
+local unpack = unpack
 
 local CreateFrame = CreateFrame
 local GetAddOnMetadata = GetAddOnMetadata
@@ -46,6 +47,7 @@ AddOn.ACR = _G.LibStub('AceConfigRegistry-3.0')
 AddOn.ACD = _G.LibStub('AceConfigDialog-3.0')
 AddOn.ACL = Engine[2]
 AddOn.ADB = _G.LibStub('AceDB-3.0')
+AddOn.AS = unpack(_G.AddOnSkins)
 
 AddOn.ScreenWidth, AddOn.ScreenHeight = GetPhysicalScreenSize()
 
