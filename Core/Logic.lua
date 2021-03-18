@@ -89,10 +89,8 @@ function CT:ExportData(name, dbKey)
 	end
 
 	local db = CT.db
-	for _, v in next, {strsplit('\a', dbKey)} do
-		local isNumber = tonumber(v)
-		print(v, isNumber)
-		db = db[isNumber or v]
+	for _, v in next, { strsplit('\a', dbKey) } do
+		db = db[tonumber(v) or v]
 	end
 
 	local data = type(db[name]) == 'table' and CopyTable(db[name]) or db[name]
