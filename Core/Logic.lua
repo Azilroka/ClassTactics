@@ -89,8 +89,11 @@ function CT:ExportData(name, dbKey)
 	end
 
 	local db = CT.db
-	for _, v in next, { strsplit('\a', dbKey) } do
-		db = db[tonumber(v) or v]
+
+	if dbKey then
+		for _, v in next, { strsplit('\a', dbKey) } do
+			db = db[tonumber(v) or v]
+		end
 	end
 
 	local data = type(db[name]) == 'table' and CopyTable(db[name]) or db[name]
@@ -115,9 +118,12 @@ function CT:ImportData(dataString)
 	end
 
 	local db = CT.db
-	for _, v in next, {strsplit('\a', dbKey)} do
-		db = db[v]
-		if not db then db = {} end
+
+	if dbKey then
+		for _, v in next, { strsplit('\a', dbKey) } do
+			db = db[v]
+			if not db then db = {} end
+		end
 	end
 
 	db[name] = type(data) == 'table' and CopyTable(data) or data
@@ -129,8 +135,11 @@ function CT:GetTalentIDByString(classTag, specGroup, name)
 
 	local talentString = customString or defaultString
 
-	local talent1, talent2, talent3, talent4, talent5, talent6, talent7 = strsplit(",", talentString or "")
-	return tonumber(talent1), tonumber(talent2), tonumber(talent3), tonumber(talent4), tonumber(talent5), tonumber(talent6), tonumber(talent7)
+	if talentString then
+		return strsplit(',', talentString)
+	else
+		return nil
+	end
 end
 
 function CT:SetTalentsByName(name)
@@ -142,10 +151,13 @@ function CT:ApplyTalents(classTag, specGroup, name)
 end
 
 function CT:GetTalentInfoByID(id)
+	id = tonumber(id)
 	local talentID, name, texture, selected, available, spellID, _, row, column, known, grantedByAura = 0, TALENT_NOT_SELECTED, 136243
-	if id > 0 then
+
+	if id and id > 0 then
 		talentID, name, texture, selected, available, spellID, _, row, column, known, grantedByAura = GetTalentInfoByID(id)
 	end
+
 	return talentID, name, texture, selected, available, spellID, _, row, column, known, grantedByAura
 end
 
@@ -155,7 +167,7 @@ function CT:GetSelectedTalents()
 	wipe(CT.CurrentTalentTable)
 
 	for tier = 1, MAX_TALENT_TIERS do
-		CT.CurrentTalentTable[tier] = 0
+		CT.CurrentTalentTable[tier] = ''
 		for column = 1, NUM_TALENT_COLUMNS do
 			local talentID, name, texture, selected, available = GetTalentInfo(tier, column, GetActiveSpecGroup())
 			if selected then
@@ -164,8 +176,7 @@ function CT:GetSelectedTalents()
 		end
 	end
 
-	local talentString = table.concat(CT.CurrentTalentTable, ",")
-	return talentString
+	return table.concat(CT.CurrentTalentTable, ',')
 end
 
 local talentTierLevels = { [15] = 1, [25] = 2, [30] = 3, [35] = 4, [40] = 5, [45] = 6, [50] = 7 }
@@ -191,6 +202,7 @@ function CT:DelayAutoTalent()
 	end
 
 	CT:UnregisterEvent('PLAYER_REGEN_ENABLED')
+
 	if not autoTalentWait then
 		_G.C_Timer.After(.5, CT.AutoTalent)
 		autoTalentWait = true
