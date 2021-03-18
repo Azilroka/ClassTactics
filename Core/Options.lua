@@ -47,6 +47,7 @@ function CT:BuildProfile()
 			isShown = true,
 			autoTalent = true,
 			talentBuilds = {},
+			macros = {},
 			autoTalents = {
 				[CT.MyRealm] = {
 					[CT.MyName] = {}
@@ -136,40 +137,41 @@ function CT:BuildOptions()
 			CT.Options.args[classTag].args.Discord.args[discordName] = ACH:Input(discordName, nil, nil, nil, 'full', function() return discordLink end)
 		end
 
-		for k = 1, GetNumSpecializationsForClassID(classID) do
-			local specID, specName, _, _, role = GetSpecializationInfoForClassID(classID, k, 0);
-			local specOption = ACH:Group(specName, nil, k, 'tree')
+		for specGroup = 1, GetNumSpecializationsForClassID(classID) do
+			local specID, specName, _, _, role = GetSpecializationInfoForClassID(classID, specGroup, 0);
+			local specOption = ACH:Group(specName, nil, specGroup, 'tree')
 
 			specOption.args.Macros = ACH:Group('Macros')
 
-			for macroName in next, CT.MacroList[classTag][k] do
-				specOption.args.Macros.args[macroName] = ACH:Input(macroName, nil, nil, 4, 2, function(info) return CT.MacroList[classTag][k][info[#info]] end)
+			for macroName in next, CT.MacroList[classTag][specGroup] do
+				specOption.args.Macros.args[macroName] = ACH:Input(macroName, nil, nil, 4, 2, function(info) return CT.MacroList[classTag][specGroup][info[#info]] end)
 			end
 
 			specOption.args.Talents = ACH:Group('Talents')
 			specOption.args.Talents.args.Preview = ACH:Group('Preview', nil, 0)
 			specOption.args.Talents.args.Preview.inline = true
-			specOption.args.Talents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -1, function() CT:ApplyTalents(classTag, k, CT.db[classTag][k].selectedTalentBuild) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= k)) end)
+			specOption.args.Talents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -2, function() CT:ApplyTalents(classTag, specGroup, CT.db[classTag][specGroup].selectedTalentBuild) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= specGroup)) end)
+			specOption.args.Talents.args.Preview.args.ExportTalents = ACH:Input('Export Talents', nil, -1, 5, 'full', function() local name, dbKey = CT.db[classTag][specGroup].selectedTalentBuild, strjoin('\a', 'talentBuilds', classTag, specGroup) return CT:ExportData(name, dbKey) end, nil, nil, function() return CT.TalentList[classTag][specGroup][CT.db[classTag][specGroup].selectedTalentBuild] end)
 
 			for v = 1, 7 do
-				specOption.args.Talents.args.Preview.args['talent'..v] = ACH:Execute(function() local talentID = select(v, CT:GetTalentIDByString(classTag, k, CT.db[classTag][k].selectedTalentBuild)) return select(2, CT:GetTalentInfoByID(talentID)) end, nil, v, nil, function() local talentID = select(v, CT:GetTalentIDByString(classTag, k, CT.db[classTag][k].selectedTalentBuild)) return select(3, CT:GetTalentInfoByID(talentID)) end, nil, .75)
+				specOption.args.Talents.args.Preview.args['talent'..v] = ACH:Execute(function() local talentID = select(v, CT:GetTalentIDByString(classTag, specGroup, CT.db[classTag][specGroup].selectedTalentBuild)) return select(2, CT:GetTalentInfoByID(talentID)) end, nil, v, nil, function() local talentID = select(v, CT:GetTalentIDByString(classTag, specGroup, CT.db[classTag][specGroup].selectedTalentBuild)) return select(3, CT:GetTalentInfoByID(talentID)) end, nil, .75)
 				specOption.args.Talents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
 			end
 
-			specOption.args.Talents.args.Defaults = ACH:MultiSelect('Defaults', nil, 1, {}, nil, nil, function(_, key) return CT.db[classTag][k].selectedTalentBuild == key end, function(_, key) CT.db[classTag][k].selectedTalentBuild = key end)
+			specOption.args.Talents.args.Defaults = ACH:MultiSelect('Defaults', nil, 1, {}, nil, nil, function(_, key) return CT.db[classTag][specGroup].selectedTalentBuild == key end, function(_, key) CT.db[classTag][specGroup].selectedTalentBuild = key end)
 
-			for talentName in next, CT.TalentList[classTag][k] do
+			for talentName in next, CT.TalentList[classTag][specGroup] do
 				specOption.args.Talents.args.Defaults.values[talentName] = talentName
 			end
 
-			specOption.args.Talents.args.Custom = ACH:MultiSelect('Custom', nil, 2, {}, nil, nil, function(_, key) return CT.db[classTag][k].selectedTalentBuild == key end, function(_, key) CT.db[classTag][k].selectedTalentBuild = key end, nil, true)
+			specOption.args.Talents.args.Custom = ACH:MultiSelect('Custom', nil, 2, {}, nil, nil, function(_, key) return CT.db[classTag][specGroup].selectedTalentBuild == key end, function(_, key) CT.db[classTag][specGroup].selectedTalentBuild = key end, nil, true)
 
-			for talentName in next, CT.db.talentBuilds[classTag][k] do
+			for talentName in next, CT.db.talentBuilds[classTag][specGroup] do
 				specOption.args.Talents.args.Custom.values[talentName] = talentName
 				specOption.args.Talents.args.Custom.hidden = false
 			end
 
-			CT.Options.args[classTag].args[''..k] = specOption
+			CT.Options.args[classTag].args[''..specGroup] = specOption
 		end
 	end
 end

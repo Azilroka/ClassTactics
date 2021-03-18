@@ -4,8 +4,16 @@ local tonumber = tonumber
 local select = select
 local strsplit = strsplit
 local wipe = wipe
-local gsub = gsub
+local assert = assert
+local type = type
+local strlen = strlen
+local strfind = strfind
+local tinsert = tinsert
+local strsub = strsub
+local unpack = unpack
+local format = format
 
+local CopyTable = CopyTable
 local GetSpecialization = GetSpecialization
 local GetActiveSpecGroup = GetActiveSpecGroup
 local GetTalentInfo = GetTalentInfo
@@ -28,6 +36,95 @@ for i = 1, GetNumClasses() do
 	CT.MacroList[classTag] = {}
 end
 
+do	--Split string by multi-character delimiter (the strsplit / string.split function provided by WoW doesn't allow multi-character delimiter)
+	local splitTable = {}
+	function CT:SplitString(str, delim)
+		assert(type (delim) == 'string' and strlen(delim) > 0, 'bad delimiter')
+
+		local start = 1
+		wipe(splitTable)
+
+		while true do
+			local pos = strfind(str, delim, start, true)
+			if not pos then break end
+
+			tinsert(splitTable, strsub(str, start, pos - 1))
+			start = pos + strlen(delim)
+		end
+
+		tinsert(splitTable, strsub(str, start))
+
+		return unpack(splitTable)
+	end
+end
+
+function CT:DecodeData(dataString)
+	if not dataString then
+		return
+	end
+
+
+	local decodedData = CT.Base64:Decode(dataString)
+	local decompressedData = CT.Compress:Decompress(decodedData)
+
+	if not decompressedData then
+		return
+	end
+
+	local serializedData, nameKey = CT:SplitString(decompressedData, '^^::') -- '^^' indicates the end of the AceSerializer string
+	local name, dbKey = strsplit('\a', nameKey, 1)
+	serializedData = format('%s%s', serializedData, '^^') --Add back the AceSerializer terminator
+	local success, data = CT:Deserialize(serializedData)
+
+	if not success then
+		return
+	end
+
+	return name, data, dbKey
+end
+
+function CT:ExportData(name, dbKey)
+	if not name or type(name) ~= 'string' then
+		return
+	end
+
+	local db = CT.db
+	for _, v in next, {strsplit('\a', dbKey)} do
+		local isNumber = tonumber(v)
+		print(v, isNumber)
+		db = db[isNumber or v]
+	end
+
+	local data = type(db[name]) == 'table' and CopyTable(db[name]) or db[name]
+
+	if not data then
+		return
+	end
+
+	local serialData = CT:Serialize(data)
+	local exportString = format('%s::%s:%s', serialData, name, dbKey)
+	local compressedData = CT.Compress:Compress(exportString)
+	local encodedData = CT.Base64:Encode(compressedData)
+
+	return encodedData
+end
+
+function CT:ImportData(dataString)
+	local name, data, dbKey = CT:DecodeData(dataString)
+
+	if not data then
+		return
+	end
+
+	local db = CT.db
+	for _, v in next, {strsplit('\a', dbKey)} do
+		db = db[v]
+		if not db then db = {} end
+	end
+
+	db[name] = type(data) == 'table' and CopyTable(data) or data
+end
+
 function CT:GetTalentIDByString(classTag, specGroup, name)
 	local defaultString = CT.TalentList[classTag] and CT.TalentList[classTag][specGroup] and CT.TalentList[classTag][specGroup][name]
 	local customString = CT.db.talentBuilds[classTag] and CT.db.talentBuilds[classTag][specGroup] and CT.db.talentBuilds[classTag][specGroup][name]
@@ -48,7 +145,7 @@ end
 
 function CT:GetTalentInfoByID(id)
 	local talentID, name, texture, selected, available, spellID, _, row, column, known, grantedByAura = 0, TALENT_NOT_SELECTED, 136243
-	if id then
+	if id > 0 then
 		talentID, name, texture, selected, available, spellID, _, row, column, known, grantedByAura = GetTalentInfoByID(id)
 	end
 	return talentID, name, texture, selected, available, spellID, _, row, column, known, grantedByAura

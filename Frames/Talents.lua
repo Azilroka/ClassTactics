@@ -25,20 +25,6 @@ _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
 	enterClicksFirstButton = 1,
 }
 
-function CT:OrderedPairs(t, f)
-	local a = {}
-	for n in pairs(t) do tinsert(a, n) end
-	sort(a, f)
-	local i = 0
-	local iter = function()
-		i = i + 1
-		if a[i] == nil then return nil
-			else return a[i], t[a[i]]
-		end
-	end
-	return iter
-end
-
 function CT:SetupTalentPopup(setupType, name)
 	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE
 	Dialog.text = 'Enter a Name:'
@@ -82,6 +68,20 @@ function CT:SetupTalentPopup(setupType, name)
 	_G.StaticPopup_Show('CLASSTACTICS_TALENTPROFILE')
 end
 
+function CT:OrderedPairs(t, f)
+	local a = {}
+	for n in pairs(t) do tinsert(a, n) end
+	sort(a, f)
+	local i = 0
+	local iter = function()
+		i = i + 1
+		if a[i] == nil then return nil
+			else return a[i], t[a[i]]
+		end
+	end
+	return iter
+end
+
 function CT:SaveTalentBuild(text)
 	local activeSpecIndex = GetSpecialization()
 	CT.db.talentBuilds[CT.MyClass][activeSpecIndex][text] = CT:GetSelectedTalents()
@@ -122,8 +122,9 @@ function CT:TalentProfiles()
 	ProfileMenu.ToggleButton:SetSize(ProfileMenu.ToggleButton.Text:GetStringWidth() + 20, 25)
 	ProfileMenu.ToggleButton:SetScript('OnClick', function() CT.db.isShown = not CT.db.isShown ProfileMenu:SetShown(CT.db.isShown) end)
 
-	CT:SkinTalentManager()
 	CT:TalentProfiles_Update()
+
+	CT:SkinTalentManager()
 end
 
 function CT:AddGradientColor(frame, width, height, color)
@@ -156,11 +157,6 @@ function CT:TalentProfiles_Create()
 		Frame[Button] = CreateFrame('Button', nil, Frame, 'BackdropTemplate, UIPanelButtonTemplate')
 		Frame[Button]:SetSize(20, 20)
 		Frame[Button]:RegisterForClicks('AnyDown')
-		Frame[Button]:StripTextures(true)
-		Frame[Button]:SetTemplate('Transparent')
-		if CT.AddOnSkins then
-			_G.AddOnSkins[1]:SkinButton(Frame[Button])
-		end
 	end
 
 	Frame.Load:SetWidth(190)
@@ -181,7 +177,7 @@ function CT:TalentProfiles_Create()
 	Frame.Update.Icon:SetAllPoints()
 	Frame.Update.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Update]])
 	Frame.Update:SetPoint('LEFT', Frame.Load, 'RIGHT', 5, 0)
-	Frame.Update:SetScript('OnClick', function(_, btn) CT:SetupTalentPopup('overwrite', Frame.Name) end)
+	Frame.Update:SetScript('OnClick', function() CT:SetupTalentPopup('overwrite', Frame.Name) end)
 
 	Frame.Delete.Icon = Frame.Delete:CreateTexture(nil, 'ARTWORK')
 	Frame.Delete.Icon:SetAllPoints()
@@ -300,23 +296,27 @@ function CT:HideTalentMarkers()
 end
 
 function CT:SkinTalentManager()
-	if _G.ClassTacticsTalentProfiles.SetBackdrop and _G.ClassTacticsTalentProfiles.SetTemplate then
-		_G.ClassTacticsTalentProfiles:StripTextures()
+	if CT.AddOnSkins then
+		_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
+		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
+		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
+	elseif _G.ClassTacticsTalentProfiles.SetTemplate then
+		_G.ClassTacticsTalentProfiles:StripTextures(true)
 		_G.ClassTacticsTalentProfiles:SetTemplate('Transparent')
-		if CT.AddOnSkins then
-			_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
-		end
-
 		_G.ClassTacticsTalentProfiles.NewButton:StripTextures(true)
 		_G.ClassTacticsTalentProfiles.NewButton:SetTemplate('Transparent')
-		if CT.AddOnSkins then
-			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
-		end
-
 		_G.ClassTacticsTalentProfiles.ToggleButton:StripTextures(true)
 		_G.ClassTacticsTalentProfiles.ToggleButton:SetTemplate('Transparent')
-		if CT.AddOnSkins then
-			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
+	end
+
+	for _, Frame in ipairs(_G.ClassTacticsTalentProfiles.Buttons) do
+		for _, Button in next, {'Load', 'Delete', 'Update'} do
+			if CT.AddOnSkins then
+				_G.AddOnSkins[1]:SkinButton(Frame[Button])
+			elseif Frame[Button].SetTemplate then
+				Frame[Button]:StripTextures(true)
+				Frame[Button]:SetTemplate('Transparent')
+			end
 		end
 	end
 end

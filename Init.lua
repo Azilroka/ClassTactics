@@ -1,5 +1,5 @@
 local _, Engine = ...
-local AddOn = _G.LibStub('AceAddon-3.0'):NewAddon('ClassTactics', 'AceEvent-3.0', 'AceHook-3.0', 'AceTimer-3.0')
+local AddOn = _G.LibStub('AceAddon-3.0'):NewAddon('ClassTactics', 'AceEvent-3.0', 'AceHook-3.0', 'AceTimer-3.0', 'AceSerializer-3.0')
 
 Engine[1] = AddOn
 --Engine[2] = _G.LibStub("AceLocale-3.0"):GetLocale('ClassTactics', false)
@@ -42,6 +42,12 @@ AddOn.LSM = _G.LibStub('LibSharedMedia-3.0', true)
 AddOn.LCG = _G.LibStub('LibCustomGlow-1.0', true)
 AddOn.LCG = _G.LibStub('LibCustomGlow-1.0', true)
 AddOn.ACH = _G.LibStub('LibAceConfigHelper')
+AddOn.Compress = _G.LibStub('LibCompress')
+AddOn.Base64 = _G.LibStub('LibBase64-1.0', true)
+
+if not AddOn.Base64 then
+	AddOn.Base64 = _G.LibStub('LibBase64-1.0-ElvUI')
+end
 
 AddOn.TicketTracker = 'https://git.tukui.org/Azilroka/ClassTactics/issues'
 AddOn.MyClass = select(2, UnitClass('player'))
