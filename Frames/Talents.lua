@@ -281,7 +281,7 @@ function CT:ShowTalentMarkers(name)
 	for i = 1, 7 do
 		local id = select(i, CT:GetTalentIDByString(CT.MyClass, activeSpecIndex, name))
 		local talentID, _, _, _, _, _, _, row, column = CT:GetTalentInfoByID(id)
-		if id == talentID and row and column then
+		if tonumber(id) == talentID and row and column then
 			_G.PlayerTalentFrameTalents['tier'..row]['talent'..column].ClassTacticsCheck:Show()
 		end
 	end
