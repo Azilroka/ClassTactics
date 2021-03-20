@@ -304,6 +304,7 @@ function CT:TalentProfiles_CheckBags()
 			Button.itemID = itemID
 			Button.Count:SetText(count)
 			Button.icon:SetTexture(GetItemIcon(itemID))
+			Button.icon:SetDesaturated(isResting)
 			Button:EnableMouse(not isResting)
 
 			index = index + 1
@@ -318,6 +319,7 @@ function CT:TalentProfiles_CheckBags()
 			Button.itemID = itemID
 			Button.Count:SetText(count)
 			Button.icon:SetTexture(GetItemIcon(itemID))
+			Button.icon:SetDesaturated(isResting)
 			Button:EnableMouse(not isResting)
 
 			index = index + 1
