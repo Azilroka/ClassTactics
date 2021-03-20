@@ -27,6 +27,13 @@ local READY_CHECK_READY_TEXTURE_INLINE = format('|T%s:16:16:0:0:64:64:4:60:4:60|
 
 CT.CurrentTalentProfiles = {}
 
+CT.EasyMenu = CreateFrame('Frame', 'ClassTacticsEasyMenu', UIParent, 'UIDropDownMenuTemplate')
+CT.MenuList = {
+	{ text = 'Update', func = function(_, _, name) CT:SaveTalentBuild(name) end, arg1 = 'update', notCheckable = true},
+	{ text = 'Rename', func = function(_, setupType, name) CT:SetupTalentPopup(setupType, name) end, arg1 = 'rename', notCheckable = true},
+	{ text = 'Delete', func = function(_, setupType, name) CT:SetupTalentPopup(setupType, name) end, arg1 = 'delete', notCheckable = true},
+}
+
 _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
 	button2 = 'Cancel',
 	timeout = 0,
@@ -81,11 +88,11 @@ function CT:SetupTalentPopup(setupType, name)
 			CT:TalentProfiles_Update()
 			s:GetParent():Hide()
 		end
-	elseif setupType == 'overwrite' then
-		Dialog.hasEditBox = nil
-		Dialog.text = format('There is already a profile named %s. Do you want to overwrite it?', name)
-		Dialog.OnAccept = function() CT:SaveTalentBuild(name) end
-		Dialog.button1 = 'Update'
+		Dialog.OnShow = function(s)
+			s.editBox:SetAutoFocus(false)
+			s.editBox:SetText(name)
+			s.editBox:HighlightText()
+		end
 	end
 
 	_G.StaticPopup_Show('CLASSTACTICS_TALENTPROFILE')
@@ -209,19 +216,27 @@ function CT:AddGradientColor(frame, width, height, color)
 	local gradient = CreateFrame('Frame', nil, frame)
 	gradient:SetSize(width, height)
 
-	local leftGrad = gradient:CreateTexture(nil, 'OVERLAY')
-	leftGrad:SetSize(gradient:GetWidth() * 0.5, gradient:GetHeight())
-	leftGrad:SetPoint('LEFT', gradient, 'CENTER')
-	leftGrad:SetTexture(CT.LSM:Fetch('background', 'Solid'))
-	leftGrad:SetGradientAlpha('Horizontal', r, g, b, .7, r, g, b, .35)
+	gradient.left = gradient:CreateTexture(nil, 'OVERLAY')
+	gradient.left:SetSize(gradient:GetWidth() * 0.5, gradient:GetHeight())
+	gradient.left:SetPoint('LEFT', gradient, 'CENTER')
+	gradient.left:SetTexture(CT.LSM:Fetch('background', 'Solid'))
+	gradient.left:SetGradientAlpha('Horizontal', r, g, b, .7, r, g, b, .35)
 
-	local rightGrad = gradient:CreateTexture(nil, 'OVERLAY')
-	rightGrad:SetSize(gradient:GetWidth() * 0.5, gradient:GetHeight())
-	rightGrad:SetPoint('RIGHT', gradient, 'CENTER')
-	rightGrad:SetTexture(CT.LSM:Fetch('background', 'Solid'))
-	rightGrad:SetGradientAlpha('Horizontal', r, g, b, .35, r, g, b, .7)
+	gradient.right = gradient:CreateTexture(nil, 'OVERLAY')
+	gradient.right:SetSize(gradient:GetWidth() * 0.5, gradient:GetHeight())
+	gradient.right:SetPoint('RIGHT', gradient, 'CENTER')
+	gradient.right:SetTexture(CT.LSM:Fetch('background', 'Solid'))
+	gradient.right:SetGradientAlpha('Horizontal', r, g, b, .35, r, g, b, .7)
 
 	return gradient
+end
+
+function CT:SetEasyMenuAnchor(button, name)
+	UIDropDownMenu_SetAnchor(CT.EasyMenu, 3, 0, 'TOPLEFT', button, 'TOPRIGHT')
+
+	CT.MenuList[1].arg2, CT.MenuList[2].arg2, CT.MenuList[3].arg2 = name, name, name
+
+	EasyMenu(CT.MenuList, CT.EasyMenu, nil, nil, nil, 'MENU')
 end
 
 function CT:TalentProfiles_Create()
@@ -229,37 +244,24 @@ function CT:TalentProfiles_Create()
 	Frame:SetSize(250, 20)
 	Frame:Hide()
 
-	for _, Button in next, {'Load', 'Delete', 'Update'} do
+	for _, Button in next, { 'Load', 'Options' } do
 		Frame[Button] = CreateFrame('Button', nil, Frame, 'BackdropTemplate, UIPanelButtonTemplate')
 		Frame[Button]:SetSize(20, 20)
 		Frame[Button]:RegisterForClicks('AnyDown')
 	end
 
-	Frame.Load:SetWidth(190)
+	Frame.Load:SetWidth(215)
 	Frame.Load:SetPoint('LEFT', Frame, 0, 0)
 	Frame.Load:SetScript('OnEnter', function() CT:SetupTalentMarkers() CT:ShowTalentMarkers(Frame.Name) end)
 	Frame.Load:SetScript('OnLeave', function() CT:HideTalentMarkers() end)
-	Frame.Load:SetScript('OnClick', function(_, btn)
-		if btn == 'RightButton' then
-			CT:SetupTalentPopup('rename', Frame.Name)
-		else
-			CT:SetTalentsByName(Frame.Name)
-		end
-	end)
+	Frame.Load:SetScript('OnClick', function() CT:SetTalentsByName(Frame.Name) end)
 
-	Frame.Update.Icon = Frame.Update:CreateTexture(nil, 'ARTWORK')
-	Frame.Update.Icon:SetPoint('TOPLEFT', 2, -2)
-	Frame.Update.Icon:SetPoint('BOTTOMRIGHT', -2, 2)
-	Frame.Update.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Update]])
-	Frame.Update:SetPoint('LEFT', Frame.Load, 'RIGHT', 5, 0)
-	Frame.Update:SetScript('OnClick', function() CT:SetupTalentPopup('overwrite', Frame.Name) end)
-
-	Frame.Delete.Icon = Frame.Delete:CreateTexture(nil, 'ARTWORK')
-	Frame.Delete.Icon:SetPoint('TOPLEFT', 2, -2)
-	Frame.Delete.Icon:SetPoint('BOTTOMRIGHT', -2, 2)
-	Frame.Delete.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Delete]])
-	Frame.Delete:SetPoint('LEFT', Frame.Update, 'RIGHT', 5, 0)
-	Frame.Delete:SetScript('OnClick', function() CT:SetupTalentPopup('delete', Frame.Name) end)
+	Frame.Options.Icon = Frame.Options:CreateTexture(nil, 'ARTWORK')
+	Frame.Options.Icon:SetPoint('TOPLEFT', 2, -2)
+	Frame.Options.Icon:SetPoint('BOTTOMRIGHT', -2, 2)
+	Frame.Options.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Options]])
+	Frame.Options:SetPoint('LEFT', Frame.Load, 'RIGHT', 5, 0)
+	Frame.Options:SetScript('OnClick', function(s) CT:SetEasyMenuAnchor(s, Frame.Name) end)
 
 	tinsert(_G.ClassTacticsTalentProfiles.Buttons, Frame)
 
@@ -350,8 +352,7 @@ function CT:TalentProfiles_Update()
 		Button:Show()
 		Button.Load:SetWidth(240)
 		Button.Load:SetText(CT:IsTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
-		Button.Update:Hide()
-		Button.Delete:Hide()
+		Button.Options:Hide()
 		Button.Name = name
 
 		if numProfiles == 1 then
@@ -475,7 +476,7 @@ function CT:SkinTalentManager()
 	end
 
 	for _, Frame in next, _G.ClassTacticsTalentProfiles.Buttons do
-		for _, Button in next, {'Load', 'Delete', 'Update'} do
+		for _, Button in next, { 'Load', 'Options' } do
 			if not Frame[Button].isSkinned then
 				if CT.AddOnSkins then
 					_G.AddOnSkins[1]:SkinButton(Frame[Button])
