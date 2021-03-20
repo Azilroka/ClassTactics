@@ -31,18 +31,18 @@ _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
 -- [id] = {minLevel, maxLevel}
 local itemList = {
 	tome = {
-		{141446, 10, 50},
-		{141640, 10, 50},
-		{143780, 10, 50},
-		{143785, 10, 50},
-		{153647, 50, 59},
-		{173049, 51, 60},
+		{141446, 10, 50}, -- Tome of the Tranquil Mind (Unit Level 10-50)
+		{141640, 10, 50}, -- Tome of the Clear Mind (Unit Level 10-50)
+		{143780, 10, 50}, -- Tome of the Tranquil Mind (Unit Level 10-50)
+		{143785, 10, 50}, -- Tome of the Tranquil Mind (Unit Level 10-50)
+		{153647, 50, 59},  -- Tome of the Quiet Mind (Unit Level 10-59)
+		{173049, 51, 60}, -- Tome of the Still Mind (Unit Level 51-60)
 	},
 	codex = {
-		{141333, 10, 50},
-		{141641, 10, 50},
-		{153646, 10, 59},
-		{173048, 51, 60},
+		{141333, 10, 50}, -- Codex of the Tranquil Mind (Unit Level 10-50)
+		{141641, 10, 50}, -- Codex of the Clear Mind (Unit Level 10-50)
+		{153646, 10, 59}, -- Codex of the Quiet Mind (Unit Level 10-59)
+		{173048, 51, 60}, -- Codex of the Still Mind (Unit Level 51-60)
 	}
 }
 
