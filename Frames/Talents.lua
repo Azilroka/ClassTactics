@@ -8,6 +8,8 @@ local next = next
 local wipe = wipe
 local select = select
 local sort = sort
+local strmatch = strmatch
+local format = format
 
 local CreateFrame = CreateFrame
 local GetSpecialization = GetSpecialization
@@ -15,6 +17,7 @@ local GetSpecialization = GetSpecialization
 local MAX_TALENT_TIERS = MAX_TALENT_TIERS
 local NUM_TALENT_COLUMNS = NUM_TALENT_COLUMNS
 local READY_CHECK_READY_TEXTURE = READY_CHECK_READY_TEXTURE
+local READY_CHECK_READY_TEXTURE_INLINE = format('|T%s:16:16:0:0:64:64:4:60:4:60|t', READY_CHECK_READY_TEXTURE)
 
 CT.CurrentTalentProfiles = {}
 
@@ -95,12 +98,13 @@ function CT:TalentProfiles()
 	ProfileMenu:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 'TOPRIGHT', 2, 0)
 	ProfileMenu:SetSize(250, 50)
 	ProfileMenu:SetShown(CT.db.isShown)
+	ProfileMenu:SetScript('OnShow', CT.TalentProfiles_Update)
 
 	ProfileMenu.Buttons = {}
 	ProfileMenu.Gradients = {}
 
-	ProfileMenu.Gradients[1] = CT:AddGradientColor(ProfileMenu, 240, 5, { 1, 1, 0 })
-	ProfileMenu.Gradients[2] = CT:AddGradientColor(ProfileMenu, 240, 5, { 1, 1, 0 })
+	ProfileMenu.Gradients[1] = CT:AddGradientColor(ProfileMenu, 240, 2, CT.ClassColor)
+	ProfileMenu.Gradients[2] = CT:AddGradientColor(ProfileMenu, 240, 2, CT.ClassColor)
 
 	ProfileMenu.Title = ProfileMenu:CreateFontString(nil, 'OVERLAY')
 	ProfileMenu.Title:SetFont(CT.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
@@ -111,7 +115,7 @@ function CT:TalentProfiles()
 	ProfileMenu.Gradients[1]:SetPoint('TOP', ProfileMenu.Title, 'BOTTOM', 0, -5)
 
 	ProfileMenu.NewButton = CreateFrame('Button', nil, ProfileMenu, 'BackdropTemplate, UIPanelButtonTemplate')
-	ProfileMenu.NewButton:SetText('New Talent Build')
+	ProfileMenu.NewButton:SetText('Save Talents')
 	ProfileMenu.NewButton:SetSize(240, 20)
 	ProfileMenu.NewButton:SetPoint('TOP', ProfileMenu.Gradients[2], 'BOTTOM', 0, -5)
 	ProfileMenu.NewButton:SetScript('OnClick', function() CT:SetupTalentPopup() end)
@@ -122,9 +126,50 @@ function CT:TalentProfiles()
 	ProfileMenu.ToggleButton:SetSize(ProfileMenu.ToggleButton.Text:GetStringWidth() + 20, 25)
 	ProfileMenu.ToggleButton:SetScript('OnClick', function() CT.db.isShown = not CT.db.isShown ProfileMenu:SetShown(CT.db.isShown) end)
 
-	CT:TalentProfiles_Update()
+	local Exchange = CreateFrame("Frame", nil, _G.PlayerTalentFrameTalents)
+	Exchange:SetSize(32, 32)
+	Exchange:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 20, -31)
+	Exchange.Status = Exchange:CreateTexture(nil, "ARTWORK")
+	Exchange.Status:SetTexture([[Interface\AddOns\ClassTactics\Media\Exchange]])
+	Exchange.Status:SetAllPoints()
+	Exchange:RegisterUnitEvent('UNIT_AURA', 'player')
+	Exchange:RegisterEvent('ZONE_CHANGED')
+	Exchange:RegisterEvent('ZONE_CHANGED_NEW_AREA')
+	Exchange:SetScript('OnEvent', CT.CanChangeTalents)
 
-	CT:SkinTalentManager()
+	CT.Exchange = Exchange
+
+	CT:TalentProfiles_Update()
+	CT:CanChangeTalents()
+end
+
+do
+	local function SpellIDPredicate(spellIDToFind, casterToFind, _, _, _, _, _, _, _, caster, _, _, spellID)
+		return (spellIDToFind == spellID)
+	end
+
+	function CT:FindAuraBySpellID(spellID, unit, filter, caster)
+		return _G.AuraUtil.FindAura(SpellIDPredicate, unit, filter, spellID, caster);
+	end
+end
+
+function CT:CanChangeTalents()
+	local isTrue
+
+	if IsResting() then
+		isTrue = true
+	end
+
+	for _, spellID in next, { 325012, 227563, 227041, 256231, 321923, 226241, 227564, 324029, 256230 } do
+		if CT:FindAuraBySpellID(spellID, "player", "HELPFUL") then
+			isTrue = true
+		end
+	end
+
+	CT.Exchange.Status:SetVertexColor(unpack(isTrue and CT.ClassColor or {1, 1, 1}))
+	CT.Exchange.Status:SetAlpha(isTrue and 1 or .3)
+
+	return isTrue
 end
 
 function CT:AddGradientColor(frame, width, height, color)
@@ -137,13 +182,13 @@ function CT:AddGradientColor(frame, width, height, color)
 	leftGrad:SetSize(gradient:GetWidth() * 0.5, gradient:GetHeight())
 	leftGrad:SetPoint('LEFT', gradient, 'CENTER')
 	leftGrad:SetTexture(CT.LSM:Fetch('background', 'Solid'))
-	leftGrad:SetGradientAlpha('Horizontal', r, g, b, 0.35, r, g, b, 0)
+	leftGrad:SetGradientAlpha('Horizontal', r, g, b, .7, r, g, b, .35)
 
 	local rightGrad = gradient:CreateTexture(nil, 'OVERLAY')
 	rightGrad:SetSize(gradient:GetWidth() * 0.5, gradient:GetHeight())
 	rightGrad:SetPoint('RIGHT', gradient, 'CENTER')
 	rightGrad:SetTexture(CT.LSM:Fetch('background', 'Solid'))
-	rightGrad:SetGradientAlpha('Horizontal', r, g, b, 0, r, g, b, 0.35)
+	rightGrad:SetGradientAlpha('Horizontal', r, g, b, .35, r, g, b, .7)
 
 	return gradient
 end
@@ -161,8 +206,6 @@ function CT:TalentProfiles_Create()
 
 	Frame.Load:SetWidth(190)
 	Frame.Load:SetPoint('LEFT', Frame, 0, 0)
-	Frame.Load:SetText('Load')
-
 	Frame.Load:SetScript('OnEnter', function() CT:SetupTalentMarkers() CT:ShowTalentMarkers(Frame.Name) end)
 	Frame.Load:SetScript('OnLeave', function() CT:HideTalentMarkers() end)
 	Frame.Load:SetScript('OnClick', function(_, btn)
@@ -174,14 +217,16 @@ function CT:TalentProfiles_Create()
 	end)
 
 	Frame.Update.Icon = Frame.Update:CreateTexture(nil, 'ARTWORK')
-	Frame.Update.Icon:SetAllPoints()
+	Frame.Update.Icon:SetPoint('TOPLEFT', 2, -2)
+	Frame.Update.Icon:SetPoint('BOTTOMRIGHT', -2, 2)
 	Frame.Update.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Update]])
 	Frame.Update:SetPoint('LEFT', Frame.Load, 'RIGHT', 5, 0)
 	Frame.Update:SetScript('OnClick', function() CT:SetupTalentPopup('overwrite', Frame.Name) end)
 
 	Frame.Delete.Icon = Frame.Delete:CreateTexture(nil, 'ARTWORK')
-	Frame.Delete.Icon:SetAllPoints()
-	Frame.Delete.Icon:SetTexture([[Interface\PaperDollInfoFrame\UI-GearManager-LeaveItem-Transparent]])
+	Frame.Delete.Icon:SetPoint('TOPLEFT', 2, -2)
+	Frame.Delete.Icon:SetPoint('BOTTOMRIGHT', -2, 2)
+	Frame.Delete.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Delete]])
 	Frame.Delete:SetPoint('LEFT', Frame.Update, 'RIGHT', 5, 0)
 	Frame.Delete:SetScript('OnClick', function() CT:SetupTalentPopup('delete', Frame.Name) end)
 
@@ -207,7 +252,7 @@ function CT:TalentProfiles_Update()
 		local Button = _G.ClassTacticsTalentProfiles.Buttons[numProfiles] or CT:TalentProfiles_Create()
 		Button:Show()
 		Button.Load:SetWidth(240)
-		Button.Load:SetText(name)
+		Button.Load:SetText(CT:IsTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
 		Button.Update:Hide()
 		Button.Delete:Hide()
 		Button.Name = name
@@ -234,7 +279,7 @@ function CT:TalentProfiles_Update()
 		numProfiles = numProfiles + 1
 		local Button = _G.ClassTacticsTalentProfiles.Buttons[numProfiles] or CT:TalentProfiles_Create()
 		Button:Show()
-		Button.Load:SetText(name)
+		Button.Load:SetText(CT:IsTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
 		Button.Name = name
 
 		if index == 1 then
@@ -252,12 +297,14 @@ function CT:TalentProfiles_Update()
 	end
 
 	local maxHeight = _G.PlayerTalentFrame:GetHeight()
-	local minHeight = (50 + (numProfiles + 1) * 25)
+	local minHeight = (45 + (numProfiles + 1) * 25)
 	if minHeight < maxHeight then
 		_G.ClassTacticsTalentProfiles:SetHeight(minHeight)
 	else
 		_G.ClassTacticsTalentProfiles:SetHeight(_G.PlayerTalentFrame:GetHeight())
 	end
+
+	CT:SkinTalentManager()
 end
 
 function CT:SetupTalentMarkers()
@@ -295,27 +342,56 @@ function CT:HideTalentMarkers()
 	end
 end
 
+function CT:IsTalentSetSelected(name)
+	local activeSpecIndex = GetSpecialization()
+	local selectedTalents = CT:GetSelectedTalents()
+
+	for talentSet, talentString in next, CT.TalentList[CT.MyClass][activeSpecIndex] do
+		local returnString = CT:GetMaximumTalentsByString(talentString)
+		if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+			return true
+		end
+	end
+
+	for talentSet, talentString in next, CT.db.talentBuilds[CT.MyClass][activeSpecIndex] do
+		local returnString = CT:GetMaximumTalentsByString(talentString)
+		if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+			return true
+		end
+	end
+
+	return false
+end
+
 function CT:SkinTalentManager()
-	if CT.AddOnSkins then
-		_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
-		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
-		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
-	elseif _G.ClassTacticsTalentProfiles.SetTemplate then
-		_G.ClassTacticsTalentProfiles:StripTextures(true)
-		_G.ClassTacticsTalentProfiles:SetTemplate('Transparent')
-		_G.ClassTacticsTalentProfiles.NewButton:StripTextures(true)
-		_G.ClassTacticsTalentProfiles.NewButton:SetTemplate('Transparent')
-		_G.ClassTacticsTalentProfiles.ToggleButton:StripTextures(true)
-		_G.ClassTacticsTalentProfiles.ToggleButton:SetTemplate('Transparent')
+	if not _G.ClassTacticsTalentProfiles.isSkinned then
+		if CT.AddOnSkins then
+			_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
+			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
+			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
+			_G.ClassTacticsTalentProfiles.isSkinned = true
+		elseif _G.ClassTacticsTalentProfiles.SetTemplate then
+			_G.ClassTacticsTalentProfiles:StripTextures(true)
+			_G.ClassTacticsTalentProfiles:SetTemplate('Transparent')
+			_G.ClassTacticsTalentProfiles.NewButton:StripTextures(true)
+			_G.ClassTacticsTalentProfiles.NewButton:SetTemplate('Transparent')
+			_G.ClassTacticsTalentProfiles.ToggleButton:StripTextures(true)
+			_G.ClassTacticsTalentProfiles.ToggleButton:SetTemplate('Transparent')
+			_G.ClassTacticsTalentProfiles.isSkinned = true
+		end
 	end
 
 	for _, Frame in ipairs(_G.ClassTacticsTalentProfiles.Buttons) do
 		for _, Button in next, {'Load', 'Delete', 'Update'} do
-			if CT.AddOnSkins then
-				_G.AddOnSkins[1]:SkinButton(Frame[Button])
-			elseif Frame[Button].SetTemplate then
-				Frame[Button]:StripTextures(true)
-				Frame[Button]:SetTemplate('Transparent')
+			if not Frame[Button].isSkinned then
+				if CT.AddOnSkins then
+					_G.AddOnSkins[1]:SkinButton(Frame[Button])
+					Frame[Button].isSkinned = true
+				elseif Frame[Button].SetTemplate then
+					Frame[Button]:StripTextures(true)
+					Frame[Button]:SetTemplate('Transparent')
+					Frame[Button].isSkinned = true
+				end
 			end
 		end
 	end

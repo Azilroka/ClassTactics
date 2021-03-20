@@ -12,6 +12,7 @@ local tinsert = tinsert
 local strsub = strsub
 local unpack = unpack
 local format = format
+local strmatch = strmatch
 
 local CopyTable = CopyTable
 local GetSpecialization = GetSpecialization
@@ -20,6 +21,7 @@ local GetTalentInfo = GetTalentInfo
 local GetTalentInfoByID = GetTalentInfoByID
 local LearnTalents = LearnTalents
 local UnitLevel = UnitLevel
+local InCombatLockdown = InCombatLockdown
 
 local TALENT_NOT_SELECTED = TALENT_NOT_SELECTED
 local MAX_TALENT_TIERS = MAX_TALENT_TIERS
@@ -167,9 +169,9 @@ function CT:GetSelectedTalents()
 	wipe(CT.CurrentTalentTable)
 
 	for tier = 1, MAX_TALENT_TIERS do
-		CT.CurrentTalentTable[tier] = ''
+		CT.CurrentTalentTable[tier] = 0
 		for column = 1, NUM_TALENT_COLUMNS do
-			local talentID, name, texture, selected, available = GetTalentInfo(tier, column, GetActiveSpecGroup())
+			local talentID, _, _, selected = GetTalentInfo(tier, column, GetActiveSpecGroup())
 			if selected then
 				CT.CurrentTalentTable[tier] = talentID
 			end
@@ -177,6 +179,24 @@ function CT:GetSelectedTalents()
 	end
 
 	return table.concat(CT.CurrentTalentTable, ',')
+end
+
+local compareTable = {}
+
+function CT:GetMaximumTalentsByString(talentString)
+	wipe(compareTable)
+	for tier = 1, MAX_TALENT_TIERS do
+		for column = 1, NUM_TALENT_COLUMNS do
+			local talentID, _, _, selected = GetTalentInfo(tier, column, GetActiveSpecGroup())
+			if selected then
+				compareTable[tier] = talentID
+			end
+		end
+	end
+
+	local compareString = table.concat(compareTable, ',')
+
+	return strmatch(talentString, compareString)
 end
 
 local talentTierLevels = { [15] = 1, [25] = 2, [30] = 3, [35] = 4, [40] = 5, [45] = 6, [50] = 7 }
