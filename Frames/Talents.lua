@@ -294,7 +294,7 @@ function CT:TalentProfiles_CheckBags()
 
 	local index = 1
 	local level = UnitLevel('player')
-	local isResting =  IsResting()
+	local isResting = IsResting()
 
 	for itemID, levelTable in next, Tomes do
 		local count = GetItemCount(itemID)
