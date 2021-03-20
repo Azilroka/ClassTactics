@@ -28,6 +28,24 @@ _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
 	enterClicksFirstButton = 1,
 }
 
+-- [id] = {minLevel, maxLevel}
+local itemList = {
+	tome = {
+		{141446, 10, 50},
+		{141640, 10, 50},
+		{143780, 10, 50},
+		{143785, 10, 50},
+		{153647, 50, 59},
+		{173049, 51, 60},
+	},
+	codex = {
+		{141333, 10, 50},
+		{141641, 10, 50},
+		{153646, 10, 59},
+		{173048, 51, 60},
+	}
+}
+
 function CT:SetupTalentPopup(setupType, name)
 	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE
 	Dialog.text = 'Enter a Name:'
