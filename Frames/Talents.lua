@@ -4,6 +4,7 @@ local _G = _G
 
 local unpack = unpack
 local tinsert = tinsert
+local tonumber = tonumber
 local next = next
 local wipe = wipe
 local select = select
@@ -13,6 +14,11 @@ local format = format
 
 local CreateFrame = CreateFrame
 local GetSpecialization = GetSpecialization
+local IsResting = IsResting
+local InCombatLockdown = InCombatLockdown
+local UnitLevel = UnitLevel
+local GetItemCount = GetItemCount
+local GetItemIcon = GetItemIcon
 
 local MAX_TALENT_TIERS = MAX_TALENT_TIERS
 local NUM_TALENT_COLUMNS = NUM_TALENT_COLUMNS
@@ -28,22 +34,18 @@ _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
 	enterClicksFirstButton = 1,
 }
 
--- [id] = {minLevel, maxLevel}
-local itemList = {
-	tome = {
-		{141446, 10, 50}, -- Tome of the Tranquil Mind (Unit Level 10-50)
-		{141640, 10, 50}, -- Tome of the Clear Mind (Unit Level 10-50)
-		{143780, 10, 50}, -- Tome of the Tranquil Mind (Unit Level 10-50)
-		{143785, 10, 50}, -- Tome of the Tranquil Mind (Unit Level 10-50)
-		{153647, 50, 59},  -- Tome of the Quiet Mind (Unit Level 10-59)
-		{173049, 51, 60}, -- Tome of the Still Mind (Unit Level 51-60)
-	},
-	codex = {
-		{141333, 10, 50}, -- Codex of the Tranquil Mind (Unit Level 10-50)
-		{141641, 10, 50}, -- Codex of the Clear Mind (Unit Level 10-50)
-		{153646, 10, 59}, -- Codex of the Quiet Mind (Unit Level 10-59)
-		{173048, 51, 60}, -- Codex of the Still Mind (Unit Level 51-60)
-	}
+local Tomes = {
+    [141640] = { min = 10, max = 50 }, -- Tome of the Clear Mind (Unit Level 10-50)
+    [141446] = { min = 10, max = 50 }, -- Tome of the Tranquil Mind (Unit Level 10-50)
+    [153647] = { min = 10, max = 59 }, -- Tome of the Quiet Mind (Unit Level 10-59)
+    [173049] = { min = 51, max = 60 }, -- Tome of the Still Mind (Unit Level 51-60)
+}
+
+local Codex = {
+    [141641] = { min = 10, max = 50 }, -- Codex of the Clear Mind (Unit Level 10-50)
+    [141333] = { min = 10, max = 50 }, -- Codex of the Tranquil Mind (Unit Level 10-50)
+    [153646] = { min = 10, max = 59 }, -- Codex of the Quiet Mind (Unit Level 10-59)
+    [173048] = { min = 51, max = 60 }, -- Codex of the Still Mind (Unit Level 51-60)
 }
 
 function CT:SetupTalentPopup(setupType, name)
@@ -91,7 +93,7 @@ end
 
 function CT:OrderedPairs(t, f)
 	local a = {}
-	for n in pairs(t) do tinsert(a, n) end
+	for n in next, t do tinsert(a, n) end
 	sort(a, f)
 	local i = 0
 	local iter = function()
@@ -117,8 +119,13 @@ function CT:TalentProfiles()
 	ProfileMenu:SetSize(250, 50)
 	ProfileMenu:SetShown(CT.db.isShown)
 	ProfileMenu:SetScript('OnShow', CT.TalentProfiles_Update)
+	ProfileMenu:RegisterEvent('BAG_UPDATE_DELAYED')
+	ProfileMenu:RegisterEvent('ZONE_CHANGED')
+	ProfileMenu:RegisterEvent('ZONE_CHANGED_NEW_AREA')
+	ProfileMenu:SetScript('OnEvent', CT.TalentProfiles_CheckBags)
 
 	ProfileMenu.Buttons = {}
+	ProfileMenu.ExtraButtons = {}
 	ProfileMenu.Gradients = {}
 
 	ProfileMenu.Gradients[1] = CT:AddGradientColor(ProfileMenu, 240, 2, CT.ClassColor)
@@ -144,25 +151,27 @@ function CT:TalentProfiles()
 	ProfileMenu.ToggleButton:SetSize(ProfileMenu.ToggleButton.Text:GetStringWidth() + 20, 25)
 	ProfileMenu.ToggleButton:SetScript('OnClick', function() CT.db.isShown = not CT.db.isShown ProfileMenu:SetShown(CT.db.isShown) end)
 
-	local Exchange = CreateFrame("Frame", nil, _G.PlayerTalentFrameTalents)
-	Exchange:SetSize(32, 32)
-	Exchange:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 20, -31)
-	Exchange.Status = Exchange:CreateTexture(nil, "ARTWORK")
-	Exchange.Status:SetTexture([[Interface\AddOns\ClassTactics\Media\Exchange]])
-	Exchange.Status:SetAllPoints()
-	Exchange:RegisterUnitEvent('UNIT_AURA', 'player')
-	Exchange:RegisterEvent('ZONE_CHANGED')
-	Exchange:RegisterEvent('ZONE_CHANGED_NEW_AREA')
-	Exchange:SetScript('OnEvent', CT.CanChangeTalents)
-
-	CT.Exchange = Exchange
+	ProfileMenu.Exchange = CreateFrame("Frame", nil, _G.PlayerTalentFrameTalents)
+	ProfileMenu.Exchange:SetSize(32, 32)
+	ProfileMenu.Exchange:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 20, -31)
+	ProfileMenu.Exchange.Status = ProfileMenu.Exchange:CreateTexture(nil, "ARTWORK")
+	ProfileMenu.Exchange.Status:SetTexture([[Interface\AddOns\ClassTactics\Media\Exchange]])
+	ProfileMenu.Exchange.Status:SetAllPoints()
+	ProfileMenu.Exchange:RegisterUnitEvent('UNIT_AURA', 'player')
+	ProfileMenu.Exchange:RegisterEvent('ZONE_CHANGED')
+	ProfileMenu.Exchange:RegisterEvent('ZONE_CHANGED_NEW_AREA')
+	ProfileMenu.Exchange:RegisterEvent('PLAYER_REGEN_DISABLED')
+	ProfileMenu.Exchange:RegisterEvent('PLAYER_REGEN_ENABLED')
+	ProfileMenu.Exchange:SetScript('OnEvent', CT.CanChangeTalents)
 
 	CT:TalentProfiles_Update()
+	CT:TalentProfiles_CheckBags()
+
 	CT:CanChangeTalents()
 end
 
 do
-	local function SpellIDPredicate(spellIDToFind, casterToFind, _, _, _, _, _, _, _, caster, _, _, spellID)
+	local function SpellIDPredicate(spellIDToFind, _, _, _, _, _, _, _, _, _, _, _, spellID)
 		return (spellIDToFind == spellID)
 	end
 
@@ -171,21 +180,25 @@ do
 	end
 end
 
-function CT:CanChangeTalents()
-	local isTrue
+function CT:CanChangeTalents(event)
+	local inCombat, isTrue = InCombatLockdown()
 
-	if IsResting() then
-		isTrue = true
-	end
-
-	for _, spellID in next, { 325012, 227563, 227041, 256231, 321923, 226241, 227564, 324029, 256230 } do
-		if CT:FindAuraBySpellID(spellID, "player", "HELPFUL") then
+	if not inCombat then
+		if IsResting() then
 			isTrue = true
+		end
+
+		if not isTrue then
+			for _, spellID in next, { 325012, 227563, 227041, 256231, 321923, 226241, 227564, 324029, 256230 } do
+				if CT:FindAuraBySpellID(spellID, "player", "HELPFUL") then
+					isTrue = true
+				end
+			end
 		end
 	end
 
-	CT.Exchange.Status:SetVertexColor(unpack(isTrue and CT.ClassColor or {1, 1, 1}))
-	CT.Exchange.Status:SetAlpha(isTrue and 1 or .3)
+	_G.ClassTacticsTalentProfiles.Exchange.Status:SetVertexColor(unpack(isTrue and CT.ClassColor or {1, 1, 1}))
+	_G.ClassTacticsTalentProfiles.Exchange.Status:SetAlpha(isTrue and 1 or .3)
 
 	return isTrue
 end
@@ -253,13 +266,77 @@ function CT:TalentProfiles_Create()
 	return Frame
 end
 
+function CT:TalentProfiles_CreateExtraButton()
+	local Button = CreateFrame("Button", nil, _G.PlayerTalentFrameTalents, "ActionButtonTemplate, InsecureActionButtonTemplate, BackdropTemplate")
+	Button:SetSize(32, 32)
+	Button:SetClampedToScreen(true)
+	Button:SetAttribute("type", "item")
+	Button:EnableMouse(true)
+	Button:RegisterForClicks("AnyUp")
+	Button:SetScript("OnEnter", function(s)
+		_G.GameTooltip:SetOwner(s, "ANCHOR_BOTTOMRIGHT")
+		_G.GameTooltip:SetItemByID(s.itemID)
+		_G.GameTooltip:Show()
+	end)
+	Button:SetScript("OnLeave", _G.GameTooltip_Hide)
+	Button:SetScript("OnEvent", function() end)
+
+	tinsert(_G.ClassTacticsTalentProfiles.ExtraButtons, Button)
+
+	return Button
+end
+
+function CT:TalentProfiles_CheckBags()
+	if InCombatLockdown() then
+		CT:RegisterEvent('PLAYER_REGEN_ENABLED', CT.TalentProfiles_CheckBags)
+		return
+	end
+
+	local index = 1
+	local level = UnitLevel('player')
+	local isResting =  IsResting()
+
+	for itemID, levelTable in next, Tomes do
+		local count = GetItemCount(itemID)
+		if count and count > 0 and levelTable.min <= level and levelTable.max >= level then
+			local Button = _G.ClassTacticsTalentProfiles.ExtraButtons[index] or CT:TalentProfiles_CreateExtraButton()
+			Button:SetAttribute("item", 'item:'..itemID)
+			Button.itemID = itemID
+			Button.Count:SetText(count)
+			Button.icon:SetTexture(GetItemIcon(itemID))
+			Button:EnableMouse(not isResting)
+
+			index = index + 1
+		end
+	end
+
+	for itemID, levelTable in next, Codex do
+		local count = GetItemCount(itemID)
+		if count and count > 0 and levelTable.min <= level and levelTable.max >= level then
+			local Button = _G.ClassTacticsTalentProfiles.ExtraButtons[index] or CT:TalentProfiles_CreateExtraButton()
+			Button:SetAttribute("item", 'item:'..itemID)
+			Button.itemID = itemID
+			Button.Count:SetText(count)
+			Button.icon:SetTexture(GetItemIcon(itemID))
+			Button:EnableMouse(not isResting)
+
+			index = index + 1
+		end
+	end
+
+	for i, Button in next, _G.ClassTacticsTalentProfiles.ExtraButtons do
+		Button:SetShown(i <= index)
+		Button:SetPoint('LEFT', i == 1 and _G.ClassTacticsTalentProfiles.Exchange or _G.ClassTacticsTalentProfiles.ExtraButtons[i - 1], 'RIGHT', 10, 0)
+	end
+end
+
 function CT:TalentProfiles_Update()
 	if not _G.ClassTacticsTalentProfiles then return end
 
 	wipe(CT.CurrentTalentProfiles)
 
 	local activeSpecIndex = GetSpecialization()
-	for name, _ in pairs(CT.TalentList[CT.MyClass][activeSpecIndex]) do tinsert(CT.CurrentTalentProfiles, name) end
+	for name, _ in next, CT.TalentList[CT.MyClass][activeSpecIndex] do tinsert(CT.CurrentTalentProfiles, name) end
 
 	sort(CT.CurrentTalentProfiles)
 
@@ -282,10 +359,6 @@ function CT:TalentProfiles_Update()
 		end
 
 		PreviousButton = Button
-	end
-
-	for i = numProfiles + 1, #_G.ClassTacticsTalentProfiles.Buttons do
-		_G.ClassTacticsTalentProfiles.Buttons[i]:Hide()
 	end
 
 	_G.ClassTacticsTalentProfiles.Gradients[2]:ClearAllPoints()
@@ -399,7 +472,7 @@ function CT:SkinTalentManager()
 		end
 	end
 
-	for _, Frame in ipairs(_G.ClassTacticsTalentProfiles.Buttons) do
+	for _, Frame in next, _G.ClassTacticsTalentProfiles.Buttons do
 		for _, Button in next, {'Load', 'Delete', 'Update'} do
 			if not Frame[Button].isSkinned then
 				if CT.AddOnSkins then
@@ -411,6 +484,22 @@ function CT:SkinTalentManager()
 					Frame[Button].isSkinned = true
 				end
 			end
+		end
+	end
+
+	for _, Button in next, _G.ClassTacticsTalentProfiles.ExtraButtons do
+		if CT.AddOnSkins then
+			_G.AddOnSkins[1]:SkinButton(Button)
+			_G.AddOnSkins[1]:SkinTexture(Button.icon)
+			_G.AddOnSkins[1]:SetInside(Button.icon)
+			Button.isSkinned = true
+		elseif Button.SetTemplate then
+			local icon = Button.icon:GetTexture()
+			Button:StripTextures()
+			Button:CreateBackdrop()
+			Button.icon:SetTexture(icon)
+			Button.icon:SetTexCoord(unpack(CT.TexCoords))
+			Button.isSkinned = true
 		end
 	end
 end
