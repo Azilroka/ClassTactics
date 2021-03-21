@@ -111,7 +111,7 @@ end
 
 function CT:TalentProfiles()
 	local ProfileMenu = CreateFrame('Frame', 'ClassTacticsTalentProfiles', _G.PlayerTalentFrameTalents, 'BackdropTemplate')
-	ProfileMenu:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 'TOPRIGHT', 2, 0)
+	ProfileMenu:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 'TOPRIGHT', 2, -1)
 	ProfileMenu:SetSize(250, 50)
 	ProfileMenu:SetShown(CT.db.isShown)
 	ProfileMenu:SetScript('OnShow', CT.TalentProfiles_Update)
