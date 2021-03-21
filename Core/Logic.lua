@@ -219,22 +219,10 @@ function CT:GetSelectedPvPTalents()
 end
 
 function CT:SetPvPTalentsByName(name)
-	local savedPvPTalents =  tInvert({ CT:GetPvPTalentIDByString(CT.MyClass, GetSpecialization(), name) })
-	local currentPvPTalents = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
-	local usedIndexes, index = {}, 1
+	local savedPvPTalents = tInvert({ CT:GetPvPTalentIDByString(CT.MyClass, GetSpecialization(), name) })
 
-	for i, talentID in next, currentPvPTalents do
-		if savedPvPTalents[tostring(talentID)] then
-			savedPvPTalents[tostring(talentID)] = nil
-			usedIndexes[i] = true
-		end
-	end
-
-	for talentID in next, savedPvPTalents do
-		if not usedIndexes[index] then
-			LearnPvpTalent(talentID, index)
-		end
-		index = index + 1
+	for talentID, index in next, savedPvPTalents do
+		LearnPvpTalent(talentID, index)
 	end
 end
 

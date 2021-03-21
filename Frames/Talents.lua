@@ -42,19 +42,18 @@ _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
 	enterClicksFirstButton = 1,
 }
 
-local ExchangeTable = {
-	Tomes = {
-		[141640] = { min = 10, max = 50 }, -- Tome of the Clear Mind (Unit Level 10-50)
-		[141446] = { min = 10, max = 50 }, -- Tome of the Tranquil Mind (Unit Level 10-50)
-		[153647] = { min = 10, max = 59 }, -- Tome of the Quiet Mind (Unit Level 10-59)
-		[173049] = { min = 51, max = 60 }, -- Tome of the Still Mind (Unit Level 51-60)
-	},
-	Codex = {
-		[141641] = { min = 10, max = 50 }, -- Codex of the Clear Mind (Unit Level 10-50)
-		[141333] = { min = 10, max = 50 }, -- Codex of the Tranquil Mind (Unit Level 10-50)
-		[153646] = { min = 10, max = 59 }, -- Codex of the Quiet Mind (Unit Level 10-59)
-		[173048] = { min = 51, max = 60 }, -- Codex of the Still Mind (Unit Level 51-60)
-	}
+local Tomes = {
+	[141640] = { min = 10, max = 50 }, -- Tome of the Clear Mind (Unit Level 10-50)
+	[141446] = { min = 10, max = 50 }, -- Tome of the Tranquil Mind (Unit Level 10-50)
+	[153647] = { min = 10, max = 59 }, -- Tome of the Quiet Mind (Unit Level 10-59)
+	[173049] = { min = 51, max = 60 }, -- Tome of the Still Mind (Unit Level 51-60)
+}
+
+local Codex = {
+	[141641] = { min = 10, max = 50 }, -- Codex of the Clear Mind (Unit Level 10-50)
+	[141333] = { min = 10, max = 50 }, -- Codex of the Tranquil Mind (Unit Level 10-50)
+	[153646] = { min = 10, max = 59 }, -- Codex of the Quiet Mind (Unit Level 10-59)
+	[173048] = { min = 51, max = 60 }, -- Codex of the Still Mind (Unit Level 51-60)
 }
 
 function CT:SetupTalentPopup(setupType, funcSetup, name)
@@ -333,11 +332,12 @@ function CT:TalentProfiles_CheckBags()
 	local level = UnitLevel('player')
 	local isResting = IsResting()
 
-	for _, itemTable in next, ExchangeTable do
+	for itemType, itemTable in next, { Tomes, Codex } do
 		for itemID, levelTable in next, itemTable do
 			local count = GetItemCount(itemID)
 			if count and count > 0 and levelTable.min <= level and levelTable.max >= level then
 				local Button = _G.ClassTacticsTalentProfiles.ExtraButtons[index] or CT:TalentProfiles_CreateExtraButton()
+				Button:SetShown(itemType == 1 or itemType == 2 and IsInGroup())
 				Button:SetAttribute("item", 'item:'..itemID)
 				Button.itemID = itemID
 				Button.Count:SetText(count)
@@ -351,8 +351,7 @@ function CT:TalentProfiles_CheckBags()
 	end
 
 	for i, Button in next, _G.ClassTacticsTalentProfiles.ExtraButtons do
-		Button:SetShown(i <= index)
-		Button:SetPoint('LEFT', i == 1 and _G.ClassTacticsTalentProfiles.Exchange or _G.ClassTacticsTalentProfiles.ExtraButtons[i - 1], 'RIGHT', 10, 0)
+		Button:SetPoint('LEFT', i == 1 and _G.ClassTacticsTalentProfiles.Exchange or _G.ClassTacticsTalentProfiles.ExtraButtons[i - 1], 'RIGHT', i == 1 and 27 or 2, 0)
 	end
 end
 
@@ -514,18 +513,10 @@ end
 
 function CT:IsPvPTalentSetSelected(name)
 	local activeSpecIndex = GetSpecialization()
-	local selectedTalents = CT:GetSelectedTalents()
+	local selectedTalents = CT:GetSelectedPvPTalents()
 
-	for talentSet, talentString in next, CT.TalentList[CT.MyClass][activeSpecIndex] do
-		local returnString = CT:GetMaximumTalentsByString(talentString)
-		if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
-			return true
-		end
-	end
-
-	for talentSet, talentString in next, CT.db.talentBuilds[CT.MyClass][activeSpecIndex] do
-		local returnString = CT:GetMaximumTalentsByString(talentString)
-		if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+	for talentSet, talentString in next, CT.db.talentBuildsPvP[CT.MyClass][activeSpecIndex] do
+		if talentSet == name and selectedTalents == talentString then
 			return true
 		end
 	end
