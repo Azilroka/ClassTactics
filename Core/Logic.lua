@@ -68,7 +68,6 @@ function CT:DecodeData(dataString)
 		return
 	end
 
-
 	local decodedData = CT.Base64:Decode(dataString)
 	local decompressedData = CT.Compress:Decompress(decodedData)
 
@@ -77,7 +76,7 @@ function CT:DecodeData(dataString)
 	end
 
 	local serializedData, nameKey = CT:SplitString(decompressedData, '^^::') -- '^^' indicates the end of the AceSerializer string
-	local name, dbKey = strsplit('\a', nameKey, 1)
+	local name, dbKey = strsplit('\a', nameKey, 2)
 	serializedData = format('%s%s', serializedData, '^^') --Add back the AceSerializer terminator
 	local success, data = CT:Deserialize(serializedData)
 
@@ -108,7 +107,7 @@ function CT:ExportData(name, dbKey)
 	end
 
 	local serialData = CT:Serialize(data)
-	local exportString = format('%s::%s:%s', serialData, name, dbKey)
+	local exportString = format('%s::%s\a%s', serialData, name, dbKey)
 	local compressedData = CT.Compress:Compress(exportString)
 	local encodedData = CT.Base64:Encode(compressedData)
 
@@ -190,7 +189,7 @@ function CT:GetMaximumTalentsByString(talentString)
 	for tier = 1, MAX_TALENT_TIERS do
 		for column = 1, NUM_TALENT_COLUMNS do
 			local talentID, _, _, selected = GetTalentInfo(tier, column, GetActiveSpecGroup())
-			if selected then
+			if not compareTable[tier] and selected then
 				compareTable[tier] = talentID
 			end
 		end
@@ -228,21 +227,9 @@ end
 
 function CT:ApplyPvPTalents(classTag, specGroup, name)
 	local savedPvPTalents =  tInvert({ CT:GetPvPTalentIDByString(classTag, specGroup, name) })
-	local currentPvPTalents = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
-	local usedIndexes, index = {}, 1
 
-	for i, talentID in next, currentPvPTalents do
-		if savedPvPTalents[talentID] then
-			savedPvPTalents[talentID] = nil
-			usedIndexes[i] = true
-		end
-	end
-
-	for talentID in next, savedPvPTalents do
-		if not usedIndexes[index] then
-			LearnPvpTalent(talentID, index)
-		end
-		index = index + 1
+	for talentID, index in next, savedPvPTalents do
+		LearnPvpTalent(talentID, index)
 	end
 end
 

@@ -3,6 +3,8 @@ local CT = unpack(_G.ClassTactics)
 local _G = _G
 
 local sort = sort
+local strjoin = strjoin
+local strsplit = strsplit
 local select = select
 local next = next
 
@@ -18,7 +20,7 @@ local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local ClassAlphabeticalOrder = CopyTable(CLASS_SORT_ORDER)
 local ClassNumericalOrder = {}
 for i = 1, GetNumClasses() do
-	local className, classTag, classID = GetClassInfo(i)
+	local _, classTag, classID = GetClassInfo(i)
 	ClassNumericalOrder[classTag] = classID
 end
 
@@ -77,7 +79,7 @@ function CT:BuildProfile()
 
 	CT.db.autoTalents[CT.MyRealm][CT.MyName].classTag = CT.MyClass
 
-	for classTag, classID in next, ClassNumericalOrder do
+	for _, classID in next, ClassNumericalOrder do
 		for k = 1, GetNumSpecializationsForClassID(classID) do
 			if not CT.db.autoTalents[CT.MyRealm][CT.MyName][k] then
 				CT.db.autoTalents[CT.MyRealm][CT.MyName][k] = 'None'
@@ -108,7 +110,14 @@ function CT:GetTalentBuildOptions(classTag, specIndex)
 	return values
 end
 
+local importName, importData, importKey, importType, importValue
+
 function CT:BuildOptions()
+	CT.Options.args.Import = ACH:Group('Import', nil, 0.1)
+	CT.Options.args.Import.args.Input = ACH:Input('Import', nil, 0, 5, 'full', function() return importValue end, function(info, value) importValue = value importName, importData, importKey = CT:DecodeData(value) importType = strsplit('\a', importKey) end)
+	CT.Options.args.Import.args.Preview = ACH:Group('Preview', nil, 1)
+	CT.Options.args.Import.args.Preview.inline = true
+
 	CT.Options.args.general.args.AutoTalent = ACH:Group('Auto Talents', nil, 1)
 
 	for realm, playerInfo in next, CT.db.autoTalents do
@@ -178,8 +187,8 @@ function CT:BuildOptions()
 			specOption.args.PvPTalents = ACH:Group('PvP Talents')
 			specOption.args.PvPTalents.args.Preview = ACH:Group('Preview', nil, 0)
 			specOption.args.PvPTalents.args.Preview.inline = true
-			specOption.args.PvPTalents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -2, function() CT:ApplyTalents(classTag, specGroup, CT.db[classTag][specGroup].selectedPvPTalentBuild) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= specGroup)) end)
-			specOption.args.PvPTalents.args.Preview.args.ExportTalents = ACH:Input('Export Talents', nil, -1, 5, 'full', function() local name, dbKey = CT.db[classTag][specGroup].selectedPvPTalentBuild, strjoin('\a', 'talentBuildsPvP', classTag, specGroup) return CT:ExportData(name, dbKey) end, nil, nil, function() return CT.TalentList[classTag][specGroup][CT.db[classTag][specGroup].selectedTalentBuild] end)
+			specOption.args.PvPTalents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -2, function() CT:ApplyPvPTalents(classTag, specGroup, CT.db[classTag][specGroup].selectedPvPTalentBuild) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= specGroup)) end)
+			specOption.args.PvPTalents.args.Preview.args.ExportTalents = ACH:Input('Export Talents', nil, -1, 5, 'full', function() local name, dbKey = CT.db[classTag][specGroup].selectedPvPTalentBuild, strjoin('\a', 'talentBuildsPvP', classTag, specGroup) return CT:ExportData(name, dbKey) end, nil, nil, function() return not CT.db.talentBuildsPvP[classTag][specGroup][CT.db[classTag][specGroup].selectedPvPTalentBuild] end)
 
 			for v = 1, 3 do
 				specOption.args.PvPTalents.args.Preview.args['talent'..v] = ACH:Execute(function() local talentID = select(v, CT:GetPvPTalentIDByString(classTag, specGroup, CT.db[classTag][specGroup].selectedPvPTalentBuild)) return select(2, CT:GetPvPTalentInfoByID(talentID)) end, nil, v, nil, function() local talentID = select(v, CT:GetPvPTalentIDByString(classTag, specGroup, CT.db[classTag][specGroup].selectedPvPTalentBuild)) return select(3, CT:GetPvPTalentInfoByID(talentID)) end, nil, .75)
