@@ -9,11 +9,20 @@ local next = next
 
 local menuList = {}
 
-local function OnEvent(self)
-	local selectedTalentSet
-	local specIndex = GetSpecialization()
+local specIndex
 
-	if specIndex then
+local function OnEvent(self)
+	specIndex = GetSpecialization()
+end
+
+local function OnUpdate(self, t)
+	self.timeElapsed = (self.timeElapsed or 1) - t
+	if self.timeElapsed > 0 then return end
+	self.timeElapsed = 1
+
+	local selectedTalentSet
+
+	if specIndex and CT.db then
 		for talentName in next, CT.TalentList[E.myclass][specIndex] do
 			if CT:IsTalentSetSelected(talentName) then
 				selectedTalentSet = talentName
@@ -31,11 +40,10 @@ local function OnEvent(self)
 		end
 	end
 
-	self.text:SetText(selectedTalentSet)
+	self.text:SetText(selectedTalentSet or 'Talent Manager')
 end
 
 local function OnClick(self)
-	local specIndex = GetSpecialization()
 	if not specIndex then return end
 
 	DT:SetEasyMenuAnchor(DT.EasyMenu, self)
@@ -69,4 +77,4 @@ local function OnClick(self)
 	_G.EasyMenu(menuList, DT.EasyMenu, nil, nil, nil, 'MENU')
 end
 
-DT:RegisterDatatext('ClassTactics Talent Manager', 'ClassTactics', {'PLAYER_TALENT_UPDATE', 'ACTIVE_TALENT_GROUP_CHANGED'}, OnEvent, nil, OnClick, nil, nil, "Talent Manager")
+DT:RegisterDatatext('ClassTactics Talent Manager', 'ClassTactics', { 'PLAYER_TALENT_UPDATE', 'ACTIVE_TALENT_GROUP_CHANGED' }, OnEvent, OnUpdate, OnClick, nil, nil, "Talent Manager")
