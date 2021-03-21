@@ -162,7 +162,7 @@ function CT:TalentProfiles()
 	ProfileMenu.Exchange:SetScript('OnEvent', CT.CanChangeTalents)
 
 	ProfileMenu.PvPTalents = CreateFrame('Frame', 'ClassTacticsTalentPvPProfiles', _G.ClassTacticsTalentProfiles, 'BackdropTemplate')
-	ProfileMenu.PvPTalents:SetPoint('TOPLEFT', _G.ClassTacticsTalentProfiles, 'TOPRIGHT', 2, 0)
+	ProfileMenu.PvPTalents:SetPoint('TOPLEFT', _G.ClassTacticsTalentProfiles, 'TOPRIGHT', 3, 0)
 	ProfileMenu.PvPTalents:SetSize(250, 50)
 	ProfileMenu.PvPTalents:SetShown(CT.db.isShown)
 
