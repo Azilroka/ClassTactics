@@ -15,7 +15,6 @@ local select = select
 local tonumber = tonumber
 local type = type
 local format = format
-local unpack = unpack
 
 local CreateFrame = CreateFrame
 local GetAddOnEnableState = GetAddOnEnableState

@@ -72,6 +72,7 @@ function CT:BuildProfile()
 	CT.data = _G.LibStub('AceDB-3.0'):New('ClassTacticsDB', Defaults, true)
 	CT.data.RegisterCallback(CT, 'OnProfileChanged', 'SetupProfile')
 	CT.data.RegisterCallback(CT, 'OnProfileCopied', 'SetupProfile')
+
 	CT.db = CT.data.profile
 
 	CT.db.autoTalents[CT.MyRealm][CT.MyName].classTag = CT.MyClass

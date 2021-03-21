@@ -16,6 +16,8 @@ function CT:Init(event, addon)
 
 	if IsAddOnLoaded('Blizzard_TalentUI') then
 		CT:ADDON_LOADED('ADDON_LOADED', 'Blizzard_TalentUI')
+	else
+		CT:RegisterEvent('ADDON_LOADED')
 	end
 end
 
@@ -27,4 +29,3 @@ function CT:ADDON_LOADED(event, addon)
 end
 
 CT:RegisterEvent('PLAYER_ENTERING_WORLD', 'Init')
-CT:RegisterEvent('ADDON_LOADED')
