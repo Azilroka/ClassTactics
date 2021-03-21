@@ -47,6 +47,7 @@ function CT:BuildProfile()
 			isShown = true,
 			autoTalent = true,
 			talentBuilds = {},
+			talentBuildsPvP = {},
 			macros = {},
 			autoTalents = {
 				[CT.MyRealm] = {
@@ -59,10 +60,12 @@ function CT:BuildProfile()
 	for classTag, classID in next, ClassNumericalOrder do
 		Defaults.profile[classTag] = {}
 		Defaults.profile.talentBuilds[classTag] = {}
+		Defaults.profile.talentBuildsPvP[classTag] = {}
 
 		for k = 1, GetNumSpecializationsForClassID(classID) do
-			Defaults.profile[classTag][k] = { selectedTalentBuild = 'Leveling' }
+			Defaults.profile[classTag][k] = { selectedTalentBuild = 'Leveling', selectedPvPTalentBuild = 'Custom' }
 			Defaults.profile.talentBuilds[classTag][k] = {}
+			Defaults.profile.talentBuildsPvP[classTag][k] = {}
 		end
 	end
 
@@ -116,7 +119,7 @@ function CT:BuildOptions()
 			playerOption.inline = true
 
 			for k = 1, GetNumSpecializationsForClassID(ClassNumericalOrder[option.classTag]) do
-				local specID, specName, _, _, role = GetSpecializationInfoForClassID(ClassNumericalOrder[option.classTag], k, 0);
+				local _, specName = GetSpecializationInfoForClassID(ClassNumericalOrder[option.classTag], k, 0);
 				playerOption.args[''..k]= ACH:Select(specName, nil, k, function() return CT:GetTalentBuildOptions(option.classTag, k) end, nil, nil, function() return CT.db.autoTalents[realm][player][k] end, function(_, value) CT.db.autoTalents[realm][player][k] = value end)
 			end
 
@@ -138,7 +141,7 @@ function CT:BuildOptions()
 		end
 
 		for specGroup = 1, GetNumSpecializationsForClassID(classID) do
-			local specID, specName, _, _, role = GetSpecializationInfoForClassID(classID, specGroup, 0);
+			local _, specName = GetSpecializationInfoForClassID(classID, specGroup, 0);
 			local specOption = ACH:Group(specName, nil, specGroup, 'tree')
 
 			specOption.args.Macros = ACH:Group('Macros')
@@ -169,6 +172,24 @@ function CT:BuildOptions()
 			for talentName in next, CT.db.talentBuilds[classTag][specGroup] do
 				specOption.args.Talents.args.Custom.values[talentName] = talentName
 				specOption.args.Talents.args.Custom.hidden = false
+			end
+
+			specOption.args.PvPTalents = ACH:Group('PvP Talents')
+			specOption.args.PvPTalents.args.Preview = ACH:Group('Preview', nil, 0)
+			specOption.args.PvPTalents.args.Preview.inline = true
+			specOption.args.PvPTalents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -2, function() CT:ApplyTalents(classTag, specGroup, CT.db[classTag][specGroup].selectedPvPTalentBuild) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= specGroup)) end)
+			specOption.args.PvPTalents.args.Preview.args.ExportTalents = ACH:Input('Export Talents', nil, -1, 5, 'full', function() local name, dbKey = CT.db[classTag][specGroup].selectedPvPTalentBuild, strjoin('\a', 'talentBuildsPvP', classTag, specGroup) return CT:ExportData(name, dbKey) end, nil, nil, function() return CT.TalentList[classTag][specGroup][CT.db[classTag][specGroup].selectedTalentBuild] end)
+
+			for v = 1, 3 do
+				specOption.args.PvPTalents.args.Preview.args['talent'..v] = ACH:Execute(function() local talentID = select(v, CT:GetPvPTalentIDByString(classTag, specGroup, CT.db[classTag][specGroup].selectedPvPTalentBuild)) return select(2, CT:GetPvPTalentInfoByID(talentID)) end, nil, v, nil, function() local talentID = select(v, CT:GetPvPTalentIDByString(classTag, specGroup, CT.db[classTag][specGroup].selectedPvPTalentBuild)) return select(3, CT:GetPvPTalentInfoByID(talentID)) end, nil, .75)
+				specOption.args.PvPTalents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
+			end
+
+			specOption.args.PvPTalents.args.Custom = ACH:MultiSelect('Custom', nil, 2, {}, nil, nil, function(_, key) return CT.db[classTag][specGroup].selectedPvPTalentBuild == key end, function(_, key) CT.db[classTag][specGroup].selectedPvPTalentBuild = key end, nil, true)
+
+			for talentName in next, CT.db.talentBuildsPvP[classTag][specGroup] do
+				specOption.args.PvPTalents.args.Custom.values[talentName] = talentName
+				specOption.args.PvPTalents.args.Custom.hidden = false
 			end
 
 			CT.Options.args[classTag].args[''..specGroup] = specOption

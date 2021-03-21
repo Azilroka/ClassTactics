@@ -28,10 +28,17 @@ local READY_CHECK_READY_TEXTURE_INLINE = format('|T%s:16:16:0:0:64:64:4:60:4:60|
 CT.CurrentTalentProfiles = {}
 
 CT.EasyMenu = CreateFrame('Frame', 'ClassTacticsEasyMenu', UIParent, 'UIDropDownMenuTemplate')
+
 CT.MenuList = {
 	{ text = 'Update', func = function(_, _, name) CT:SaveTalentBuild(name) end, arg1 = 'update', notCheckable = true},
 	{ text = 'Rename', func = function(_, setupType, name) CT:SetupTalentPopup(setupType, name) end, arg1 = 'rename', notCheckable = true},
 	{ text = 'Delete', func = function(_, setupType, name) CT:SetupTalentPopup(setupType, name) end, arg1 = 'delete', notCheckable = true},
+}
+
+CT.MenuListPvP = {
+	{ text = 'Update', func = function(_, _, name) CT:SavePvPTalentBuild(name) end, arg1 = 'update', notCheckable = true},
+	{ text = 'Rename', func = function(_, setupType, name) CT:SetupPvPTalentPopup(setupType, name) end, arg1 = 'rename', notCheckable = true},
+	{ text = 'Delete', func = function(_, setupType, name) CT:SetupPvPTalentPopup(setupType, name) end, arg1 = 'delete', notCheckable = true},
 }
 
 _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
@@ -98,6 +105,49 @@ function CT:SetupTalentPopup(setupType, name)
 	_G.StaticPopup_Show('CLASSTACTICS_TALENTPROFILE')
 end
 
+function CT:SetupPvPTalentPopup(setupType, name)
+	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE
+	Dialog.text = 'Enter a Name:'
+	Dialog.button1 = 'Create'
+	Dialog.hasEditBox = 1
+	Dialog.OnAccept = function(s) CT:SavePvPTalentBuild(s.editBox:GetText()) end
+	Dialog.EditBoxOnEnterPressed = function(s) CT:SavePvPTalentBuild(s:GetText()) s:GetParent():Hide() end
+	Dialog.EditBoxOnEscapePressed = function(s) s:GetParent():Hide() end
+
+	if setupType == 'delete' then
+		Dialog.hasEditBox = nil
+		Dialog.button1 = 'Delete'
+		Dialog.text = format('Are you sure you want to delete %s?', name)
+		Dialog.OnAccept = function()
+			CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][name] = nil
+			CT:UpdateOptions()
+			CT:TalentProfiles_Update()
+		end
+	elseif setupType == 'rename' then
+		Dialog.button1 = 'Update'
+		Dialog.OnAccept = function(s)
+			CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][name] = nil
+			CT:SavePvPTalentBuild(s.editBox:GetText())
+			CT:UpdateOptions()
+			CT:TalentProfiles_Update()
+		end
+		Dialog.EditBoxOnEnterPressed = function(s)
+			CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][name] = nil
+			CT:SavePvPTalentBuild(s:GetText())
+			CT:UpdateOptions()
+			CT:TalentProfiles_Update()
+			s:GetParent():Hide()
+		end
+		Dialog.OnShow = function(s)
+			s.editBox:SetAutoFocus(false)
+			s.editBox:SetText(name)
+			s.editBox:HighlightText()
+		end
+	end
+
+	_G.StaticPopup_Show('CLASSTACTICS_TALENTPROFILE')
+end
+
 function CT:OrderedPairs(t, f)
 	local a = {}
 	for n in next, t do tinsert(a, n) end
@@ -115,6 +165,14 @@ end
 function CT:SaveTalentBuild(text)
 	local activeSpecIndex = GetSpecialization()
 	CT.db.talentBuilds[CT.MyClass][activeSpecIndex][text] = CT:GetSelectedTalents()
+
+	CT:TalentProfiles_Update()
+	CT:UpdateOptions()
+end
+
+function CT:SavePvPTalentBuild(text)
+	local activeSpecIndex = GetSpecialization()
+	CT.db.talentBuildsPvP[CT.MyClass][activeSpecIndex][text] = CT:GetSelectedPvPTalents()
 
 	CT:TalentProfiles_Update()
 	CT:UpdateOptions()
@@ -170,6 +228,29 @@ function CT:TalentProfiles()
 	ProfileMenu.Exchange:RegisterEvent('PLAYER_REGEN_DISABLED')
 	ProfileMenu.Exchange:RegisterEvent('PLAYER_REGEN_ENABLED')
 	ProfileMenu.Exchange:SetScript('OnEvent', CT.CanChangeTalents)
+
+	ProfileMenu.PvPTalents = CreateFrame('Frame', 'ClassTacticsTalentPvPProfiles', _G.ClassTacticsTalentProfiles, 'BackdropTemplate')
+	ProfileMenu.PvPTalents:SetPoint('TOPLEFT', _G.ClassTacticsTalentProfiles, 'TOPRIGHT', 2, 0)
+	ProfileMenu.PvPTalents:SetSize(250, 50)
+	ProfileMenu.PvPTalents:SetShown(CT.db.isShown)
+
+	ProfileMenu.PvPTalents.Buttons = {}
+	ProfileMenu.PvPTalents.Gradients = {}
+	ProfileMenu.PvPTalents.Gradients[1] = CT:AddGradientColor(ProfileMenu, 240, 2, CT.ClassColor)
+
+	ProfileMenu.PvPTalents.Title = ProfileMenu.PvPTalents:CreateFontString(nil, 'OVERLAY')
+	ProfileMenu.PvPTalents.Title:SetFont(CT.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
+	ProfileMenu.PvPTalents.Title:SetText('PvP Profiles')
+	ProfileMenu.PvPTalents.Title:SetPoint('TOP', 0, -5)
+	ProfileMenu.PvPTalents.Title:SetJustifyH('CENTER')
+
+	ProfileMenu.PvPTalents.Gradients[1]:SetPoint('TOP', ProfileMenu.PvPTalents.Title, 'BOTTOM', 0, -5)
+
+	ProfileMenu.PvPTalents.NewButton = CreateFrame('Button', nil, ProfileMenu.PvPTalents, 'BackdropTemplate, UIPanelButtonTemplate')
+	ProfileMenu.PvPTalents.NewButton:SetText('Save Talents')
+	ProfileMenu.PvPTalents.NewButton:SetSize(240, 20)
+	ProfileMenu.PvPTalents.NewButton:SetPoint('TOP', ProfileMenu.PvPTalents.Gradients[1], 'BOTTOM', 0, -5)
+	ProfileMenu.PvPTalents.NewButton:SetScript('OnClick', function() CT:SetupPvPTalentPopup() end)
 
 	CT:TalentProfiles_Update()
 	CT:TalentProfiles_CheckBags()
@@ -233,10 +314,16 @@ end
 
 function CT:SetEasyMenuAnchor(button, name)
 	UIDropDownMenu_SetAnchor(CT.EasyMenu, 3, 0, 'TOPLEFT', button, 'TOPRIGHT')
+end
 
+function CT:SetEasyMenu_Talents(name)
 	CT.MenuList[1].arg2, CT.MenuList[2].arg2, CT.MenuList[3].arg2 = name, name, name
-
 	EasyMenu(CT.MenuList, CT.EasyMenu, nil, nil, nil, 'MENU')
+end
+
+function CT:SetEasyMenu_PvPTalents(name)
+	CT.MenuListPvP[1].arg2, CT.MenuListPvP[2].arg2, CT.MenuListPvP[3].arg2 = name, name, name
+	EasyMenu(CT.MenuListPvP, CT.EasyMenu, nil, nil, nil, 'MENU')
 end
 
 function CT:TalentProfiles_Create()
@@ -261,9 +348,36 @@ function CT:TalentProfiles_Create()
 	Frame.Options.Icon:SetPoint('BOTTOMRIGHT', -2, 2)
 	Frame.Options.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Options]])
 	Frame.Options:SetPoint('LEFT', Frame.Load, 'RIGHT', 5, 0)
-	Frame.Options:SetScript('OnClick', function(s) CT:SetEasyMenuAnchor(s, Frame.Name) end)
+	Frame.Options:SetScript('OnClick', function(s) CT:SetEasyMenuAnchor(s, Frame.Name) CT:SetEasyMenu_Talents(Frame.Name) end)
 
 	tinsert(_G.ClassTacticsTalentProfiles.Buttons, Frame)
+
+	return Frame
+end
+
+function CT:PvPTalentProfiles_Create()
+	local Frame = CreateFrame('Frame', nil, _G.ClassTacticsTalentProfiles.PvPTalents)
+	Frame:SetSize(250, 20)
+	Frame:Hide()
+
+	for _, Button in next, { 'Load', 'Options' } do
+		Frame[Button] = CreateFrame('Button', nil, Frame, 'BackdropTemplate, UIPanelButtonTemplate')
+		Frame[Button]:SetSize(20, 20)
+		Frame[Button]:RegisterForClicks('AnyDown')
+	end
+
+	Frame.Load:SetWidth(215)
+	Frame.Load:SetPoint('LEFT', Frame, 0, 0)
+	Frame.Load:SetScript('OnClick', function() CT:SetPvPTalentsByName(Frame.Name) end)
+
+	Frame.Options.Icon = Frame.Options:CreateTexture(nil, 'ARTWORK')
+	Frame.Options.Icon:SetPoint('TOPLEFT', 2, -2)
+	Frame.Options.Icon:SetPoint('BOTTOMRIGHT', -2, 2)
+	Frame.Options.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Options]])
+	Frame.Options:SetPoint('LEFT', Frame.Load, 'RIGHT', 5, 0)
+	Frame.Options:SetScript('OnClick', function(s) CT:SetEasyMenuAnchor(s, Frame.Name) CT:SetEasyMenu_PvPTalents(Frame.Name) end)
+
+	tinsert(_G.ClassTacticsTalentProfiles.PvPTalents.Buttons, Frame)
 
 	return Frame
 end
@@ -398,6 +512,36 @@ function CT:TalentProfiles_Update()
 		_G.ClassTacticsTalentProfiles:SetHeight(_G.PlayerTalentFrame:GetHeight())
 	end
 
+	-- PvP Saved
+	local pvpIndex = 1
+	for name in CT:OrderedPairs(CT.db.talentBuildsPvP[CT.MyClass][activeSpecIndex]) do
+		local Button = _G.ClassTacticsTalentProfiles.PvPTalents.Buttons[pvpIndex] or CT:PvPTalentProfiles_Create()
+		Button:Show()
+		Button.Load:SetText(CT:IsPvPTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
+		Button.Name = name
+
+		if pvpIndex == 1 then
+			Button:SetPoint('TOPLEFT', _G.ClassTacticsTalentProfiles.PvPTalents.NewButton, 'BOTTOMLEFT', 0, -5)
+		else
+			Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -5)
+		end
+
+		PreviousButton = Button
+		pvpIndex = pvpIndex + 1
+	end
+
+	for i = pvpIndex + 1, #_G.ClassTacticsTalentProfiles.PvPTalents.Buttons do
+		_G.ClassTacticsTalentProfiles.PvPTalents.Buttons[i]:Hide()
+	end
+
+	maxHeight = _G.PlayerTalentFrame:GetHeight()
+	minHeight = (45 + (pvpIndex + 1) * 25)
+	if minHeight < maxHeight then
+		_G.ClassTacticsTalentProfiles.PvPTalents:SetHeight(minHeight)
+	else
+		_G.ClassTacticsTalentProfiles.PvPTalents:SetHeight(_G.PlayerTalentFrame:GetHeight())
+	end
+
 	CT:SkinTalentManager()
 end
 
@@ -457,16 +601,41 @@ function CT:IsTalentSetSelected(name)
 	return false
 end
 
+function CT:IsPvPTalentSetSelected(name)
+	local activeSpecIndex = GetSpecialization()
+	local selectedTalents = CT:GetSelectedTalents()
+
+	for talentSet, talentString in next, CT.TalentList[CT.MyClass][activeSpecIndex] do
+		local returnString = CT:GetMaximumTalentsByString(talentString)
+		if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+			return true
+		end
+	end
+
+	for talentSet, talentString in next, CT.db.talentBuilds[CT.MyClass][activeSpecIndex] do
+		local returnString = CT:GetMaximumTalentsByString(talentString)
+		if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+			return true
+		end
+	end
+
+	return false
+end
+
 function CT:SkinTalentManager()
 	if not _G.ClassTacticsTalentProfiles.isSkinned then
 		if CT.AddOnSkins then
 			_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
+			_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentPvPProfiles)
 			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
+			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentPvPProfiles.NewButton)
 			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
 			_G.ClassTacticsTalentProfiles.isSkinned = true
 		elseif _G.ClassTacticsTalentProfiles.SetTemplate then
 			_G.ClassTacticsTalentProfiles:StripTextures(true)
 			_G.ClassTacticsTalentProfiles:SetTemplate('Transparent')
+			_G.ClassTacticsTalentPvPProfiles:StripTextures(true)
+			_G.ClassTacticsTalentPvPProfiles:SetTemplate('Transparent')
 			_G.ClassTacticsTalentProfiles.NewButton:StripTextures(true)
 			_G.ClassTacticsTalentProfiles.NewButton:SetTemplate('Transparent')
 			_G.ClassTacticsTalentProfiles.ToggleButton:StripTextures(true)
@@ -476,6 +645,21 @@ function CT:SkinTalentManager()
 	end
 
 	for _, Frame in next, _G.ClassTacticsTalentProfiles.Buttons do
+		for _, Button in next, { 'Load', 'Options' } do
+			if not Frame[Button].isSkinned then
+				if CT.AddOnSkins then
+					_G.AddOnSkins[1]:SkinButton(Frame[Button])
+					Frame[Button].isSkinned = true
+				elseif Frame[Button].SetTemplate then
+					Frame[Button]:StripTextures(true)
+					Frame[Button]:SetTemplate('Transparent')
+					Frame[Button].isSkinned = true
+				end
+			end
+		end
+	end
+
+	for _, Frame in next, _G.ClassTacticsTalentProfiles.PvPTalents.Buttons do
 		for _, Button in next, { 'Load', 'Options' } do
 			if not Frame[Button].isSkinned then
 				if CT.AddOnSkins then

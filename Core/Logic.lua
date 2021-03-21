@@ -32,6 +32,9 @@ CT.TalentList = {}
 CT.DiscordList = {}
 CT.GuideList = {}
 
+CT.CurrentTalentTable = {}
+CT.CurrentPvPTalentTable = {}
+
 for i = 1, GetNumClasses() do
 	local _, classTag = GetClassInfo(i)
 	CT.TalentList[classTag] = {}
@@ -131,6 +134,7 @@ function CT:ImportData(dataString)
 	db[name] = type(data) == 'table' and CopyTable(data) or data
 end
 
+-- Talents
 function CT:GetTalentIDByString(classTag, specGroup, name)
 	local defaultString = CT.TalentList[classTag] and CT.TalentList[classTag][specGroup] and CT.TalentList[classTag][specGroup][name]
 	local customString = CT.db.talentBuilds[classTag] and CT.db.talentBuilds[classTag][specGroup] and CT.db.talentBuilds[classTag][specGroup][name]
@@ -162,8 +166,6 @@ function CT:GetTalentInfoByID(id)
 
 	return talentID, name, texture, selected, available, spellID, _, row, column, known, grantedByAura
 end
-
-CT.CurrentTalentTable = {}
 
 function CT:GetSelectedTalents()
 	wipe(CT.CurrentTalentTable)
@@ -199,6 +201,75 @@ function CT:GetMaximumTalentsByString(talentString)
 	return strmatch(talentString, compareString)
 end
 
+-- PvP Talents
+function CT:GetPvPTalentIDByString(classTag, specGroup, name)
+	local talentString = CT.db.talentBuildsPvP[classTag] and CT.db.talentBuildsPvP[classTag][specGroup] and CT.db.talentBuildsPvP[classTag][specGroup][name]
+
+	if talentString then
+		return strsplit(',', talentString)
+	else
+		return nil
+	end
+end
+
+function CT:GetSelectedPvPTalents()
+	CT.CurrentPvPTalentTable = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
+
+	return table.concat(CT.CurrentPvPTalentTable, ',')
+end
+
+function CT:SetPvPTalentsByName(name)
+	local savedPvPTalents =  tInvert({ CT:GetPvPTalentIDByString(CT.MyClass, GetSpecialization(), name) })
+	local currentPvPTalents = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
+	local usedIndexes, index = {}, 1
+
+	for i, talentID in next, currentPvPTalents do
+		if savedPvPTalents[tostring(talentID)] then
+			savedPvPTalents[tostring(talentID)] = nil
+			usedIndexes[i] = true
+		end
+	end
+
+	for talentID in next, savedPvPTalents do
+		if not usedIndexes[index] then
+			LearnPvpTalent(talentID, index)
+		end
+		index = index + 1
+	end
+end
+
+function CT:ApplyPvPTalents(classTag, specGroup, name)
+	local savedPvPTalents =  tInvert({ CT:GetPvPTalentIDByString(classTag, specGroup, name) })
+	local currentPvPTalents = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
+	local usedIndexes, index = {}, 1
+
+	for i, talentID in next, currentPvPTalents do
+		if savedPvPTalents[talentID] then
+			savedPvPTalents[talentID] = nil
+			usedIndexes[i] = true
+		end
+	end
+
+	for talentID in next, savedPvPTalents do
+		if not usedIndexes[index] then
+			LearnPvpTalent(talentID, index)
+		end
+		index = index + 1
+	end
+end
+
+function CT:GetPvPTalentInfoByID(id)
+	id = tonumber(id)
+	local talentID, name, icon, selected, available, spellID, unlocked = 0, TALENT_NOT_SELECTED, 136243
+
+	if id and id > 0 then
+		talentID, name, icon, selected, available, spellID, unlocked = GetPvpTalentInfoByID(id)
+	end
+
+	return talentID, name, icon, selected, available, spellID, unlocked
+end
+
+-- Auto Talent
 local talentTierLevels = { [15] = 1, [25] = 2, [30] = 3, [35] = 4, [40] = 5, [45] = 6, [50] = 7 }
 local autoTalentWait = false
 
