@@ -46,8 +46,8 @@ local function OnClick(self)
 		menuList[index] = menuList[index] or {}
 		menuList[index].text = talentName
 		menuList[index].func = function(_, name) CT:SetTalentsByName(name) end
+		menuList[index].checked = function() return CT:IsTalentSetSelected(talentName) end
 		menuList[index].arg1 = talentName
-		menuList[index].notCheckable = true
 
 		index = index + 1
 	end
@@ -56,8 +56,8 @@ local function OnClick(self)
 		menuList[index] = menuList[index] or {}
 		menuList[index].text = talentName
 		menuList[index].func = function(_, name) CT:SetTalentsByName(name) end
+		menuList[index].checked = function() return CT:IsTalentSetSelected(talentName) end
 		menuList[index].arg1 = talentName
-		menuList[index].notCheckable = true
 
 		index = index + 1
 	end

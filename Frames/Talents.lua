@@ -585,6 +585,8 @@ function CT:HideTalentMarkers()
 end
 
 function CT:IsTalentSetSelected(name)
+	if not CT.db then return end
+
 	local activeSpecIndex = GetSpecialization()
 	local selectedTalents = CT:GetSelectedTalents()
 
