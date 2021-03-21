@@ -83,14 +83,16 @@ function CT:SetupTalentPopup(setupType, name)
 	elseif setupType == 'rename' then
 		Dialog.button1 = 'Update'
 		Dialog.OnAccept = function(s)
+			CT.db.talentBuilds[CT.MyClass][GetSpecialization()][s.editBox:GetText()] = CT.db.talentBuilds[CT.MyClass][GetSpecialization()][name]
 			CT.db.talentBuilds[CT.MyClass][GetSpecialization()][name] = nil
-			CT:SaveTalentBuild(s.editBox:GetText())
+
 			CT:UpdateOptions()
 			CT:TalentProfiles_Update()
 		end
 		Dialog.EditBoxOnEnterPressed = function(s)
+			CT.db.talentBuilds[CT.MyClass][GetSpecialization()][s:GetText()] = CT.db.talentBuilds[CT.MyClass][GetSpecialization()][name]
 			CT.db.talentBuilds[CT.MyClass][GetSpecialization()][name] = nil
-			CT:SaveTalentBuild(s:GetText())
+
 			CT:UpdateOptions()
 			CT:TalentProfiles_Update()
 			s:GetParent():Hide()
@@ -126,14 +128,16 @@ function CT:SetupPvPTalentPopup(setupType, name)
 	elseif setupType == 'rename' then
 		Dialog.button1 = 'Update'
 		Dialog.OnAccept = function(s)
+			CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][s.editBox:GetText()] = CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][name]
 			CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][name] = nil
-			CT:SavePvPTalentBuild(s.editBox:GetText())
+
 			CT:UpdateOptions()
 			CT:TalentProfiles_Update()
 		end
 		Dialog.EditBoxOnEnterPressed = function(s)
+			CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][s:GetText()] = CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][name]
 			CT.db.talentBuildsPvP[CT.MyClass][GetSpecialization()][name] = nil
-			CT:SavePvPTalentBuild(s:GetText())
+
 			CT:UpdateOptions()
 			CT:TalentProfiles_Update()
 			s:GetParent():Hide()
