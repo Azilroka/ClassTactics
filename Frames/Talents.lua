@@ -201,21 +201,19 @@ do
 	end
 end
 
+function CT:HasAuraTalentChange()
+	for _, spellID in next, { 325012, 227563, 227041, 256231, 321923, 226241, 227564, 324029, 256230 } do
+		if CT:FindAuraBySpellID(spellID, "player", "HELPFUL") then
+			return true
+		end
+	end
+end
+
 function CT:CanChangeTalents(event)
 	local inCombat, isTrue = InCombatLockdown()
 
 	if not inCombat then
-		if IsResting() then
-			isTrue = true
-		end
-
-		if not isTrue then
-			for _, spellID in next, { 325012, 227563, 227041, 256231, 321923, 226241, 227564, 324029, 256230 } do
-				if CT:FindAuraBySpellID(spellID, "player", "HELPFUL") then
-					isTrue = true
-				end
-			end
-		end
+		isTrue = IsResting() or CT:HasAuraTalentChange()
 	end
 
 	_G.ClassTacticsTalentProfiles.Exchange.Status:SetVertexColor(unpack(isTrue and CT.ClassColor or {1, 1, 1}))
@@ -344,8 +342,8 @@ function CT:TalentProfiles_CheckBags()
 				Button.itemID = itemID
 				Button.Count:SetText(count)
 				Button.icon:SetTexture(GetItemIcon(itemID))
-				Button.icon:SetDesaturated(isResting)
-				Button:EnableMouse(not isResting)
+				Button.icon:SetDesaturated(isResting or CT:HasAuraTalentChange())
+				Button:EnableMouse(not isResting and not CT:HasAuraTalentChange())
 
 				index = index + 1
 			end
