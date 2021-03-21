@@ -49,17 +49,17 @@ _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
 }
 
 local Tomes = {
-    [141640] = { min = 10, max = 50 }, -- Tome of the Clear Mind (Unit Level 10-50)
-    [141446] = { min = 10, max = 50 }, -- Tome of the Tranquil Mind (Unit Level 10-50)
-    [153647] = { min = 10, max = 59 }, -- Tome of the Quiet Mind (Unit Level 10-59)
-    [173049] = { min = 51, max = 60 }, -- Tome of the Still Mind (Unit Level 51-60)
+	[141640] = { min = 10, max = 50 }, -- Tome of the Clear Mind (Unit Level 10-50)
+	[141446] = { min = 10, max = 50 }, -- Tome of the Tranquil Mind (Unit Level 10-50)
+	[153647] = { min = 10, max = 59 }, -- Tome of the Quiet Mind (Unit Level 10-59)
+	[173049] = { min = 51, max = 60 }, -- Tome of the Still Mind (Unit Level 51-60)
 }
 
 local Codex = {
-    [141641] = { min = 10, max = 50 }, -- Codex of the Clear Mind (Unit Level 10-50)
-    [141333] = { min = 10, max = 50 }, -- Codex of the Tranquil Mind (Unit Level 10-50)
-    [153646] = { min = 10, max = 59 }, -- Codex of the Quiet Mind (Unit Level 10-59)
-    [173048] = { min = 51, max = 60 }, -- Codex of the Still Mind (Unit Level 51-60)
+	[141641] = { min = 10, max = 50 }, -- Codex of the Clear Mind (Unit Level 10-50)
+	[141333] = { min = 10, max = 50 }, -- Codex of the Tranquil Mind (Unit Level 10-50)
+	[153646] = { min = 10, max = 59 }, -- Codex of the Quiet Mind (Unit Level 10-59)
+	[173048] = { min = 51, max = 60 }, -- Codex of the Still Mind (Unit Level 51-60)
 }
 
 function CT:SetupTalentPopup(setupType, name)
@@ -630,8 +630,8 @@ end
 
 function CT:SkinTalentManager()
 	if CT.AddOnSkins then
-		_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
-		_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentPvPProfiles)
+		_G.AddOnSkins[1]:SkinBackdropFrame(_G.ClassTacticsTalentProfiles)
+		_G.AddOnSkins[1]:SkinBackdropFrame(_G.ClassTacticsTalentPvPProfiles)
 		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
 		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentPvPProfiles.NewButton)
 		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
