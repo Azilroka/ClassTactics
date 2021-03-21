@@ -4,4 +4,5 @@
 	<Include file="Core\Load.xml"/>
 	<Include file="Data\Load.xml"/>
 	<Include file="Frames\Load.xml"/>
+	<Include file="AddOnExtras\Load.xml"/>
 </Ui>

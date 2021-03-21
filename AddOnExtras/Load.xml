@@ -1,0 +1,4 @@
+<Ui>
+	<!--Include file="Libs\Load_Libs.xml"/-->
+	<Script file="ElvUI\TalentManagerDataText.lua"/>
+</Ui>

@@ -627,70 +627,29 @@ function CT:IsPvPTalentSetSelected(name)
 end
 
 function CT:SkinTalentManager()
-	if not _G.ClassTacticsTalentProfiles.isSkinned then
-		if CT.AddOnSkins then
-			_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
-			_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentPvPProfiles)
-			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
-			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentPvPProfiles.NewButton)
-			_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
-			_G.ClassTacticsTalentProfiles.isSkinned = true
-		elseif _G.ClassTacticsTalentProfiles.SetTemplate then
-			_G.ClassTacticsTalentProfiles:StripTextures(true)
-			_G.ClassTacticsTalentProfiles:SetTemplate('Transparent')
-			_G.ClassTacticsTalentPvPProfiles:StripTextures(true)
-			_G.ClassTacticsTalentPvPProfiles:SetTemplate('Transparent')
-			_G.ClassTacticsTalentProfiles.NewButton:StripTextures(true)
-			_G.ClassTacticsTalentProfiles.NewButton:SetTemplate('Transparent')
-			_G.ClassTacticsTalentProfiles.ToggleButton:StripTextures(true)
-			_G.ClassTacticsTalentProfiles.ToggleButton:SetTemplate('Transparent')
-			_G.ClassTacticsTalentProfiles.isSkinned = true
-		end
-	end
+	if CT.AddOnSkins then
+		_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentProfiles)
+		_G.AddOnSkins[1]:SkinFrame(_G.ClassTacticsTalentPvPProfiles)
+		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
+		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentPvPProfiles.NewButton)
+		_G.AddOnSkins[1]:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
 
-	for _, Frame in next, _G.ClassTacticsTalentProfiles.Buttons do
-		for _, Button in next, { 'Load', 'Options' } do
-			if not Frame[Button].isSkinned then
-				if CT.AddOnSkins then
-					_G.AddOnSkins[1]:SkinButton(Frame[Button])
-					Frame[Button].isSkinned = true
-				elseif Frame[Button].SetTemplate then
-					Frame[Button]:StripTextures(true)
-					Frame[Button]:SetTemplate('Transparent')
-					Frame[Button].isSkinned = true
-				end
+		for _, Frame in next, _G.ClassTacticsTalentProfiles.Buttons do
+			for _, Button in next, { 'Load', 'Options' } do
+				_G.AddOnSkins[1]:SkinButton(Frame[Button])
 			end
 		end
-	end
 
-	for _, Frame in next, _G.ClassTacticsTalentProfiles.PvPTalents.Buttons do
-		for _, Button in next, { 'Load', 'Options' } do
-			if not Frame[Button].isSkinned then
-				if CT.AddOnSkins then
-					_G.AddOnSkins[1]:SkinButton(Frame[Button])
-					Frame[Button].isSkinned = true
-				elseif Frame[Button].SetTemplate then
-					Frame[Button]:StripTextures(true)
-					Frame[Button]:SetTemplate('Transparent')
-					Frame[Button].isSkinned = true
-				end
+		for _, Frame in next, _G.ClassTacticsTalentProfiles.PvPTalents.Buttons do
+			for _, Button in next, { 'Load', 'Options' } do
+				_G.AddOnSkins[1]:SkinButton(Frame[Button])
 			end
 		end
-	end
 
-	for _, Button in next, _G.ClassTacticsTalentProfiles.ExtraButtons do
-		if CT.AddOnSkins then
+		for _, Button in next, _G.ClassTacticsTalentProfiles.ExtraButtons do
 			_G.AddOnSkins[1]:SkinButton(Button)
 			_G.AddOnSkins[1]:SkinTexture(Button.icon)
 			_G.AddOnSkins[1]:SetInside(Button.icon)
-			Button.isSkinned = true
-		elseif Button.SetTemplate then
-			local icon = Button.icon:GetTexture()
-			Button:StripTextures()
-			Button:CreateBackdrop()
-			Button.icon:SetTexture(icon)
-			Button.icon:SetTexCoord(unpack(CT.TexCoords))
-			Button.isSkinned = true
 		end
 	end
 end
