@@ -1,5 +1,6 @@
 local CT = unpack(_G.ClassTactics)
 
+local _G = _G
 local tonumber = tonumber
 local select = select
 local strsplit = strsplit
@@ -13,8 +14,11 @@ local strsub = strsub
 local unpack = unpack
 local format = format
 local strmatch = strmatch
+local next = next
 
 local CopyTable = CopyTable
+local tInvert = tInvert
+local LearnPvpTalent = LearnPvpTalent
 local GetSpecialization = GetSpecialization
 local GetActiveSpecGroup = GetActiveSpecGroup
 local GetTalentInfo = GetTalentInfo
@@ -22,6 +26,7 @@ local GetTalentInfoByID = GetTalentInfoByID
 local LearnTalents = LearnTalents
 local UnitLevel = UnitLevel
 local InCombatLockdown = InCombatLockdown
+local GetPvpTalentInfoByID = GetPvpTalentInfoByID
 
 local TALENT_NOT_SELECTED = TALENT_NOT_SELECTED
 local MAX_TALENT_TIERS = MAX_TALENT_TIERS
@@ -125,7 +130,7 @@ function CT:ImportData(dataString)
 
 	if dbKey then
 		for _, v in next, { strsplit('\a', dbKey) } do
-			db = db[v]
+			db = db[tonumber(v) or v]
 			if not db then db = {} end
 		end
 	end
@@ -212,7 +217,7 @@ function CT:GetPvPTalentIDByString(classTag, specGroup, name)
 end
 
 function CT:GetSelectedPvPTalents()
-	CT.CurrentPvPTalentTable = C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
+	CT.CurrentPvPTalentTable = _G.C_SpecializationInfo.GetAllSelectedPvpTalentIDs()
 
 	return table.concat(CT.CurrentPvPTalentTable, ',')
 end

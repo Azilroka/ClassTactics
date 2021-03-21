@@ -5,6 +5,7 @@ local _G = _G
 local sort = sort
 local strjoin = strjoin
 local strsplit = strsplit
+local format = format
 local select = select
 local next = next
 
@@ -89,7 +90,7 @@ function CT:BuildProfile()
 end
 
 function CT:GetClassOrder(classTag)
-	for i, className in ipairs(ClassAlphabeticalOrder) do
+	for i, className in next, ClassAlphabeticalOrder do
 		if className == classTag then
 			return i
 		end
@@ -110,14 +111,30 @@ function CT:GetTalentBuildOptions(classTag, specIndex)
 	return values
 end
 
-local importName, importData, importKey, importType, importValue
+local importData, importKey, importType, importValue
 
 function CT:BuildOptions()
+	-- Import
 	CT.Options.args.Import = ACH:Group('Import', nil, 0.1)
-	CT.Options.args.Import.args.Input = ACH:Input('Import', nil, 0, 5, 'full', function() return importValue end, function(info, value) importValue = value importName, importData, importKey = CT:DecodeData(value) importType = strsplit('\a', importKey) end)
-	CT.Options.args.Import.args.Preview = ACH:Group('Preview', nil, 1)
-	CT.Options.args.Import.args.Preview.inline = true
+	CT.Options.args.Import.args.Input = ACH:Input('Import', nil, 0, 5, 'full', function() return importValue end, function(_, value) importValue = value _, importData, importKey = CT:DecodeData(value) importType = strsplit('\a', importKey) end, nil, nil, function(_, value) return CT.Base64:IsBase64(value) end)
 
+	CT.Options.args.Import.args.Preview = ACH:Group('Preview', nil, 1, nil, nil, nil, nil, function() return not importValue end)
+	CT.Options.args.Import.args.Preview.inline = true
+	CT.Options.args.Import.args.Preview.args.ClassSpec = ACH:Description(function() local _, classTag, specIndex if importKey then _, classTag, specIndex = strsplit('\a', importKey) end return classTag and WrapTextInColorCode(format('%s - %s', GetClassInfo(ClassNumericalOrder[classTag]), specIndex and select(2, GetSpecializationInfoForClassID(ClassNumericalOrder[classTag], specIndex, 0)) or ''), RAID_CLASS_COLORS[classTag].colorStr) or '' end, 0, 'large')
+	CT.Options.args.Import.args.Preview.args.Spacer = ACH:Spacer(2, 'full')
+
+	CT.Options.args.Import.args.Preview.args.TextInput = ACH:Input('Macro', nil, 0, 5, 'full', function() return importData end, nil, nil, function() return importType ~= 'macros' end)
+
+	CT.Options.args.Import.args.Preview.args.Talents = ACH:Group(function() return importType == 'talentBuilds' and 'Talents' or 'PvP Talents' end, nil, nil, nil, nil, nil, nil, function() return importType ~= 'talentBuilds' and importType ~= 'talentBuildsPvP' end)
+
+	for v = 1, 7 do
+		CT.Options.args.Import.args.Preview.args.Talents.args['talent'..v] = ACH:Execute(function() local talentID = select(v, strsplit(',', importData)) local name, _ if importType == 'talentBuilds' then _, name = CT:GetTalentInfoByID(talentID) else _, name = CT:GetPvPTalentInfoByID(talentID) end return name end, nil, v, nil, function() local talentID = select(v, strsplit(',', importData)) local _, icon if importType == 'talentBuilds' then _, _, icon = CT:GetTalentInfoByID(talentID) else _, _, icon = CT:GetPvPTalentInfoByID(talentID) end return icon end, nil, .75, nil, nil, nil, function() return v > 3 and importType == 'talentBuildsPvP' end)
+		CT.Options.args.Import.args.Preview.args.Talents.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
+	end
+
+	CT.Options.args.Import.args.Import = ACH:Execute('Import Data', nil, -1, function() CT:ImportData(importValue) CT:UpdateOptions() importValue = nil end, nil, nil, 'full', nil, nil, function() return not importValue end)
+
+	-- Auto Talent
 	CT.Options.args.general.args.AutoTalent = ACH:Group('Auto Talents', nil, 1)
 
 	for realm, playerInfo in next, CT.db.autoTalents do
@@ -139,6 +156,7 @@ function CT:BuildOptions()
 		CT.Options.args.general.args.AutoTalent.args[realm] = RealmInfo
 	end
 
+	-- Talents / PvP Talents
 	for i = 1, GetNumClasses() do
 		local className, classTag, classID = GetClassInfo(i);
 
@@ -217,7 +235,7 @@ function CT:UpdateOptions()
 
 	for classTag, classID in next, ClassNumericalOrder do
 		for k = 1, GetNumSpecializationsForClassID(classID) do
-			for talentName in pairs(CT.db.talentBuilds[classTag][k]) do
+			for talentName in next, CT.db.talentBuilds[classTag][k] do
 				CT.Options.args[classTag].args[''..k].args.Talents.args.Custom.values[talentName] = talentName
 				CT.Options.args[classTag].args[''..k].args.Talents.args.Custom.hidden = false
 			end
