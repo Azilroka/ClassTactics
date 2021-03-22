@@ -19,28 +19,12 @@ local InCombatLockdown = InCombatLockdown
 local UnitLevel = UnitLevel
 local GetItemCount = GetItemCount
 local GetItemIcon = GetItemIcon
+local IsInGroup = IsInGroup
 
 local MAX_TALENT_TIERS = MAX_TALENT_TIERS
 local NUM_TALENT_COLUMNS = NUM_TALENT_COLUMNS
 local READY_CHECK_READY_TEXTURE = READY_CHECK_READY_TEXTURE
 local READY_CHECK_READY_TEXTURE_INLINE = format('|T%s:16:16:0:0:64:64:4:60:4:60|t', READY_CHECK_READY_TEXTURE)
-
-CT.CurrentTalentProfiles = {}
-
-CT.EasyMenu = CreateFrame('Frame', 'ClassTacticsEasyMenu', UIParent, 'UIDropDownMenuTemplate')
-
-CT.MenuList = {
-	{ text = 'Update', arg1 = 'update', notCheckable = true},
-	{ text = 'Rename', arg1 = 'rename', notCheckable = true},
-	{ text = 'Delete', arg1 = 'delete', notCheckable = true},
-}
-
-_G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
-	button2 = 'Cancel',
-	timeout = 0,
-	whileDead = 1,
-	enterClicksFirstButton = 1,
-}
 
 local Tomes = {
 	[141640] = { min = 10, max = 50 }, -- Tome of the Clear Mind (Unit Level 10-50)
@@ -54,6 +38,23 @@ local Codex = {
 	[141333] = { min = 10, max = 50 }, -- Codex of the Tranquil Mind (Unit Level 10-50)
 	[153646] = { min = 10, max = 59 }, -- Codex of the Quiet Mind (Unit Level 10-59)
 	[173048] = { min = 51, max = 60 }, -- Codex of the Still Mind (Unit Level 51-60)
+}
+
+CT.CurrentTalentProfiles = {}
+
+CT.EasyMenu = CreateFrame('Frame', 'ClassTacticsEasyMenu', _G.UIParent, 'UIDropDownMenuTemplate')
+
+CT.MenuList = {
+	{ text = 'Update', arg1 = 'update', notCheckable = true},
+	{ text = 'Rename', arg1 = 'rename', notCheckable = true},
+	{ text = 'Delete', arg1 = 'delete', notCheckable = true},
+}
+
+_G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
+	button2 = 'Cancel',
+	timeout = 0,
+	whileDead = 1,
+	enterClicksFirstButton = 1,
 }
 
 function CT:SetupTalentPopup(setupType, funcSetup, name)
@@ -208,7 +209,7 @@ function CT:HasAuraTalentChange()
 	end
 end
 
-function CT:CanChangeTalents(event)
+function CT:CanChangeTalents()
 	local inCombat, isTrue = InCombatLockdown()
 
 	if not inCombat then
@@ -243,7 +244,7 @@ function CT:AddGradientColor(frame, width, height, color)
 end
 
 function CT:SetEasyMenuAnchor(button)
-	UIDropDownMenu_SetAnchor(CT.EasyMenu, 3, 0, 'TOPLEFT', button, 'TOPRIGHT')
+	_G.UIDropDownMenu_SetAnchor(CT.EasyMenu, 3, 0, 'TOPLEFT', button, 'TOPRIGHT')
 end
 
 function CT:SetEasyMenu_Talents(funcSetup, name)
@@ -251,7 +252,7 @@ function CT:SetEasyMenu_Talents(funcSetup, name)
 	CT.MenuList[2].func = function(_, setupType) CT:SetupTalentPopup(setupType, funcSetup, name) end
 	CT.MenuList[3].func = function(_, setupType) CT:SetupTalentPopup(setupType, funcSetup, name) end
 
-	EasyMenu(CT.MenuList, CT.EasyMenu, nil, nil, nil, 'MENU')
+	_G.EasyMenu(CT.MenuList, CT.EasyMenu, nil, nil, nil, 'MENU')
 end
 
 function CT:TalentProfiles_CreateLoadout()
