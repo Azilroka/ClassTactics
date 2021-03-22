@@ -44,6 +44,7 @@ for i = 1, GetNumClasses() do
 	local _, classTag = GetClassInfo(i)
 	CT.TalentList[classTag] = {}
 	CT.MacroList[classTag] = {}
+	CT.GuideList[classTag] = {}
 end
 
 do	--Split string by multi-character delimiter (the strsplit / string.split function provided by WoW doesn't allow multi-character delimiter)

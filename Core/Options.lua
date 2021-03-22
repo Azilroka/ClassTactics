@@ -156,7 +156,6 @@ function CT:BuildOptions()
 		CT.Options.args.general.args.AutoTalent.args[realm] = RealmInfo
 	end
 
-	-- Talents / PvP Talents
 	for i = 1, GetNumClasses() do
 		local className, classTag, classID = GetClassInfo(i);
 
@@ -171,6 +170,14 @@ function CT:BuildOptions()
 		for specGroup = 1, GetNumSpecializationsForClassID(classID) do
 			local _, specName = GetSpecializationInfoForClassID(classID, specGroup, 0);
 			local specOption = ACH:Group(specName, nil, specGroup, 'tree')
+
+			-- Guides
+			specOption.args.Guides = ACH:Group('Class Guides')
+			specOption.args.Guides.inline = true
+
+			for siteName, siteLink in next, CT.GuideList[classTag][specGroup] do
+				specOption.args.Guides.args[siteName] = ACH:Input(siteName, nil, nil, nil, 'full', function() return siteLink end)
+			end
 
 			-- Macros
 			specOption.args.Macros = ACH:Group('Macros')
