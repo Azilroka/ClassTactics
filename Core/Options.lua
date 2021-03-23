@@ -105,7 +105,9 @@ function CT:GetTalentBuildOptions(classTag, specIndex)
 	end
 
 	for talentName in next, CT.db.talentBuilds[classTag][specIndex] do
-		values[talentName] = talentName
+		if talentName ~= 'selected' then
+			values[talentName] = talentName
+		end
 	end
 
 	return values
