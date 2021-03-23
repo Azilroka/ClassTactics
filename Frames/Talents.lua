@@ -529,7 +529,7 @@ function CT:IsPvPTalentSetSelected(name)
 end
 
 function CT:SkinTalentManager()
-	if CT.AddOnSkins and not CT.IsSkinned then
+	if CT.AddOnSkins then
 		local AS = _G.AddOnSkins[1]
 		AS:SkinBackdropFrame(_G.ClassTacticsTalentProfiles)
 		AS:SkinBackdropFrame(_G.ClassTacticsTalentPvPProfiles)
@@ -554,7 +554,5 @@ function CT:SkinTalentManager()
 			AS:SkinTexture(Button.icon)
 			AS:SetInside(Button.icon)
 		end
-
-		CT.IsSkinned = true
 	end
 end
