@@ -132,7 +132,7 @@ function CT:BuildOptions()
 		CT.Options.args.Import.args.Preview.args.Talents.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
 	end
 
-	CT.Options.args.Import.args.Import = ACH:Execute('Import Data', nil, -1, function() CT:ImportData(importValue) CT:UpdateOptions() importValue = nil end, nil, nil, 'full', nil, nil, function() return not importValue end)
+	CT.Options.args.Import.args.Import = ACH:Execute('Import Data', nil, -1, function() CT:ImportData(importValue) importValue = nil end, nil, nil, 'full', nil, nil, function() return not importValue end)
 
 	-- Auto Talent
 	CT.Options.args.general.args.AutoTalent = ACH:Group('Auto Talents', nil, 1)
@@ -201,20 +201,8 @@ function CT:BuildOptions()
 				specOption.args.Talents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
 			end
 
-			specOption.args.Talents.args.Defaults = ACH:MultiSelect('Defaults', nil, 1, {}, nil, nil, function(_, key) return CT.db.talentBuilds[classTag][specGroup].selected == key end, function(_, key) CT.db.talentBuilds[classTag][specGroup].selected = key end)
-
-			for talentName in next, CT.TalentList[classTag][specGroup] do
-				specOption.args.Talents.args.Defaults.values[talentName] = talentName
-			end
-
-			specOption.args.Talents.args.Custom = ACH:MultiSelect('Custom', nil, 2, {}, nil, nil, function(_, key) return CT.db.talentBuilds[classTag][specGroup].selected == key end, function(_, key) CT.db.talentBuilds[classTag][specGroup].selected = key end, nil, true)
-
-			for talentName in next, CT.db.talentBuilds[classTag][specGroup] do
-				if talentName ~= 'selected' then
-					specOption.args.Talents.args.Custom.values[talentName] = talentName
-					specOption.args.Talents.args.Custom.hidden = false
-				end
-			end
+			specOption.args.Talents.args.Defaults = ACH:MultiSelect('Defaults', nil, 1, function() local list = {} for talentName in next, CT.TalentList[classTag][specGroup] do list[talentName] = talentName end return list end, nil, nil, function(_, key) return CT.db.talentBuilds[classTag][specGroup].selected == key end, function(_, key) CT.db.talentBuilds[classTag][specGroup].selected = key end)
+			specOption.args.Talents.args.Custom = ACH:MultiSelect('Custom', nil, 2, function() local list = {} for talentName in next, CT.db.talentBuilds[classTag][specGroup] do if talentName ~= 'selected' then list[talentName] = talentName end end return list end, nil, nil, function(_, key) return CT.db.talentBuilds[classTag][specGroup].selected == key end, function(_, key) CT.db.talentBuilds[classTag][specGroup].selected = key end, nil, function() for talentName in next, CT.db.talentBuilds[classTag][specGroup] do if talentName ~= 'selected' then return false end end return true end)
 
 			-- PvP Talents
 			specOption.args.PvPTalents = ACH:Group('PvP Talents')
@@ -228,34 +216,9 @@ function CT:BuildOptions()
 				specOption.args.PvPTalents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
 			end
 
-			specOption.args.PvPTalents.args.Custom = ACH:MultiSelect('Custom', nil, 2, {}, nil, nil, function(_, key) return CT.db.talentBuildsPvP[classTag][specGroup].selected == key end, function(_, key) CT.db.talentBuildsPvP[classTag][specGroup].selected = key end, nil, true)
-
-			for talentName in next, CT.db.talentBuildsPvP[classTag][specGroup] do
-				if talentName ~= 'selected' then
-					specOption.args.PvPTalents.args.Custom.values[talentName] = talentName
-					specOption.args.PvPTalents.args.Custom.hidden = false
-				end
-			end
+			specOption.args.PvPTalents.args.Custom = ACH:MultiSelect('Custom', nil, 2, function() local list = {} for talentName in next, CT.db.talentBuildsPvP[classTag][specGroup] do if talentName ~= 'selected' then list[talentName] = talentName end end return list end, nil, nil, function(_, key) return CT.db.talentBuildsPvP[classTag][specGroup].selected == key end, function(_, key) CT.db.talentBuildsPvP[classTag][specGroup].selected = key end, nil, function() for talentName in next, CT.db.talentBuildsPvP[classTag][specGroup] do if talentName ~= 'selected' then return false end end return true end)
 
 			CT.Options.args[classTag].args[''..specGroup] = specOption
-		end
-	end
-end
-
-function CT:UpdateOptions()
-	for classTag, classID in next, ClassNumericalOrder do
-		for k = 1, GetNumSpecializationsForClassID(classID) do
-			CT.Options.args[classTag].args[''..k].args.Talents.args.Custom.values = {}
-			CT.Options.args[classTag].args[''..k].args.Talents.args.Custom.hidden = true
-		end
-	end
-
-	for classTag, classID in next, ClassNumericalOrder do
-		for k = 1, GetNumSpecializationsForClassID(classID) do
-			for talentName in next, CT.db.talentBuilds[classTag][k] do
-				CT.Options.args[classTag].args[''..k].args.Talents.args.Custom.values[talentName] = talentName
-				CT.Options.args[classTag].args[''..k].args.Talents.args.Custom.hidden = false
-			end
 		end
 	end
 end

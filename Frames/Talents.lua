@@ -73,12 +73,12 @@ function CT:SetupTalentPopup(setupType, funcSetup, name)
 		Dialog.hasEditBox = nil
 		Dialog.button1 = 'Delete'
 		Dialog.text = format('Are you sure you want to delete %s?', name)
-		Dialog.OnAccept = function() db[name] = nil CT:UpdateOptions() CT:TalentProfiles_Update() end
+		Dialog.OnAccept = function() db[name] = nil CT:TalentProfiles_Update() end
 	elseif setupType == 'rename' then
 		Dialog.button1 = 'Update'
 		Dialog.OnShow = function(s) s.editBox:SetAutoFocus(false) s.editBox:SetText(name) s.editBox:HighlightText() end
-		Dialog.OnAccept = function(s) db[s.editBox:GetText()] = db[name] db[name] = nil CT:UpdateOptions() CT:TalentProfiles_Update() end
-		Dialog.EditBoxOnEnterPressed = function(s) db[s:GetText()] = db[name] db[name] = nil CT:UpdateOptions() CT:TalentProfiles_Update() s:GetParent():Hide() end
+		Dialog.OnAccept = function(s) db[s.editBox:GetText()] = db[name] db[name] = nil CT:TalentProfiles_Update() end
+		Dialog.EditBoxOnEnterPressed = function(s) db[s:GetText()] = db[name] db[name] = nil CT:TalentProfiles_Update() s:GetParent():Hide() end
 	end
 
 	_G.StaticPopup_Show('CLASSTACTICS_TALENTPROFILE')
@@ -107,7 +107,6 @@ function CT:SaveTalentBuild(funcSetup, text)
 	end
 
 	CT:TalentProfiles_Update()
-	CT:UpdateOptions()
 end
 
 function CT:TalentProfiles()
@@ -496,16 +495,20 @@ function CT:IsTalentSetSelected(name)
 	local activeSpecIndex, selectedTalents = GetSpecialization(), CT:GetSelectedTalents()
 
 	for talentSet, talentString in next, CT.TalentList[CT.MyClass][activeSpecIndex] do
-		local returnString = CT:GetMaximumTalentsByString(talentString)
-		if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
-			return true
+		if talentSet ~= 'selected' then
+			local returnString = CT:GetMaximumTalentsByString(talentString)
+			if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+				return true
+			end
 		end
 	end
 
 	for talentSet, talentString in next, CT.db.talentBuilds[CT.MyClass][activeSpecIndex] do
-		local returnString = CT:GetMaximumTalentsByString(talentString)
-		if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
-			return true
+		if talentSet ~= 'selected' then
+			local returnString = CT:GetMaximumTalentsByString(talentString)
+			if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+				return true
+			end
 		end
 	end
 

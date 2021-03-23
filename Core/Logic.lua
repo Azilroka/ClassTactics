@@ -175,17 +175,19 @@ end
 function CT:GetSelectedTalents()
 	wipe(CT.CurrentTalentTable)
 
+	local noneSelected = true
 	for tier = 1, MAX_TALENT_TIERS do
 		CT.CurrentTalentTable[tier] = 0
 		for column = 1, NUM_TALENT_COLUMNS do
 			local talentID, _, _, selected = GetTalentInfo(tier, column, GetActiveSpecGroup())
 			if selected then
+				noneSelected = false
 				CT.CurrentTalentTable[tier] = talentID
 			end
 		end
 	end
 
-	return table.concat(CT.CurrentTalentTable, ',')
+	return noneSelected and '' or table.concat(CT.CurrentTalentTable, ',')
 end
 
 local compareTable = {}
