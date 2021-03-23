@@ -28,4 +28,4 @@ function CT:ADDON_LOADED(event, addon)
 	end
 end
 
-CT:RegisterEvent('PLAYER_ENTERING_WORLD', 'Init')
+CT:RegisterEvent('PLAYER_LOGIN', 'Init')

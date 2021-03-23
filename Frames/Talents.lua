@@ -391,21 +391,23 @@ function CT:TalentProfiles_Update()
 	-- Saved
 	local index = 0
 	for name in CT:OrderedPairs(CT.db.talentBuilds[CT.MyClass][activeSpecIndex]) do
-		index = index + 1
-		numProfiles = numProfiles + 1
+		if name ~= 'selected' then
+			index = index + 1
+			numProfiles = numProfiles + 1
 
-		local Button = _G.ClassTacticsTalentProfiles.Buttons[numProfiles] or CT:TalentProfiles_Create()
-		Button:Show()
-		Button.Load:SetText(CT:IsTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
-		Button.Name = name
+			local Button = _G.ClassTacticsTalentProfiles.Buttons[numProfiles] or CT:TalentProfiles_Create()
+			Button:Show()
+			Button.Load:SetText(CT:IsTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
+			Button.Name = name
 
-		if index == 1 then
-			Button:SetPoint('TOPLEFT', _G.ClassTacticsTalentProfiles.NewButton, 'BOTTOMLEFT', 0, -5)
-		else
-			Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -5)
+			if index == 1 then
+				Button:SetPoint('TOPLEFT', _G.ClassTacticsTalentProfiles.NewButton, 'BOTTOMLEFT', 0, -5)
+			else
+				Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -5)
+			end
+
+			PreviousButton = Button
 		end
-
-		PreviousButton = Button
 	end
 
 	for i = numProfiles + 1, #_G.ClassTacticsTalentProfiles.Buttons do
@@ -423,20 +425,22 @@ function CT:TalentProfiles_Update()
 	-- PvP Saved
 	local pvpIndex = 0
 	for name in CT:OrderedPairs(CT.db.talentBuildsPvP[CT.MyClass][activeSpecIndex]) do
-		pvpIndex = pvpIndex + 1
+		if name ~= 'selected' then
+			pvpIndex = pvpIndex + 1
 
-		local Button = _G.ClassTacticsTalentProfiles.PvPTalents.Buttons[pvpIndex] or CT:PvPTalentProfiles_Create()
-		Button:Show()
-		Button.Load:SetText(CT:IsPvPTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
-		Button.Name = name
+			local Button = _G.ClassTacticsTalentProfiles.PvPTalents.Buttons[pvpIndex] or CT:PvPTalentProfiles_Create()
+			Button:Show()
+			Button.Load:SetText(CT:IsPvPTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
+			Button.Name = name
 
-		if pvpIndex == 1 then
-			Button:SetPoint('TOPLEFT', _G.ClassTacticsTalentProfiles.PvPTalents.NewButton, 'BOTTOMLEFT', 0, -5)
-		else
-			Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -5)
+			if pvpIndex == 1 then
+				Button:SetPoint('TOPLEFT', _G.ClassTacticsTalentProfiles.PvPTalents.NewButton, 'BOTTOMLEFT', 0, -5)
+			else
+				Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -5)
+			end
+
+			PreviousButton = Button
 		end
-
-		PreviousButton = Button
 	end
 
 	for i = pvpIndex + 1, #_G.ClassTacticsTalentProfiles.PvPTalents.Buttons do
@@ -476,6 +480,7 @@ function CT:ShowTalentMarkers(name)
 		local id = select(i, CT:GetTalentIDByString(CT.MyClass, activeSpecIndex, name))
 		local talentID, _, _, _, _, _, _, row, column = CT:GetTalentInfoByID(id)
 		if tonumber(id) == talentID and row and column then
+			_G.PlayerTalentFrameTalents['tier'..row]['talent'..column].ClassTacticsCheck:SetTexture(READY_CHECK_READY_TEXTURE)
 			_G.PlayerTalentFrameTalents['tier'..row]['talent'..column].ClassTacticsCheck:Show()
 		end
 	end
@@ -533,19 +538,19 @@ function CT:SkinTalentManager()
 		local AS = _G.AddOnSkins[1]
 		AS:SkinBackdropFrame(_G.ClassTacticsTalentProfiles)
 		AS:SkinBackdropFrame(_G.ClassTacticsTalentPvPProfiles)
-		AS:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
-		AS:SkinButton(_G.ClassTacticsTalentPvPProfiles.NewButton)
-		AS:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
+		AS:SkinButton(_G.ClassTacticsTalentProfiles.NewButton, true)
+		AS:SkinButton(_G.ClassTacticsTalentPvPProfiles.NewButton, true)
+		AS:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton, true)
 
 		for _, Frame in next, _G.ClassTacticsTalentProfiles.Buttons do
 			for _, Button in next, { 'Load', 'Options' } do
-				AS:SkinButton(Frame[Button])
+				AS:SkinButton(Frame[Button], true)
 			end
 		end
 
 		for _, Frame in next, _G.ClassTacticsTalentProfiles.PvPTalents.Buttons do
 			for _, Button in next, { 'Load', 'Options' } do
-				AS:SkinButton(Frame[Button])
+				AS:SkinButton(Frame[Button], true)
 			end
 		end
 
