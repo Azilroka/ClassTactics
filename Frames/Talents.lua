@@ -538,19 +538,19 @@ function CT:SkinTalentManager()
 		local AS = _G.AddOnSkins[1]
 		AS:SkinBackdropFrame(_G.ClassTacticsTalentProfiles)
 		AS:SkinBackdropFrame(_G.ClassTacticsTalentPvPProfiles)
-		AS:SkinButton(_G.ClassTacticsTalentProfiles.NewButton, true)
-		AS:SkinButton(_G.ClassTacticsTalentPvPProfiles.NewButton, true)
-		AS:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton, true)
+		AS:SkinButton(_G.ClassTacticsTalentProfiles.NewButton)
+		AS:SkinButton(_G.ClassTacticsTalentPvPProfiles.NewButton)
+		AS:SkinButton(_G.ClassTacticsTalentProfiles.ToggleButton)
 
 		for _, Frame in next, _G.ClassTacticsTalentProfiles.Buttons do
 			for _, Button in next, { 'Load', 'Options' } do
-				AS:SkinButton(Frame[Button], true)
+				AS:SkinButton(Frame[Button])
 			end
 		end
 
 		for _, Frame in next, _G.ClassTacticsTalentProfiles.PvPTalents.Buttons do
 			for _, Button in next, { 'Load', 'Options' } do
-				AS:SkinButton(Frame[Button], true)
+				AS:SkinButton(Frame[Button])
 			end
 		end
 
