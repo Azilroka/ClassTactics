@@ -168,7 +168,7 @@ function CT:TalentProfiles()
 
 	ProfileMenu.PvPTalents.Buttons = {}
 	ProfileMenu.PvPTalents.Gradients = {}
-	ProfileMenu.PvPTalents.Gradients[1] = CT:AddGradientColor(ProfileMenu, 240, 2, CT.ClassColor)
+	ProfileMenu.PvPTalents.Gradients[1] = CT:AddGradientColor(ProfileMenu.PvPTalents, 240, 2, CT.ClassColor)
 
 	ProfileMenu.PvPTalents.Title = ProfileMenu.PvPTalents:CreateFontString(nil, 'OVERLAY')
 	ProfileMenu.PvPTalents.Title:SetFont(CT.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
