@@ -23,7 +23,7 @@ local function OnUpdate(self, t)
 	local selectedTalentSet
 
 	if specIndex and CT.db then
-		for talentName in next, CT.TalentList[E.myclass][specIndex] do
+		for talentName in next, CT.RetailData[E.myclass][specIndex].Talents do
 			if CT:IsTalentSetSelected(talentName) then
 				selectedTalentSet = talentName
 				break
@@ -50,7 +50,7 @@ local function OnClick(self)
 
 	local index = 1
 
-	for talentName in next, CT.TalentList[E.myclass][specIndex] do
+	for talentName in next, CT.RetailData[E.myclass][specIndex].Talents do
 		menuList[index] = menuList[index] or {}
 		menuList[index].text = talentName
 		menuList[index].func = function(_, name) CT:SetTalentsByName(name) end

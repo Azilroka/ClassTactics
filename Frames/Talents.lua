@@ -361,13 +361,13 @@ function CT:TalentProfiles_Update()
 	wipe(CT.CurrentTalentProfiles)
 
 	local activeSpecIndex = GetSpecialization()
-	for name, _ in next, CT.TalentList[CT.MyClass][activeSpecIndex] do tinsert(CT.CurrentTalentProfiles, name) end
+	for name, _ in next, CT.RetailData[CT.MyClass][activeSpecIndex].Talents do tinsert(CT.CurrentTalentProfiles, name) end
 
 	sort(CT.CurrentTalentProfiles)
 
 	-- Default
 	local numProfiles, PreviousButton = 0
-	for name in CT:OrderedPairs(CT.TalentList[CT.MyClass][activeSpecIndex]) do
+	for name in CT:OrderedPairs(CT.RetailData[CT.MyClass][activeSpecIndex].Talents) do
 		numProfiles = numProfiles + 1
 		local Button = _G.ClassTacticsTalentProfiles.Buttons[numProfiles] or CT:TalentProfiles_Create()
 		Button:Show()
@@ -499,7 +499,7 @@ function CT:IsTalentSetSelected(name)
 
 	local activeSpecIndex, selectedTalents = GetSpecialization(), CT:GetSelectedTalents()
 
-	for talentSet, talentString in next, CT.TalentList[CT.MyClass][activeSpecIndex] do
+	for talentSet, talentString in next, CT.RetailData[CT.MyClass][activeSpecIndex].Talents do
 		if talentSet ~= 'selected' then
 			local returnString = CT:GetMaximumTalentsByString(talentString)
 			if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then

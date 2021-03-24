@@ -32,20 +32,22 @@ local TALENT_NOT_SELECTED = TALENT_NOT_SELECTED
 local MAX_TALENT_TIERS = MAX_TALENT_TIERS
 local NUM_TALENT_COLUMNS = NUM_TALENT_COLUMNS
 
-CT.MacroList = {}
-CT.TalentList = {}
-CT.DiscordList = {}
-CT.GuideList = {}
+CT.ClassData = {
+	Sorted = CopyTable(CLASS_SORT_ORDER),
+	Numerical = {},
+	Name = {},
+}
 
 CT.CurrentTalentTable = {}
 CT.CurrentPvPTalentTable = {}
 
 for i = 1, GetNumClasses() do
-	local _, classTag = GetClassInfo(i)
-	CT.TalentList[classTag] = {}
-	CT.MacroList[classTag] = {}
-	CT.GuideList[classTag] = {}
+	local name, tag, id = GetClassInfo(i)
+	CT.ClassData.Numerical[tag] = id
+	CT.ClassData.Name[tag] = name
 end
+
+sort(CT.ClassData.Sorted)
 
 do	--Split string by multi-character delimiter (the strsplit / string.split function provided by WoW doesn't allow multi-character delimiter)
 	local splitTable = {}
@@ -81,7 +83,7 @@ function CT:DecodeData(dataString)
 		return
 	end
 
-	local serializedData, nameKey = CT:SplitString(decompressedData, '^^::') -- '^^' indicates the end of the AceSerializer string
+	local serializedData, nameKey = CT:SplitString(decompressedData, '^^;;') -- '^^' indicates the end of the AceSerializer string
 	local name, dbKey = strsplit('\a', nameKey, 2)
 	serializedData = format('%s%s', serializedData, '^^') --Add back the AceSerializer terminator
 	local success, data = CT:Deserialize(serializedData)
@@ -113,7 +115,7 @@ function CT:ExportData(name, dbKey)
 	end
 
 	local serialData = CT:Serialize(data)
-	local exportString = format('%s::%s\a%s', serialData, name, dbKey)
+	local exportString = format(dbKey and '%s;;%s\a%s' or '%s;;%s', serialData, name, dbKey)
 	local compressedData = CT.Compress:Compress(exportString)
 	local encodedData = CT.Base64:Encode(compressedData)
 
@@ -141,7 +143,7 @@ end
 
 -- Talents
 function CT:GetTalentIDByString(classTag, specGroup, name)
-	local defaultString = CT.TalentList[classTag] and CT.TalentList[classTag][specGroup] and CT.TalentList[classTag][specGroup][name]
+	local defaultString = CT.RetailData[classTag] and CT.RetailData[classTag][specGroup] and CT.RetailData[classTag][specGroup].Talents[name]
 	local customString = CT.db.talentBuilds[classTag] and CT.db.talentBuilds[classTag][specGroup] and CT.db.talentBuilds[classTag][specGroup][name]
 
 	local talentString = customString or defaultString

@@ -1,6 +1,3 @@
 <Ui>
-	<Script file="Macro.lua"/>
-	<Script file="Talents.lua"/>
-	<Script file="Discord.lua"/>
-	<Script file="Guides.lua"/>
+	<Script file="Retail.lua"/>
 </Ui>
