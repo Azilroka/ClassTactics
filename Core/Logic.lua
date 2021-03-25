@@ -122,6 +122,25 @@ function CT:ExportData(name, dbKey)
 	return encodedData
 end
 
+function CT:ExportDataFromString(name, dataType, dataString)
+	if not name or type(name) ~= 'string' then
+		return
+	end
+
+	local data = type(dataString) == 'string' and dataString
+
+	if not data then
+		return
+	end
+
+	local serialData = CT:Serialize(data)
+	local exportString = format(dataType and '%s;;%s\a%s' or '%s;;%s', serialData, name, dataType)
+	local compressedData = CT.Compress:Compress(exportString)
+	local encodedData = CT.Base64:Encode(compressedData)
+
+	return encodedData
+end
+
 function CT:ImportData(dataString)
 	local name, data, dbKey = CT:DecodeData(dataString)
 
@@ -283,4 +302,39 @@ function CT:DelayAutoTalent()
 		_G.C_Timer.After(.5, CT.AutoTalent)
 		autoTalentWait = true
 	end
+end
+
+-- Macros
+function CT:GetAccountMacros()
+	local macroTable = {}
+
+	for i = 1, MAX_ACCOUNT_MACROS do
+		local name, icon, body = GetMacroInfo(i)
+		if name then
+			macroTable[name] = name
+		end
+	end
+
+	return macroTable
+end
+
+function CT:GetCharacterMacros()
+	local macroTable = {}
+
+	for i = MAX_ACCOUNT_MACROS + 1, MAX_ACCOUNT_MACROS + MAX_CHARACTER_MACROS do
+		local name, icon, body = GetMacroInfo(i)
+		if name then
+			macroTable[name] = name
+		end
+	end
+
+	return macroTable
+end
+
+function CT:GetMacroInfo(macroName)
+	local name, icon, body = GetMacroInfo(macroName)
+
+	body = body and strtrim(body)
+
+	return name, icon, body
 end

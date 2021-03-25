@@ -103,31 +103,53 @@ function CT:GetTalentBuildOptions(classTag, specIndex)
 	return values
 end
 
-local importData, importKey, importType, importValue
+CT.OptionsData = {
+	Import = {},
+	Export = {},
+	Macros = {},
+}
 
 function CT:BuildOptions()
+	-- Import / Export
+	CT.Options.args.DataHandle = ACH:Group('Import / Export', nil, 1, 'tab')
+
 	-- Import
-	CT.Options.args.Import = ACH:Group('Import', nil, 0.1)
-	CT.Options.args.Import.args.Input = ACH:Input('Import', nil, 0, 5, 'full', function() return importValue end, function(_, value) importValue = value _, importData, importKey = CT:DecodeData(value) importType = strsplit('\a', importKey) end, nil, nil, function(_, value) return CT.Base64:IsBase64(value) end)
+	CT.Options.args.DataHandle.args.Import = ACH:Group('Import', nil, 1)
+	CT.Options.args.DataHandle.args.Import.args.Input = ACH:Input('Import', nil, 0, 20, 'full', function() return CT.OptionsData.Import.Value end, function(_, value) CT.OptionsData.Import.Value = value CT.OptionsData.Import.Name, CT.OptionsData.Import.Data, CT.OptionsData.Import.Key = CT:DecodeData(value) CT.OptionsData.Import.Type = type(CT.OptionsData.Import.Type) == 'string' and strsplit('\a', CT.OptionsData.Import.Key) end, nil, nil, function(_, value) return CT.Base64:IsBase64(value) end)
+	CT.Options.args.DataHandle.args.Import.args.Name = ACH:Description(function() return CT.OptionsData.Import.Name end, 0, 'large', nil, nil, nil, nil, nil, function() return CT.OptionsData.Import.Key end)
 
-	CT.Options.args.Import.args.Preview = ACH:Group('Preview', nil, 1, nil, nil, nil, nil, function() return not importValue end)
-	CT.Options.args.Import.args.Preview.inline = true
-	CT.Options.args.Import.args.Preview.args.ClassSpec = ACH:Description(function() local _, classTag, specIndex if importKey then _, classTag, specIndex = strsplit('\a', importKey) end return classTag and WrapTextInColorCode(format('%s - %s', GetClassInfo(CT.ClassData.Numerical[classTag]), specIndex and select(2, GetSpecializationInfoForClassID(CT.ClassData.Numerical[classTag], specIndex, 0)) or ''), RAID_CLASS_COLORS[classTag].colorStr) or '' end, 0, 'large')
-	CT.Options.args.Import.args.Preview.args.Spacer = ACH:Spacer(2, 'full')
-
-	CT.Options.args.Import.args.Preview.args.TextInput = ACH:Input('Macro', nil, 0, 5, 'full', function() return importData end, nil, nil, function() return importType ~= 'macros' end)
-
-	CT.Options.args.Import.args.Preview.args.Talents = ACH:Group(function() return importType == 'talentBuilds' and 'Talents' or 'PvP Talents' end, nil, nil, nil, nil, nil, nil, function() return importType ~= 'talentBuilds' and importType ~= 'talentBuildsPvP' end)
+	CT.Options.args.DataHandle.args.Import.args.Preview = ACH:Group('Preview', nil, 1, nil, nil, nil, nil, function() return not CT.OptionsData.Import.Data or not CT.OptionsData.Import.Key end)
+	CT.Options.args.DataHandle.args.Import.args.Preview.inline = true
+	CT.Options.args.DataHandle.args.Import.args.Preview.args.ClassSpec = ACH:Description(function() local _, classTag, specIndex if CT.OptionsData.Import.Key then _, classTag, specIndex = strsplit('\a', CT.OptionsData.Import.Key) end return classTag and WrapTextInColorCode(format('%s - %s', GetClassInfo(CT.ClassData.Numerical[classTag]), specIndex and select(2, GetSpecializationInfoForClassID(CT.ClassData.Numerical[classTag], specIndex, 0)) or ''), RAID_CLASS_COLORS[classTag].colorStr) or '' end, 0, 'large', nil, nil, nil, nil, nil, function() return not CT.OptionsData.Import.Key end)
+	CT.Options.args.DataHandle.args.Import.args.Preview.args.Spacer = ACH:Spacer(2, 'full')
+	CT.Options.args.DataHandle.args.Import.args.Preview.args.TextInput = ACH:Input('Macro', nil, 0, 10, 'full', function() return CT.OptionsData.Import.Data end, nil, nil, function() return CT.OptionsData.Import.Type ~= 'macros' end)
+	CT.Options.args.DataHandle.args.Import.args.Preview.args.Talents = ACH:Group(function() return CT.OptionsData.Import.Type == 'talentBuilds' and 'Talents' or 'PvP Talents' end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData.Import.Type or CT.OptionsData.Import.Type ~= 'talentBuilds' and CT.OptionsData.Import.Type ~= 'talentBuildsPvP' end)
 
 	for v = 1, 7 do
-		CT.Options.args.Import.args.Preview.args.Talents.args['talent'..v] = ACH:Execute(function() local talentID = select(v, strsplit(',', importData)) local name, _ if importType == 'talentBuilds' then _, name = CT:GetTalentInfoByID(talentID) else _, name = CT:GetPvPTalentInfoByID(talentID) end return name end, nil, v, nil, function() local talentID = select(v, strsplit(',', importData)) local _, icon if importType == 'talentBuilds' then _, _, icon = CT:GetTalentInfoByID(talentID) else _, _, icon = CT:GetPvPTalentInfoByID(talentID) end return icon end, nil, .75, nil, nil, nil, function() return v > 3 and importType == 'talentBuildsPvP' end)
-		CT.Options.args.Import.args.Preview.args.Talents.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
+		CT.Options.args.DataHandle.args.Import.args.Preview.args.Talents.args['talent'..v] = ACH:Execute(function() local talentID = select(v, strsplit(',', CT.OptionsData.Import.Data)) local name, _ if CT.OptionsData.Import.Type == 'talentBuilds' then _, name = CT:GetTalentInfoByID(talentID) else _, name = CT:GetPvPTalentInfoByID(talentID) end return name end, nil, v, nil, function() local talentID = select(v, strsplit(',', CT.OptionsData.Import.Data)) local _, icon if CT.OptionsData.Import.Type == 'talentBuilds' then _, _, icon = CT:GetTalentInfoByID(talentID) else _, _, icon = CT:GetPvPTalentInfoByID(talentID) end return icon end, nil, .75, nil, nil, nil, function() return v > 3 and CT.OptionsData.Import.Type == 'talentBuildsPvP' end)
+		CT.Options.args.DataHandle.args.Import.args.Preview.args.Talents.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
 	end
 
-	CT.Options.args.Import.args.Import = ACH:Execute('Import Data', nil, -1, function() CT:ImportData(importValue) importValue = nil end, nil, nil, 'full', nil, nil, function() return not importValue end)
+	CT.Options.args.DataHandle.args.Import.args.Import = ACH:Execute('Import Data', nil, -1, function() CT:ImportData(CT.OptionsData.Import.Data) wipe(CT.OptionsData.Import) end, nil, nil, 'full', nil, nil, function() return not CT.OptionsData.Import.Data end)
+
+	-- Export
+	CT.Options.args.DataHandle.args.Export = ACH:Group('Export', nil, 2)
+	CT.Options.args.DataHandle.args.Export.args.DataType = ACH:MultiSelect('Export Data', nil, 1, nil, nil, nil, function(_, key) return CT.OptionsData.Export.Table == key end, function(_, key) CT.OptionsData.Export.Table = key end)
+
+	CT.Options.args.DataHandle.args.Export.args.DataType.values = { none = 'None', macros = 'Macros', talentBuilds = 'Talents', talentBuildsPvP = 'PvP Talents'}
+
+	CT.Options.args.DataHandle.args.Export.args.ExportData = ACH:Input('Export String', nil, -1, 20, 'full', function() return CT.OptionsData.Export.Table ~= 'none' and CT:ExportData(CT.OptionsData.Export.Table) end, nil, nil, function() return not CT.OptionsData.Export.Table end)
+
+	-- Macros
+	CT.Options.args.Macros = ACH:Group('Macro Management', nil, 1)
+
+	CT.Options.args.Macros.args.AccountMacro = ACH:MultiSelect('Account Macros', nil, 2, function() return CT:GetAccountMacros() end, nil, nil, function(_, key) return CT.OptionsData.Selected == key end, function(_, key) CT.OptionsData.Selected = key end)
+	CT.Options.args.Macros.args.CharacterMacro = ACH:MultiSelect('Character Macros', nil, 3, function() return CT:GetCharacterMacros() end, nil, nil, function(_, key) return CT.OptionsData.Selected == key end, function(_, key) CT.OptionsData.Selected = key end)
+	CT.Options.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -2, 5, 'full', function() return select(3, CT:GetMacroInfo(CT.OptionsData.Selected)) end, nil, nil, function() return not CT.OptionsData.Selected or CT.OptionsData.Selected == '' end)
+	CT.Options.args.Macros.args.MacroTextExport = ACH:Input('Export Macro', nil, -1, 5, 'full', function() local name, dataType = CT.OptionsData.Selected, 'macros' return CT:ExportDataFromString(name, dataType, select(3, CT:GetMacroInfo(CT.OptionsData.Selected))) end, nil, nil, function() return not CT.OptionsData.Selected or CT.OptionsData.Selected == '' end)
 
 	-- Auto Talent
-	CT.Options.args.general.args.AutoTalent = ACH:Group('Auto Talents', nil, 1)
+	CT.Options.args.AutoTalent = ACH:Group('Auto Talents', nil, 1, 'select')
 
 	for realm, playerInfo in next, CT.db.autoTalents do
 		local RealmInfo = ACH:Group(realm)
@@ -145,9 +167,10 @@ function CT:BuildOptions()
 			RealmInfo.args[player] = playerOption
 		end
 
-		CT.Options.args.general.args.AutoTalent.args[realm] = RealmInfo
+		CT.Options.args.AutoTalent.args[realm] = RealmInfo
 	end
 
+	-- Class Sections
 	for i = 1, GetNumClasses() do
 		local className, classTag, classID = GetClassInfo(i);
 
@@ -179,7 +202,7 @@ function CT:BuildOptions()
 				specOption.args.Macros.args.Defaults.values[macroName] = macroName
 			end
 
-			specOption.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -1, 5, 'full', function() return CT.RetailData[classTag][specGroup].Macros[CT.db.macros[classTag][specGroup].selected] end, nil, nil, function() return CT.db.macros[classTag][specGroup].selected == '' end)
+			specOption.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -2, 5, 'full', function() return CT.RetailData[classTag][specGroup].Macros[CT.db.macros[classTag][specGroup].selected] or select(3, CT:GetMacroInfo(CT.db.macros[classTag][specGroup].selected)) end, nil, nil, function() return CT.db.macros[classTag][specGroup].selected == '' end)
 
 			-- Talents
 			specOption.args.Talents = ACH:Group('Talents')
