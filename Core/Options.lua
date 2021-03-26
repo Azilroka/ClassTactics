@@ -38,6 +38,7 @@ function CT:BuildProfile()
 	local Defaults = {
 		profile = {
 			isShown = true,
+			pvpShown = true,
 			autoTalent = true,
 			talentBuilds = {},
 			talentBuildsPvP = {},
@@ -170,7 +171,7 @@ function CT:BuildOptions()
 		CT.Options.args.AutoTalent.args[realm] = RealmInfo
 	end
 
-	-- Class Sections
+	-- Class Section
 	for i = 1, GetNumClasses() do
 		local className, classTag, classID = GetClassInfo(i);
 
