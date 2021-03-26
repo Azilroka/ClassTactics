@@ -175,10 +175,14 @@ function CT:GetTalentIDByString(classTag, specGroup, name)
 end
 
 function CT:SetTalentsByName(name)
+	local specGroup = GetSpecialization()
+
+	CT.db.talentBuilds[CT.MyClass][specGroup].selected = name
 	LearnTalents(CT:GetTalentIDByString(CT.MyClass, GetSpecialization(), name))
 end
 
 function CT:ApplyTalents(classTag, specGroup, name)
+	CT.db.talentBuilds[classTag][specGroup].selected = name
 	LearnTalents(CT:GetTalentIDByString(classTag, specGroup, name))
 end
 

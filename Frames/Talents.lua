@@ -507,19 +507,25 @@ function CT:IsTalentSetSelected(name)
 
 	local activeSpecIndex, selectedTalents = GetSpecialization(), CT:GetSelectedTalents()
 
+	local db = CT.db.talentBuilds[CT.MyClass][activeSpecIndex]
+
+	if db[db.selected] == name then
+		return true
+	end
+
 	for talentSet, talentString in next, CT.RetailData[CT.MyClass][activeSpecIndex].Talents do
 		if talentSet ~= 'selected' then
 			local returnString = CT:GetMaximumTalentsByString(talentString)
-			if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+			if talentSet == name and (returnString and returnString ~= '' and strmatch(selectedTalents, returnString)) then
 				return true
 			end
 		end
 	end
 
-	for talentSet, talentString in next, CT.db.talentBuilds[CT.MyClass][activeSpecIndex] do
+	for talentSet, talentString in next, db do
 		if talentSet ~= 'selected' then
 			local returnString = CT:GetMaximumTalentsByString(talentString)
-			if talentSet == name and (returnString and strmatch(selectedTalents, returnString)) then
+			if talentSet == name and (returnString and returnString ~= '' and strmatch(selectedTalents, returnString)) then
 				return true
 			end
 		end
@@ -531,8 +537,13 @@ end
 function CT:IsPvPTalentSetSelected(name)
 	local activeSpecIndex = GetSpecialization()
 	local selectedTalents = CT:GetSelectedPvPTalents()
+	local db = CT.db.talentBuildsPvP[CT.MyClass][activeSpecIndex]
 
-	for talentSet, talentString in next, CT.db.talentBuildsPvP[CT.MyClass][activeSpecIndex] do
+	if db[db.selected] == name then
+		return true
+	end
+
+	for talentSet, talentString in next, db do
 		if talentSet == name and selectedTalents == talentString then
 			return true
 		end
