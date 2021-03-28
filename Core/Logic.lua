@@ -239,6 +239,19 @@ function CT:GetMaximumTalentsByString(talentString)
 	return strmatch(talentString, compareString)
 end
 
+function CT:AddDefaultBuild(classTag, specGroup, selected)
+	if classTag == CT.MyClass and specGroup == GetSpecialization() then
+		CT.db.talentBuilds[classTag][specGroup][selected] = CT.RetailData[classTag][specGroup].Talents[selected]
+	end
+end
+
+function CT:CanAddDefaultBuild(classTag, specGroup, selected)
+	if classTag == CT.MyClass and specGroup == GetSpecialization() and CT.RetailData[classTag][specGroup].Talents[selected] then
+		return true
+	end
+	return false
+end
+
 -- PvP Talents
 function CT:GetPvPTalentIDByString(classTag, specGroup, name)
 	local talentString = CT.db.talentBuildsPvP[classTag] and CT.db.talentBuildsPvP[classTag][specGroup] and CT.db.talentBuildsPvP[classTag][specGroup][name]

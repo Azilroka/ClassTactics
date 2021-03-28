@@ -125,7 +125,6 @@ function CT:TalentProfiles()
 	ProfileMenu.Gradients = {}
 
 	ProfileMenu.Gradients[1] = CT:AddGradientColor(ProfileMenu, 240, 2, CT.ClassColor)
-	ProfileMenu.Gradients[2] = CT:AddGradientColor(ProfileMenu, 240, 2, CT.ClassColor)
 
 	ProfileMenu.Title = ProfileMenu:CreateFontString(nil, 'OVERLAY')
 	ProfileMenu.Title:SetFont(CT.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
@@ -138,7 +137,7 @@ function CT:TalentProfiles()
 	ProfileMenu.NewButton = CreateFrame('Button', nil, ProfileMenu, 'BackdropTemplate, UIPanelButtonTemplate')
 	ProfileMenu.NewButton:SetText('Save Talents')
 	ProfileMenu.NewButton:SetSize(240, 20)
-	ProfileMenu.NewButton:SetPoint('TOP', ProfileMenu.Gradients[2], 'BOTTOM', 0, -5)
+	ProfileMenu.NewButton:SetPoint('TOP', ProfileMenu.Gradients[1], 'BOTTOM', 0, -5)
 	ProfileMenu.NewButton:SetScript('OnClick', function() CT:SetupTalentPopup() end)
 
 	ProfileMenu.Exchange = CreateFrame("Frame", nil, _G.PlayerTalentFrameTalents)
@@ -366,37 +365,13 @@ function CT:TalentProfiles_Update()
 
 	sort(CT.CurrentTalentProfiles)
 
-	-- Default
-	local numProfiles, PreviousButton = 0
-	for name in CT:OrderedPairs(CT.RetailData[CT.MyClass][activeSpecIndex].Talents) do
-		numProfiles = numProfiles + 1
-		local Button = CT.TalentsFrames.Buttons[numProfiles] or CT:TalentProfiles_Create()
-		Button:Show()
-		Button.Load:SetWidth(240)
-		Button.Load:SetText(CT:IsTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
-		Button.Options:Hide()
-		Button.Name = name
-
-		if numProfiles == 1 then
-			Button:SetPoint('TOPLEFT', CT.TalentsFrames.Gradients[1], 'BOTTOMLEFT', 0, -5)
-		else
-			Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -5)
-		end
-
-		PreviousButton = Button
-	end
-
-	CT.TalentsFrames.Gradients[2]:ClearAllPoints()
-	CT.TalentsFrames.Gradients[2]:SetPoint('TOPLEFT', CT.TalentsFrames.Buttons[numProfiles], 'BOTTOMLEFT', 0, -5)
-
 	-- Saved
-	local index = 0
+	local index, PreviousButton = 0
 	for name in CT:OrderedPairs(CT.db.talentBuilds[CT.MyClass][activeSpecIndex]) do
 		if name ~= 'selected' then
 			index = index + 1
-			numProfiles = numProfiles + 1
 
-			local Button = CT.TalentsFrames.Buttons[numProfiles] or CT:TalentProfiles_Create()
+			local Button = CT.TalentsFrames.Buttons[index] or CT:TalentProfiles_Create()
 			Button:Show()
 			Button.Load:SetText(CT:IsTalentSetSelected(name) and format('%s %s', READY_CHECK_READY_TEXTURE_INLINE, name) or name)
 			Button.Name = name
@@ -411,12 +386,12 @@ function CT:TalentProfiles_Update()
 		end
 	end
 
-	for i = numProfiles + 1, #CT.TalentsFrames.Buttons do
+	for i = index + 1, #CT.TalentsFrames.Buttons do
 		CT.TalentsFrames.Buttons[i]:Hide()
 	end
 
 	local maxHeight = _G.PlayerTalentFrame:GetHeight()
-	local minHeight = (45 + (numProfiles + 1) * 25)
+	local minHeight = (45 + (index + 1) * 25)
 	if minHeight < maxHeight then
 		CT.TalentsFrames:SetHeight(minHeight)
 	else
@@ -504,15 +479,6 @@ function CT:IsTalentSetSelected(name)
 
 	if db[db.selected] == name then
 		return true
-	end
-
-	for talentSet, talentString in next, CT.RetailData[CT.MyClass][activeSpecIndex].Talents do
-		if talentSet ~= 'selected' then
-			local returnString = CT:GetMaximumTalentsByString(talentString)
-			if talentSet == name and (returnString and returnString ~= '' and strmatch(selectedTalents, returnString)) then
-				return true
-			end
-		end
 	end
 
 	for talentSet, talentString in next, db do
