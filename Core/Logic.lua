@@ -28,10 +28,19 @@ local LearnTalents = LearnTalents
 local UnitLevel = UnitLevel
 local InCombatLockdown = InCombatLockdown
 local GetPvpTalentInfoByID = GetPvpTalentInfoByID
+local GetMacroInfo = GetMacroInfo
+local CreateMacro = CreateMacro
+local GetNumBindings = GetNumBindings
+local GetBinding = GetBinding
+local GetCurrentBindingSet = GetCurrentBindingSet
+local GetBindingKey = GetBindingKey
+local SetBinding = SetBinding
 
 local TALENT_NOT_SELECTED = TALENT_NOT_SELECTED
 local MAX_TALENT_TIERS = MAX_TALENT_TIERS
 local NUM_TALENT_COLUMNS = NUM_TALENT_COLUMNS
+local MAX_ACCOUNT_MACROS = MAX_ACCOUNT_MACROS
+local MAX_CHARACTER_MACROS = MAX_CHARACTER_MACROS
 
 CT.ClassData = {
 	Sorted = CopyTable(CLASS_SORT_ORDER),
@@ -123,12 +132,12 @@ function CT:ExportData(name, dbKey)
 	return encodedData
 end
 
-function CT:ExportDataFromString(name, dataType, dataString)
+function CT:ExportDataFromString(name, dataType, dataInfo)
 	if not name or type(name) ~= 'string' then
 		return
 	end
 
-	local data = type(dataString) == 'string' and dataString
+	local data = type(dataInfo) == 'table' and CopyTable(dataInfo) or dataInfo
 
 	if not data then
 		return
@@ -324,10 +333,41 @@ function CT:GetCharacterMacros()
 	return macroTable
 end
 
+function CT:GetImportedMacros()
+	local macroTable = {}
+
+	for name in pairs(CT.db.importedMacros) do
+		macroTable[name] = name
+	end
+
+	return macroTable
+end
+
 function CT:GetMacroInfo(macroName)
 	local name, icon, body = GetMacroInfo(macroName)
+
+	if not name and CT.db.importedMacros[macroName] then
+		name, icon, body = macroName, CT.db.importedMacros[macroName].icon, CT.db.importedMacros[macroName].text
+	end
 
 	body = body and strtrim(body)
 
 	return name, icon, body
+end
+
+function CT:SetupMacroPopup(macroName, perCharacter)
+	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS
+	Dialog.text = 'Enter a Name:'
+	Dialog.button1 = 'Create'
+	Dialog.hasEditBox = 1
+	Dialog.EditBoxOnEscapePressed = function(s) s:GetParent():Hide() end
+	Dialog.OnAccept = function(s) CT:CreateMacro(macroName, s.editBox:GetText(), perCharacter) end
+	Dialog.EditBoxOnEnterPressed = function(s) CT:CreateMacro(macroName, s:GetText(), perCharacter) s:GetParent():Hide() end
+
+	_G.StaticPopup_Show('CLASSTACTICS')
+end
+
+function CT:CreateMacro(macroName, newName, perCharacter)
+	local data = CT.db.importedMacros[macroName]
+	CreateMacro(newName, data.icon, data.text, perCharacter)
 end

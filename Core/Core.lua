@@ -1,5 +1,12 @@
 local CT = unpack(_G.ClassTactics)
 
+_G.StaticPopupDialogs.CLASSTACTICS = {
+	button2 = 'Cancel',
+	timeout = 0,
+	whileDead = 1,
+	enterClicksFirstButton = 1,
+}
+
 function CT:Init(event, addon)
 	CT:BuildProfile()
 	CT:BuildOptions()

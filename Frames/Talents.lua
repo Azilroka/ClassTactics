@@ -50,15 +50,8 @@ CT.MenuList = {
 	{ text = 'Delete', arg1 = 'delete', notCheckable = true},
 }
 
-_G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE = {
-	button2 = 'Cancel',
-	timeout = 0,
-	whileDead = 1,
-	enterClicksFirstButton = 1,
-}
-
 function CT:SetupTalentPopup(setupType, funcSetup, name)
-	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS_TALENTPROFILE
+	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS
 	Dialog.text = 'Enter a Name:'
 	Dialog.button1 = 'Create'
 	Dialog.hasEditBox = 1
@@ -81,7 +74,7 @@ function CT:SetupTalentPopup(setupType, funcSetup, name)
 		Dialog.EditBoxOnEnterPressed = function(s) db[s:GetText()] = db[name] db[name] = nil CT:TalentProfiles_Update() s:GetParent():Hide() end
 	end
 
-	_G.StaticPopup_Show('CLASSTACTICS_TALENTPROFILE')
+	_G.StaticPopup_Show('CLASSTACTICS')
 end
 
 function CT:OrderedPairs(t, f)
