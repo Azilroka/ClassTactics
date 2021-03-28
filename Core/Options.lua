@@ -7,6 +7,7 @@ local strsplit = strsplit
 local format = format
 local select = select
 local next = next
+local wipe = wipe
 
 local GetSpecialization = GetSpecialization
 local GetNumClasses = GetNumClasses
@@ -210,13 +211,16 @@ function CT:BuildOptions()
 				specOption.args.Macros.args.Defaults.values[macroName] = macroName
 			end
 
-			specOption.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -2, 5, 'full', function() return CT.RetailData[classTag][specGroup].Macros[CT.OptionsData[classTag][specGroup].SelectedMacro] end, nil, nil, function() return CT.OptionsData[classTag][specGroup].SelectedMacro == '' end)
+			specOption.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -2, 5, 'full', function() return CT.RetailData[classTag][specGroup].Macros[CT.OptionsData[classTag][specGroup].SelectedMacro] end, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedMacro or CT.OptionsData[classTag][specGroup].SelectedMacro == '' end)
 
 			-- Talents
 			specOption.args.Talents = ACH:Group('Talents')
-			specOption.args.Talents.args.Preview = ACH:Group('Preview', nil, 0)
+			specOption.args.Talents.args.Defaults = ACH:MultiSelect('Defaults', nil, 1, function() local list = {} for talentName in next, CT.RetailData[classTag][specGroup].Talents do list[talentName] = talentName end return list end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedTalent == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedTalent = key end)
+			specOption.args.Talents.args.Custom = ACH:MultiSelect('Custom', nil, 2, function() local list = {} for talentName in next, CT.db.talentBuilds[classTag][specGroup] do if talentName ~= 'selected' then list[talentName] = talentName end end return list end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedTalent == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedTalent = key end, nil, function() for talentName in next, CT.db.talentBuilds[classTag][specGroup] do if talentName ~= 'selected' then return false end end return true end)
+
+			specOption.args.Talents.args.Preview = ACH:Group('Preview', nil, -1, nil, nil, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedTalent or CT.OptionsData[classTag][specGroup].SelectedTalent == '' end)
 			specOption.args.Talents.args.Preview.inline = true
-			specOption.args.Talents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -2, function() CT:ApplyTalents(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedTalent) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= specGroup)) end)
+			specOption.args.Talents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -2, function() CT:SetTalentsByName(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedTalent) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= specGroup)) end)
 			specOption.args.Talents.args.Preview.args.ExportTalents = ACH:Input('Export Talents', nil, -1, 5, 'full', function() local name, dbKey = CT.OptionsData[classTag][specGroup].SelectedTalent, strjoin('\a', 'talentBuilds', classTag, specGroup) return CT:ExportData(name, dbKey) end, nil, nil, function() return CT.RetailData[classTag][specGroup].Talents[CT.OptionsData[classTag][specGroup].SelectedTalent] end)
 
 			for v = 1, 7 do
@@ -224,22 +228,20 @@ function CT:BuildOptions()
 				specOption.args.Talents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
 			end
 
-			specOption.args.Talents.args.Defaults = ACH:MultiSelect('Defaults', nil, 1, function() local list = {} for talentName in next, CT.RetailData[classTag][specGroup].Talents do list[talentName] = talentName end return list end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedTalent == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedTalent = key end)
-			specOption.args.Talents.args.Custom = ACH:MultiSelect('Custom', nil, 2, function() local list = {} for talentName in next, CT.db.talentBuilds[classTag][specGroup] do if talentName ~= 'selected' then list[talentName] = talentName end end return list end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedTalent == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedTalent = key end, nil, function() for talentName in next, CT.db.talentBuilds[classTag][specGroup] do if talentName ~= 'selected' then return false end end return true end)
-
 			-- PvP Talents
 			specOption.args.PvPTalents = ACH:Group('PvP Talents')
-			specOption.args.PvPTalents.args.Preview = ACH:Group('Preview', nil, 0)
+			specOption.args.PvPTalents.args.NoBuilds = ACH:Description('No Saved Builds', 1, 'large', nil, nil, nil, nil, nil, function() for index in next, CT.db.talentBuildsPvP[classTag][specGroup] do if index then return true end end return false end)
+			specOption.args.PvPTalents.args.Custom = ACH:MultiSelect('Custom', nil, 1, function() local list = {} for talentName in next, CT.db.talentBuildsPvP[classTag][specGroup] do if talentName ~= 'selected' then list[talentName] = talentName end end return list end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedPvPTalent == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedPvPTalent = key end, nil, function() for talentName in next, CT.db.talentBuildsPvP[classTag][specGroup] do if talentName ~= 'selected' then return false end end return true end)
+
+			specOption.args.PvPTalents.args.Preview = ACH:Group('Preview', nil, -1, nil, nil, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedPvPTalent or CT.OptionsData[classTag][specGroup].SelectedPvPTalent == '' end)
 			specOption.args.PvPTalents.args.Preview.inline = true
-			specOption.args.PvPTalents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -2, function() CT:ApplyPvPTalents(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedPvPTalent) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= specGroup)) end)
+			specOption.args.PvPTalents.args.Preview.args.ApplyTalents = ACH:Execute('Apply Talents', nil, -2, function() CT:SetPvPTalentsByName(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedPvPTalent) end, nil, nil, 'full', nil, nil, nil, function() return (classTag ~= CT.MyClass) or (classTag == CT.MyClass and (GetSpecialization() ~= specGroup)) end)
 			specOption.args.PvPTalents.args.Preview.args.ExportTalents = ACH:Input('Export Talents', nil, -1, 5, 'full', function() local name, dbKey = CT.OptionsData[classTag][specGroup].SelectedPvPTalent, strjoin('\a', 'talentBuildsPvP', classTag, specGroup) return CT:ExportData(name, dbKey) end, nil, nil, function() return not CT.db.talentBuildsPvP[classTag][specGroup][CT.OptionsData[classTag][specGroup].SelectedPvPTalent] end)
 
 			for v = 1, 3 do
 				specOption.args.PvPTalents.args.Preview.args['talent'..v] = ACH:Execute(function() local talentID = select(v, CT:GetPvPTalentIDByString(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedPvPTalent)) return select(2, CT:GetPvPTalentInfoByID(talentID)) end, nil, v, nil, function() local talentID = select(v, CT:GetPvPTalentIDByString(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedPvPTalent)) return select(3, CT:GetPvPTalentInfoByID(talentID)) end, nil, .75)
 				specOption.args.PvPTalents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
 			end
-
-			specOption.args.PvPTalents.args.Custom = ACH:MultiSelect('Custom', nil, 2, function() local list = {} for talentName in next, CT.db.talentBuildsPvP[classTag][specGroup] do if talentName ~= 'selected' then list[talentName] = talentName end end return list end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedPvPTalent == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedPvPTalent = key end, nil, function() for talentName in next, CT.db.talentBuildsPvP[classTag][specGroup] do if talentName ~= 'selected' then return false end end return true end)
 
 			CT.Options.args[classTag].args[''..specGroup] = specOption
 		end

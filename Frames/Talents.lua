@@ -291,7 +291,7 @@ function CT:TalentProfiles_Create()
 
 	Frame.Load:SetScript('OnEnter', function() CT:SetupTalentMarkers() CT:ShowTalentMarkers(Frame.Name) end)
 	Frame.Load:SetScript('OnLeave', function() CT:HideTalentMarkers() end)
-	Frame.Load:SetScript('OnClick', function() CT:SetTalentsByName(Frame.Name) end)
+	Frame.Load:SetScript('OnClick', function() CT:SetTalentsByName(nil, nil, Frame.Name) end)
 	Frame.Options:SetScript('OnClick', function(s) CT:SetEasyMenuAnchor(s) CT:SetEasyMenu_Talents(nil, Frame.Name) end)
 
 	tinsert(CT.TalentsFrames.Buttons, Frame)
@@ -303,7 +303,7 @@ function CT:PvPTalentProfiles_Create()
 	local Frame = CT:TalentProfiles_CreateLoadout()
 	Frame:SetParent(CT.TalentsFrames.PvPTalents)
 
-	Frame.Load:SetScript('OnClick', function() CT:SetPvPTalentsByName(Frame.Name) end)
+	Frame.Load:SetScript('OnClick', function() CT:SetPvPTalentsByName(nil, nil, Frame.Name) end)
 	Frame.Options:SetScript('OnClick', function(s) CT:SetEasyMenuAnchor(s) CT:SetEasyMenu_Talents('PvP', Frame.Name) end)
 
 	tinsert(CT.TalentsFrames.PvPTalents.Buttons, Frame)

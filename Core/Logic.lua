@@ -14,6 +14,7 @@ local strsub = strsub
 local unpack = unpack
 local format = format
 local strmatch = strmatch
+local strtrim = strtrim
 local next = next
 
 local CopyTable = CopyTable
@@ -174,14 +175,10 @@ function CT:GetTalentIDByString(classTag, specGroup, name)
 	end
 end
 
-function CT:SetTalentsByName(name)
-	local specGroup = GetSpecialization()
+function CT:SetTalentsByName(classTag, specGroup, name)
+	classTag = classTag or CT.MyClass
+	specGroup = specGroup or GetSpecialization()
 
-	CT.db.talentBuilds[CT.MyClass][specGroup].selected = name
-	LearnTalents(CT:GetTalentIDByString(CT.MyClass, GetSpecialization(), name))
-end
-
-function CT:ApplyTalents(classTag, specGroup, name)
 	CT.db.talentBuilds[classTag][specGroup].selected = name
 	LearnTalents(CT:GetTalentIDByString(classTag, specGroup, name))
 end
@@ -250,16 +247,8 @@ function CT:GetSelectedPvPTalents()
 	return table.concat(CT.CurrentPvPTalentTable, ',')
 end
 
-function CT:SetPvPTalentsByName(name)
-	local savedPvPTalents = tInvert({ CT:GetPvPTalentIDByString(CT.MyClass, GetSpecialization(), name) })
-
-	for talentID, index in next, savedPvPTalents do
-		LearnPvpTalent(talentID, index)
-	end
-end
-
-function CT:ApplyPvPTalents(classTag, specGroup, name)
-	local savedPvPTalents =  tInvert({ CT:GetPvPTalentIDByString(classTag, specGroup, name) })
+function CT:SetPvPTalentsByName(classTag, specGroup, name)
+	local savedPvPTalents = tInvert({ CT:GetPvPTalentIDByString(classTag or CT.MyClass, specGroup or GetSpecialization(), name) })
 
 	for talentID, index in next, savedPvPTalents do
 		LearnPvpTalent(talentID, index)

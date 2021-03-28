@@ -53,7 +53,7 @@ local function OnClick(self)
 	for talentName in next, CT.RetailData[E.myclass][specIndex].Talents do
 		menuList[index] = menuList[index] or {}
 		menuList[index].text = talentName
-		menuList[index].func = function(_, name) CT:SetTalentsByName(name) end
+		menuList[index].func = function(_, name) CT:SetTalentsByName(nil, nil, name) end
 		menuList[index].checked = function() return CT:IsTalentSetSelected(talentName) end
 		menuList[index].arg1 = talentName
 
@@ -63,7 +63,7 @@ local function OnClick(self)
 	for talentName in next, CT.db.talentBuilds[E.myclass][specIndex] do
 		menuList[index] = menuList[index] or {}
 		menuList[index].text = talentName
-		menuList[index].func = function(_, name) CT:SetTalentsByName(name) end
+		menuList[index].func = function(_, name) CT:SetTalentsByName(nil, nil, name) end
 		menuList[index].checked = function() return CT:IsTalentSetSelected(talentName) end
 		menuList[index].arg1 = talentName
 
