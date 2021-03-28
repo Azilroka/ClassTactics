@@ -336,7 +336,7 @@ end
 function CT:GetImportedMacros()
 	local macroTable = {}
 
-	for name in pairs(CT.db.importedMacros) do
+	for name in pairs(CT.db.macros) do
 		macroTable[name] = name
 	end
 
@@ -346,8 +346,8 @@ end
 function CT:GetMacroInfo(macroName)
 	local name, icon, body = GetMacroInfo(macroName)
 
-	if not name and CT.db.importedMacros[macroName] then
-		name, icon, body = macroName, CT.db.importedMacros[macroName].icon, CT.db.importedMacros[macroName].text
+	if not name and CT.db.macros[macroName] then
+		name, icon, body = macroName, CT.db.macros[macroName].icon, CT.db.macros[macroName].text
 	end
 
 	body = body and strtrim(body)
@@ -368,6 +368,10 @@ function CT:SetupMacroPopup(macroName, perCharacter)
 end
 
 function CT:CreateMacro(macroName, newName, perCharacter)
-	local data = CT.db.importedMacros[macroName]
+	local data = CT.db.macros[macroName]
 	CreateMacro(newName, data.icon, data.text, perCharacter)
+end
+
+function CT:DeleteImportedMacro(macroName)
+	CT.db.macros[macroName] = nil
 end

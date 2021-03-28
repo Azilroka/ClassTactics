@@ -44,7 +44,6 @@ function CT:BuildProfile()
 			talentBuilds = {},
 			talentBuildsPvP = {},
 			macros = {},
-			importedMacros = {},
 			keybinds = {
 				[CT.MyRealm] = {
 					[CT.MyName] = {}
@@ -61,12 +60,10 @@ function CT:BuildProfile()
 	for classTag, classID in next, CT.ClassData.Numerical do
 		Defaults.profile.talentBuilds[classTag] = {}
 		Defaults.profile.talentBuildsPvP[classTag] = {}
-		Defaults.profile.macros[classTag] = {}
 
 		for k = 1, GetNumSpecializationsForClassID(classID) do
 			Defaults.profile.talentBuilds[classTag][k] = {}
 			Defaults.profile.talentBuildsPvP[classTag][k] = {}
-			Defaults.profile.macros[classTag][k] = {}
 		end
 	end
 
@@ -161,13 +158,14 @@ function CT:BuildOptions()
 
 	CT.Options.args.Macros.args.AccountMacro = ACH:MultiSelect('Account Macros', nil, 1, function() return CT:GetAccountMacros() end, nil, nil, function(_, key) return CT.OptionsData.Macros.Selected == key end, function(_, key) CT.OptionsData.Macros.Selected = key CT.OptionsData.Macros.SelectedImport = nil end)
 	CT.Options.args.Macros.args.CharacterMacro = ACH:MultiSelect('Character Macros', nil, 2, function() return CT:GetCharacterMacros() end, nil, nil, function(_, key) return CT.OptionsData.Macros.Selected == key end, function(_, key) CT.OptionsData.Macros.Selected = key CT.OptionsData.Macros.SelectedImport = nil end)
-	CT.Options.args.Macros.args.ImportedMacros = ACH:MultiSelect('Imported Macros', nil, 3, function() return CT:GetImportedMacros() end, nil, nil, function(_, key) return CT.OptionsData.Macros.SelectedImport == key end, function(_, key) CT.OptionsData.Macros.SelectedImport = key CT.OptionsData.Macros.Selected = nil end)
+	CT.Options.args.Macros.args.ImportedMacros = ACH:MultiSelect('Imported Macros', nil, 3, function() return CT:GetImportedMacros() end, nil, nil, function(_, key) return CT.OptionsData.Macros.SelectedImport == key end, function(_, key) CT.OptionsData.Macros.SelectedImport = key CT.OptionsData.Macros.Selected = nil end, nil, function() for macro in next, CT.db.macros do if macro then return false end end return true end)
 
-	CT.Options.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -4, 5, 'full', function() return select(3, CT:GetMacroInfo(CT.OptionsData.Macros.Selected or CT.OptionsData.Macros.SelectedImport)) end, nil, nil, function() return not (CT.OptionsData.Macros.Selected or CT.OptionsData.Macros.SelectedImport) or CT.OptionsData.Macros.Selected == '' or CT.OptionsData.Macros.SelectedImport == '' end)
-	CT.Options.args.Macros.args.MacroTextExport = ACH:Input('Export Macro', nil, -3, 5, 'full', function() local name, dataType = CT.OptionsData.Macros.Selected, 'importedMacros' local macroTable = {} macroTable.icon, macroTable.text = select(2, CT:GetMacroInfo(CT.OptionsData.Macros.Selected)) return CT:ExportDataFromString(name, dataType, macroTable) end, nil, nil, function() return not CT.OptionsData.Macros.Selected or CT.OptionsData.Macros.Selected == '' end)
+	CT.Options.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -5, 5, 'full', function() return select(3, CT:GetMacroInfo(CT.OptionsData.Macros.Selected or CT.OptionsData.Macros.SelectedImport)) end, nil, nil, function() return not (CT.OptionsData.Macros.Selected or CT.OptionsData.Macros.SelectedImport) or CT.OptionsData.Macros.Selected == '' or CT.OptionsData.Macros.SelectedImport == '' end)
+	CT.Options.args.Macros.args.MacroTextExport = ACH:Input('Export Macro', nil, -4, 5, 'full', function() local name, dataType = CT.OptionsData.Macros.Selected, 'macros' local macroTable = {} macroTable.icon, macroTable.text = select(2, CT:GetMacroInfo(CT.OptionsData.Macros.Selected)) return CT:ExportDataFromString(name, dataType, macroTable) end, nil, nil, function() return not CT.OptionsData.Macros.Selected or CT.OptionsData.Macros.Selected == '' end)
 
-	CT.Options.args.Macros.args.MacroCreateAccount = ACH:Execute('Create Account Macro', nil, -2, function() CT:SetupMacroPopup(CT.OptionsData.Macros.SelectedImport) end, nil, nil, 'full', nil, nil, nil, function() return not CT.OptionsData.Macros.SelectedImport or CT.OptionsData.Macros.SelectedImport == '' end)
-	CT.Options.args.Macros.args.MacroCreateCharacter = ACH:Execute('Create Character Macro', nil, -1, function() CT:SetupMacroPopup(CT.OptionsData.Macros.SelectedImport, 1) end, nil, nil, 'full', nil, nil, nil, function() return not CT.OptionsData.Macros.SelectedImport or CT.OptionsData.Macros.SelectedImport == '' end)
+	CT.Options.args.Macros.args.MacroCreateAccount = ACH:Execute('Create Account Macro', nil, -3, function() CT:SetupMacroPopup(CT.OptionsData.Macros.SelectedImport) end, nil, nil, 'full', nil, nil, nil, function() return not CT.OptionsData.Macros.SelectedImport or CT.OptionsData.Macros.SelectedImport == '' end)
+	CT.Options.args.Macros.args.MacroCreateCharacter = ACH:Execute('Create Character Macro', nil, -2, function() CT:SetupMacroPopup(CT.OptionsData.Macros.SelectedImport, 1) end, nil, nil, 'full', nil, nil, nil, function() return not CT.OptionsData.Macros.SelectedImport or CT.OptionsData.Macros.SelectedImport == '' end)
+	CT.Options.args.Macros.args.MacroDelete = ACH:Execute('Delete Selected Macro', nil, -1, function() CT:DeleteImportedMacro(CT.OptionsData.Macros.SelectedImport) CT.OptionsData.Macros.SelectedImport = nil end, nil, nil, 'full', nil, nil, nil, function() return not CT.OptionsData.Macros.SelectedImport or CT.OptionsData.Macros.SelectedImport == '' end)
 
 	-- Keybinds
 	CT.Options.args.Keybind = ACH:Group('Keybind Management', nil, 1)
