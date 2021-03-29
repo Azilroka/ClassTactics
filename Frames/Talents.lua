@@ -391,7 +391,7 @@ function CT:TalentProfiles_Update()
 	end
 
 	local maxHeight = _G.PlayerTalentFrame:GetHeight()
-	local minHeight = (30 + (index + 1) * 24)
+	local minHeight = (30 + (index + 1) * 22)
 	if minHeight < maxHeight then
 		CT.TalentsFrames:SetHeight(minHeight)
 	else
@@ -424,7 +424,7 @@ function CT:TalentProfiles_Update()
 	end
 
 	maxHeight = _G.PlayerTalentFrame:GetHeight()
-	minHeight = (30 + (pvpIndex + 1) * 24)
+	minHeight = (30 + (pvpIndex + 1) * 22)
 	if minHeight < maxHeight then
 		CT.TalentsFrames.PvPTalents:SetHeight(minHeight)
 	else
