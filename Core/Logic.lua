@@ -368,14 +368,20 @@ function CT:GetMacroInfo(macroName)
 	return name, icon, body
 end
 
-function CT:SetupMacroPopup(macroName, perCharacter)
+function CT:SetupMacroPopup(macroName, perCharacter, defaultMacro)
 	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS
 	Dialog.text = 'Enter a Name:'
 	Dialog.button1 = 'Create'
 	Dialog.hasEditBox = 1
 	Dialog.EditBoxOnEscapePressed = function(s) s:GetParent():Hide() end
-	Dialog.OnAccept = function(s) CT:CreateMacro(macroName, s.editBox:GetText(), perCharacter) end
-	Dialog.EditBoxOnEnterPressed = function(s) CT:CreateMacro(macroName, s:GetText(), perCharacter) s:GetParent():Hide() end
+
+	if defaultMacro then
+		Dialog.OnAccept = function(s) CT:AddDefaultMacro(macroName, s.editBox:GetText(), perCharacter) end
+		Dialog.EditBoxOnEnterPressed = function(s) CT:AddDefaultMacro(macroName, s:GetText(), perCharacter) s:GetParent():Hide() end
+	else
+		Dialog.OnAccept = function(s) CT:CreateMacro(macroName, s.editBox:GetText(), perCharacter) end
+		Dialog.EditBoxOnEnterPressed = function(s) CT:CreateMacro(macroName, s:GetText(), perCharacter) s:GetParent():Hide() end
+	end
 
 	_G.StaticPopup_Show('CLASSTACTICS')
 end
@@ -387,4 +393,28 @@ end
 
 function CT:DeleteImportedMacro(macroName)
 	CT.db.macros[macroName] = nil
+end
+
+function CT:AddDefaultMacro(macroName, newName, perCharacter)
+	local text = CT.RetailData[CT.MyClass][GetSpecialization()].Macros[macroName]
+	CreateMacro(newName, "INV_MISC_QUESTIONMARK", text, perCharacter)
+end
+
+function CT:CanAddDefaultMacro(classTag, specGroup, selected)
+	if classTag == CT.MyClass and specGroup == GetSpecialization() and CT.RetailData[classTag][specGroup].Macros[selected] then
+		return true
+	end
+	return false
+end
+
+-- Keybinds
+function CT:SaveKeybinds()
+	for i = 1, GetNumBindings() do
+		local commandName = GetBinding(i, GetCurrentBindingSet())
+		local keys = { GetBindingKey(commandName) }
+		if next(keys) then
+			for _, binding in next, keys do
+			end
+		end
+	end
 end

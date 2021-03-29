@@ -224,7 +224,9 @@ function CT:BuildOptions()
 				specOption.args.Macros.args.Defaults.values[macroName] = macroName
 			end
 
-			specOption.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -2, 5, 'full', function() return CT.RetailData[classTag][specGroup].Macros[CT.OptionsData[classTag][specGroup].SelectedMacro] end, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedMacro or CT.OptionsData[classTag][specGroup].SelectedMacro == '' end)
+			specOption.args.Macros.args.MacroText = ACH:Input('Macro Text', nil, -3, 5, 'full', function() return CT.RetailData[classTag][specGroup].Macros[CT.OptionsData[classTag][specGroup].SelectedMacro] end, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedMacro or CT.OptionsData[classTag][specGroup].SelectedMacro == '' end)
+			specOption.args.Macros.args.MacroCreateAccount = ACH:Execute('Create Account Macro', nil, -2, function() CT:SetupMacroPopup(CT.OptionsData[classTag][specGroup].SelectedMacro, nil, true) end, nil, nil, 'full', nil, nil, nil, function() return not CT:CanAddDefaultMacro(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedMacro) end)
+			specOption.args.Macros.args.MacroCreateCharacter = ACH:Execute('Create Character Macro', nil, -1, function() CT:SetupMacroPopup(CT.OptionsData[classTag][specGroup].SelectedMacro, 1, true) end, nil, nil, 'full', nil, nil, nil, function() return not CT:CanAddDefaultMacro(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedMacro) end)
 
 			-- Talents
 			specOption.args.Talents = ACH:Group('Talents')
