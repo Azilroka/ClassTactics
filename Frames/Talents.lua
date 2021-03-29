@@ -265,10 +265,10 @@ function CT:TalentProfiles_CreateLoadout()
 		Frame[Button]:RegisterForClicks('AnyDown')
 	end
 
-	Frame.Load:SetWidth(215)
+	Frame.Load:SetWidth(218)
 	Frame.Load:SetPoint('LEFT', Frame, 0, 0)
 
-	Frame.Options:SetPoint('LEFT', Frame.Load, 'RIGHT', 5, 0)
+	Frame.Options:SetPoint('LEFT', Frame.Load, 'RIGHT', 2, 0)
 
 	Frame.Options.Icon = Frame.Options:CreateTexture(nil, 'ARTWORK')
 	Frame.Options.Icon:SetPoint('TOPLEFT', 2, -2)
@@ -377,9 +377,9 @@ function CT:TalentProfiles_Update()
 			Button.Name = name
 
 			if index == 1 then
-				Button:SetPoint('TOPLEFT', CT.TalentsFrames.NewButton, 'BOTTOMLEFT', 0, -5)
+				Button:SetPoint('TOPLEFT', CT.TalentsFrames.NewButton, 'BOTTOMLEFT', 0, -2)
 			else
-				Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -5)
+				Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -2)
 			end
 
 			PreviousButton = Button
@@ -391,7 +391,7 @@ function CT:TalentProfiles_Update()
 	end
 
 	local maxHeight = _G.PlayerTalentFrame:GetHeight()
-	local minHeight = (35 + (index + 1) * 25)
+	local minHeight = (30 + (index + 1) * 24)
 	if minHeight < maxHeight then
 		CT.TalentsFrames:SetHeight(minHeight)
 	else
@@ -410,9 +410,9 @@ function CT:TalentProfiles_Update()
 			Button.Name = name
 
 			if pvpIndex == 1 then
-				Button:SetPoint('TOPLEFT', CT.TalentsFrames.PvPTalents.NewButton, 'BOTTOMLEFT', 0, -5)
+				Button:SetPoint('TOPLEFT', CT.TalentsFrames.PvPTalents.NewButton, 'BOTTOMLEFT', 0, -2)
 			else
-				Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -5)
+				Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -2)
 			end
 
 			PreviousButton = Button
@@ -424,7 +424,7 @@ function CT:TalentProfiles_Update()
 	end
 
 	maxHeight = _G.PlayerTalentFrame:GetHeight()
-	minHeight = (35 + (pvpIndex + 1) * 25)
+	minHeight = (30 + (pvpIndex + 1) * 24)
 	if minHeight < maxHeight then
 		CT.TalentsFrames.PvPTalents:SetHeight(minHeight)
 	else
