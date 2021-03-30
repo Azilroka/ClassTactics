@@ -20,7 +20,6 @@ local GetAddOnEnableState = GetAddOnEnableState
 local GetAddOnMetadata = GetAddOnMetadata
 local GetRealmName = GetRealmName
 local UnitClass, UnitName = UnitClass, UnitName
-local UnitFactionGroup = UnitFactionGroup
 
 -- Project Data
 function AddOn:IsAddOnEnabled(addon, character)
@@ -38,29 +37,22 @@ AddOn.MyClass = select(2, UnitClass('player'))
 AddOn.MyName = UnitName('player')
 AddOn.MyRealm = GetRealmName()
 AddOn.TexCoords = {.08, .92, .08, .92}
-AddOn.Faction = UnitFactionGroup("player")
 AddOn.TicketTracker = 'https://git.tukui.org/Azilroka/ClassTactics/issues'
 
-AddOn.LSM = _G.LibStub('LibSharedMedia-3.0', true)
-AddOn.LCG = _G.LibStub('LibCustomGlow-1.0', true)
-AddOn.ACH = _G.LibStub('LibAceConfigHelper')
-AddOn.Compress = _G.LibStub('LibCompress')
-AddOn.Base64 = _G.LibStub('LibBase64-1.0', true)
-AddOn.AC = _G.LibStub('AceConfig-3.0')
-AddOn.GUI = _G.LibStub('AceGUI-3.0')
-AddOn.ACR = _G.LibStub('AceConfigRegistry-3.0')
-AddOn.ACD = _G.LibStub('AceConfigDialog-3.0')
-AddOn.ACL = Engine[2]
-AddOn.ADB = _G.LibStub('AceDB-3.0')
-
-if not AddOn.Base64 then
-	AddOn.Base64 = _G.LibStub('LibBase64-1.0-ElvUI')
-end
+AddOn.Libs = {
+	LSM = _G.LibStub('LibSharedMedia-3.0', true),
+	ACH = _G.LibStub('LibAceConfigHelper'),
+	Compress = _G.LibStub('LibCompress'),
+	Base64 = _G.LibStub('LibBase64-1.0-ElvUI'),
+	AC = _G.LibStub('AceConfig-3.0'),
+	GUI = _G.LibStub('AceGUI-3.0'),
+	ACR = _G.LibStub('AceConfigRegistry-3.0'),
+	ACD = _G.LibStub('AceConfigDialog-3.0'),
+	ACL = Engine[2],
+	ADB = _G.LibStub('AceDB-3.0'),
+}
 
 AddOn.AddOnSkins = AddOn:IsAddOnEnabled('AddOnSkins', AddOn.MyName)
 
 local Color = _G.RAID_CLASS_COLORS[AddOn.MyClass]
 AddOn.ClassColor = { Color.r, Color.g, Color.b }
-AddOn.Color = { 0, 0.44, .87, 1 }
-
-AddOn.Media = {}

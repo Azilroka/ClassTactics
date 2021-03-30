@@ -1,0 +1,12 @@
+tag v1.1
+b654b7802fb85ada56cd8332dbab1e4a11852081
+Adirelle <adirelle@tagada-team.net>
+2010-12-07 11:02:18 +0100
+
+Tagging as v1.1.
+
+
+--------------------
+
+Adirelle:
+	- Do not pass "nil:nil" values.

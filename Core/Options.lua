@@ -18,7 +18,7 @@ local GetSpecializationInfoForClassID = GetSpecializationInfoForClassID
 
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 
-local ACH = CT.ACH
+local ACH = CT.Libs.ACH
 
 CT.Options = ACH:Group(CT.Title, nil, 6)
 CT.Options.args.general = ACH:Group(_G.GENERAL, nil, 0, 'tab')
@@ -67,7 +67,7 @@ function CT:BuildProfile()
 		end
 	end
 
-	CT.data = _G.LibStub('AceDB-3.0'):New('ClassTacticsDB', Defaults, true)
+	CT.data = CT.Libs.ADB:New('ClassTacticsDB', Defaults, true)
 	CT.data.RegisterCallback(CT, 'OnProfileChanged', 'SetupProfile')
 	CT.data.RegisterCallback(CT, 'OnProfileCopied', 'SetupProfile')
 
@@ -128,7 +128,7 @@ function CT:BuildOptions()
 
 	-- Import
 	CT.Options.args.DataHandle.args.Import = ACH:Group('Import', nil, 1)
-	CT.Options.args.DataHandle.args.Import.args.Input = ACH:Input('Import', nil, 0, 20, 'full', function() return CT.OptionsData.Import.Value end, function(_, value) CT.OptionsData.Import.Value = value CT.OptionsData.Import.Name, CT.OptionsData.Import.Data, CT.OptionsData.Import.Key = CT:DecodeData(value) CT.OptionsData.Import.Type = type(CT.OptionsData.Import.Type) == 'string' and strsplit('\a', CT.OptionsData.Import.Key) end, nil, nil, function(_, value) return CT.Base64:IsBase64(value) end)
+	CT.Options.args.DataHandle.args.Import.args.Input = ACH:Input('Import', nil, 0, 20, 'full', function() return CT.OptionsData.Import.Value end, function(_, value) CT.OptionsData.Import.Value = value CT.OptionsData.Import.Name, CT.OptionsData.Import.Data, CT.OptionsData.Import.Key = CT:DecodeData(value) CT.OptionsData.Import.Type = type(CT.OptionsData.Import.Type) == 'string' and strsplit('\a', CT.OptionsData.Import.Key) end, nil, nil, function(_, value) return CT.Libs.Base64:IsBase64(value) end)
 	CT.Options.args.DataHandle.args.Import.args.Name = ACH:Description(function() return CT.OptionsData.Import.Name end, 0, 'large', nil, nil, nil, nil, nil, function() return CT.OptionsData.Import.Key end)
 
 	CT.Options.args.DataHandle.args.Import.args.Preview = ACH:Group('Preview', nil, 1, nil, nil, nil, nil, function() return not CT.OptionsData.Import.Data or not CT.OptionsData.Import.Key end)
@@ -140,7 +140,7 @@ function CT:BuildOptions()
 
 	for v = 1, 7 do
 		CT.Options.args.DataHandle.args.Import.args.Preview.args.Talents.args['talent'..v] = ACH:Execute(function() local talentID = select(v, strsplit(',', CT.OptionsData.Import.Data)) local name, _ if CT.OptionsData.Import.Type == 'talentBuilds' then _, name = CT:GetTalentInfoByID(talentID) else _, name = CT:GetPvPTalentInfoByID(talentID) end return name end, nil, v, nil, function() local talentID = select(v, strsplit(',', CT.OptionsData.Import.Data)) local _, icon if CT.OptionsData.Import.Type == 'talentBuilds' then _, _, icon = CT:GetTalentInfoByID(talentID) else _, _, icon = CT:GetPvPTalentInfoByID(talentID) end return icon end, nil, .75, nil, nil, nil, function() return v > 3 and CT.OptionsData.Import.Type == 'talentBuildsPvP' end)
-		CT.Options.args.DataHandle.args.Import.args.Preview.args.Talents.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
+		CT.Options.args.DataHandle.args.Import.args.Preview.args.Talents.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or CT.TexCoords end
 	end
 
 	CT.Options.args.DataHandle.args.Import.args.Import = ACH:Execute('Import Data', nil, -1, function() CT:ImportData(CT.OptionsData.Import.Value) wipe(CT.OptionsData.Import) end, nil, nil, 'full', nil, nil, function() return not CT.OptionsData.Import.Data end)
@@ -169,6 +169,16 @@ function CT:BuildOptions()
 
 	-- Keybinds
 	CT.Options.args.Keybind = ACH:Group('Keybind Management', nil, 1)
+
+	for i = 1, GetNumBindings() do
+		local command, category = GetBinding(i)
+		if not strfind(command, 'HEADER_') then
+			if not category then category = 'Other' end
+			CT.Options.args.Keybind.args[category] = CT.Options.args.Keybind.args[category] or ACH:Group(_G[category] or category)
+			CT.Options.args.Keybind.args[category].inline = true
+			CT.Options.args.Keybind.args[category].args[command] = { type = 'keybinding', order = i, name = function() local cmd = GetBinding(i) return _G["BINDING_NAME_"..cmd] or cmd end, get = function() local key1, key2 = select(3, GetBinding(i)) return key1 and (_G['KEY_'..key1] or key1) or '' end }
+		end
+	end
 
 	-- Auto Talent
 	CT.Options.args.AutoTalent = ACH:Group('Auto Talents', nil, 1, 'select')
@@ -241,7 +251,7 @@ function CT:BuildOptions()
 
 			for v = 1, 7 do
 				specOption.args.Talents.args.Preview.args['talent'..v] = ACH:Execute(function() local talentID = select(v, CT:GetTalentIDByString(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedTalent or CT.OptionsData[classTag][specGroup].SelectedTalentCustom)) return select(2, CT:GetTalentInfoByID(talentID)) end, nil, v, nil, function() local talentID = select(v, CT:GetTalentIDByString(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedTalent or CT.OptionsData[classTag][specGroup].SelectedTalentCustom)) return select(3, CT:GetTalentInfoByID(talentID)) end, nil, .75)
-				specOption.args.Talents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
+				specOption.args.Talents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or CT.TexCoords end
 			end
 
 			-- PvP Talents
@@ -256,7 +266,7 @@ function CT:BuildOptions()
 
 			for v = 1, 3 do
 				specOption.args.PvPTalents.args.Preview.args['talent'..v] = ACH:Execute(function() local talentID = select(v, CT:GetPvPTalentIDByString(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedPvPTalent)) return select(2, CT:GetPvPTalentInfoByID(talentID)) end, nil, v, nil, function() local talentID = select(v, CT:GetPvPTalentIDByString(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedPvPTalent)) return select(3, CT:GetPvPTalentInfoByID(talentID)) end, nil, .75)
-				specOption.args.PvPTalents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or { .1, .9, .1, .9} end
+				specOption.args.PvPTalents.args.Preview.args['talent'..v].imageCoords = function() return _G.ElvUI and _G.ElvUI[1].TexCoords or CT.TexCoords end
 			end
 
 			CT.Options.args[classTag].args[''..specGroup] = specOption
@@ -266,5 +276,9 @@ end
 
 function CT:GetOptions()
 	local Ace3OptionsPanel = _G.ElvUI and _G.ElvUI[1] or _G.Enhanced_Config
-	Ace3OptionsPanel.Options.args.ClassTactics = CT.Options
+	if Ace3OptionsPanel then
+		Ace3OptionsPanel.Options.args.ClassTactics = CT.Options
+	elseif _G.ClassTactics_Config then
+		_G.ClassTactics_Config.Options.args = CT.Options.args
+	end
 end

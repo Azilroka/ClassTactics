@@ -1,0 +1,16 @@
+## Interface: 40000
+## X-Curse-Packaged-Version: v1.1
+## X-Curse-Project-Name: AceGUI-3.0-ActionSlotWidgets
+## X-Curse-Project-ID: ace-gui-3-0-action-slot-widgets
+## X-Curse-Repository-ID: wow/ace-gui-3-0-action-slot-widgets/mainline
+
+## Title: Lib: AceGUI-3.0-ActionSlotWidget
+## Notes: Action slot widget for AceGUI-3.0.
+## Author: Adirelle
+## Version: v1.1
+## OptionalDeps: Ace3
+## X-Category: Library
+## X-Date: 2010-12-07T10:01:48Z
+## X-License: LGPL v2 or later
+
+widget.xml

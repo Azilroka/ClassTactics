@@ -25,6 +25,7 @@ local GetSpecialization = GetSpecialization
 local GetActiveSpecGroup = GetActiveSpecGroup
 local GetTalentInfo = GetTalentInfo
 local GetTalentInfoByID = GetTalentInfoByID
+local GetTalentTierInfo = GetTalentTierInfo
 local LearnTalents = LearnTalents
 local UnitLevel = UnitLevel
 local InCombatLockdown = InCombatLockdown
@@ -138,8 +139,8 @@ function CT:DecodeData(dataString)
 		return
 	end
 
-	local decodedData = CT.Base64:Decode(dataString)
-	local decompressedData = CT.Compress:Decompress(decodedData)
+	local decodedData = CT.Libs.Base64:Decode(dataString)
+	local decompressedData = CT.Libs.Compress:Decompress(decodedData)
 
 	if not decompressedData then
 		return
@@ -170,7 +171,7 @@ function CT:ExportData(name, dbKey)
 		end
 	end
 
-	local data = type(db[name]) == 'table' and CopyTable(db[name]) or db[name]
+	local data = type(db[name]) == 'table' and CT:CopyTable({}, db[name]) or db[name]
 
 	if not data then
 		return
@@ -178,8 +179,8 @@ function CT:ExportData(name, dbKey)
 
 	local serialData = CT:Serialize(data)
 	local exportString = format(dbKey and '%s;;%s\a%s' or '%s;;%s', serialData, name, dbKey)
-	local compressedData = CT.Compress:Compress(exportString)
-	local encodedData = CT.Base64:Encode(compressedData)
+	local compressedData = CT.Libs.Compress:Compress(exportString)
+	local encodedData = CT.Libs.Base64:Encode(compressedData)
 
 	return encodedData
 end
@@ -189,7 +190,7 @@ function CT:ExportDataFromString(name, dataType, dataInfo)
 		return
 	end
 
-	local data = type(dataInfo) == 'table' and CopyTable(dataInfo) or dataInfo
+	local data = type(dataInfo) == 'table' and CT:CopyTable({}, dataInfo) or dataInfo
 
 	if not data then
 		return
@@ -197,8 +198,8 @@ function CT:ExportDataFromString(name, dataType, dataInfo)
 
 	local serialData = CT:Serialize(data)
 	local exportString = format(dataType and '%s;;%s\a%s' or '%s;;%s', serialData, name, dataType)
-	local compressedData = CT.Compress:Compress(exportString)
-	local encodedData = CT.Base64:Encode(compressedData)
+	local compressedData = CT.Libs.Compress:Compress(exportString)
+	local encodedData = CT.Libs.Base64:Encode(compressedData)
 
 	return encodedData
 end
@@ -341,10 +342,17 @@ function CT:GetPvPTalentInfoByID(id)
 end
 
 -- Auto Talent
-local talentTierLevels = { [15] = 1, [25] = 2, [30] = 3, [35] = 4, [40] = 5, [45] = 6, [50] = 7 }
+local talentTierLevels = {}
 local autoTalentWait = false
 
 function CT:AutoTalent()
+	if not next(talentTierLevels) then
+		for tier = 1, 7 do
+			local _, _, tierUnlockLevel = GetTalentTierInfo(tier, GetActiveSpecGroup())
+			talentTierLevels[tierUnlockLevel] = tier
+		end
+	end
+
 	local playerLevel = UnitLevel('player')
 	local activeSpecIndex = GetSpecialization()
 	local specProfile = CT.db.autoTalents[CT.MyRealm][CT.MyName][activeSpecIndex]

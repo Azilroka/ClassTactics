@@ -28,6 +28,8 @@ function CT:Init()
 	else
 		CT:RegisterEvent('ADDON_LOADED')
 	end
+
+	CT:AutoTalent()
 end
 
 function CT:ADDON_LOADED(event, addon)
