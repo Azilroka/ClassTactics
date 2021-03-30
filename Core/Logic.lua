@@ -1,6 +1,7 @@
 local CT = unpack(_G.ClassTactics)
 
 local _G = _G
+local date = date
 local tonumber = tonumber
 local select = select
 local strsplit = strsplit
@@ -58,6 +59,57 @@ for i = 1, GetNumClasses() do
 end
 
 sort(CT.ClassData.Sorted)
+
+function CT:ReturnTimeHex()
+	local dateTable = date('*t')
+	return format("%02x%02x%02x", (dateTable.hour / 24) * 255, (dateTable.min / 60) * 255, (dateTable.sec / 60) * 255)
+end
+
+function CT:ClearDuplicates(current)
+	for optionA, valueA in pairs(current) do
+		for optionB, valueB in pairs(current) do
+			if valueA == valueB and optionA ~= optionB then
+				current[optionB] = nil
+			end
+		end
+	end
+
+	return current
+end
+
+function CT:NameDuplicates(current, default)
+	if type(current) ~= 'table' or type(default) ~= 'table' then return default end
+
+	for option, value in pairs(current) do
+		if option ~= 'selected' then
+			if type(value) == 'table' then
+				default[option] = CT:NameDuplicates(current[option], default[option])
+			elseif default[option] and value ~= default[option] then
+				default[format('%s %s', option, CT:ReturnTimeHex())] = default[option]
+				default[option] = nil
+			end
+		end
+	end
+
+	return default
+end
+
+function CT:CopyTable(current, default)
+	if type(current) ~= 'table' then
+		current = {}
+	end
+
+	if type(default) == 'table' then
+		default = CT:ClearDuplicates(default)
+		default = CT:NameDuplicates(current, default)
+
+		for option, value in pairs(default) do
+			current[option] = (type(value) == 'table' and CT:CopyTable(current[option], value)) or value
+		end
+	end
+
+	return current
+end
 
 do	--Split string by multi-character delimiter (the strsplit / string.split function provided by WoW doesn't allow multi-character delimiter)
 	local splitTable = {}
@@ -167,7 +219,7 @@ function CT:ImportData(dataString)
 		end
 	end
 
-	db[name] = type(data) == 'table' and CopyTable(data) or data
+	db[name] = type(data) == 'table' and CT:CopyTable(db[name], data) or data
 end
 
 -- Talents
