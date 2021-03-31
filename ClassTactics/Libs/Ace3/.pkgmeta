@@ -1,4 +1,0 @@
-package-as: Ace3
-
-ignore:
- - tests
