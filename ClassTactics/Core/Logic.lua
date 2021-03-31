@@ -287,9 +287,9 @@ function CT:GetMaximumTalentsByString(talentString)
 		end
 	end
 
-	local compareString = table.concat(compareTable, ',')
+	local compareString = next(compareTable) and table.concat(compareTable, ',')
 
-	return strmatch(talentString, compareString)
+	return compareString and strmatch(talentString, compareString)
 end
 
 function CT:AddDefaultBuild(classTag, specGroup, selected)
