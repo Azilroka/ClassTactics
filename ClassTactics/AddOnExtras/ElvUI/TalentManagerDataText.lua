@@ -11,7 +11,7 @@ local menuList = {}
 
 local specIndex
 
-local function OnEvent(self)
+local function OnEvent()
 	specIndex = GetSpecialization()
 end
 
@@ -23,19 +23,10 @@ local function OnUpdate(self, t)
 	local selectedTalentSet
 
 	if specIndex and CT.db then
-		for talentName in next, CT.RetailData[E.myclass][specIndex].Talents do
+		for talentName in next, CT.db.talentBuilds[E.myclass][specIndex] do
 			if CT:IsTalentSetSelected(talentName) then
 				selectedTalentSet = talentName
 				break
-			end
-		end
-
-		if not selectedTalentSet then
-			for talentName in next, CT.db.talentBuilds[E.myclass][specIndex] do
-				if CT:IsTalentSetSelected(talentName) then
-					selectedTalentSet = talentName
-					break
-				end
 			end
 		end
 	end
@@ -50,24 +41,16 @@ local function OnClick(self)
 
 	local index = 1
 
-	for talentName in next, CT.RetailData[E.myclass][specIndex].Talents do
-		menuList[index] = menuList[index] or {}
-		menuList[index].text = talentName
-		menuList[index].func = function(_, name) CT:SetTalentsByName(nil, nil, name) end
-		menuList[index].checked = function() return CT:IsTalentSetSelected(talentName) end
-		menuList[index].arg1 = talentName
-
-		index = index + 1
-	end
-
 	for talentName in next, CT.db.talentBuilds[E.myclass][specIndex] do
-		menuList[index] = menuList[index] or {}
-		menuList[index].text = talentName
-		menuList[index].func = function(_, name) CT:SetTalentsByName(nil, nil, name) end
-		menuList[index].checked = function() return CT:IsTalentSetSelected(talentName) end
-		menuList[index].arg1 = talentName
+		if talentName ~= 'selected' then
+			menuList[index] = menuList[index] or {}
+			menuList[index].text = talentName
+			menuList[index].func = function(_, name) CT:SetTalentsByName(nil, nil, name) end
+			menuList[index].checked = function() return CT:IsTalentSetSelected(talentName) end
+			menuList[index].arg1 = talentName
 
-		index = index + 1
+			index = index + 1
+		end
 	end
 
 	for i = index + 1, #menuList do
