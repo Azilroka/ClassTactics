@@ -17,6 +17,7 @@ local format = format
 local strmatch = strmatch
 local strtrim = strtrim
 local next = next
+local sort = sort
 
 local CopyTable = CopyTable
 local tInvert = tInvert
@@ -520,7 +521,7 @@ end
 function CT:LoadKeybinds(bindSetName)
 	if CT.db.keybinds[bindSetName] then
 		for commandName, keys in next, CT.db.keybinds[bindSetName] do
-			for _, binding in pairs(keys) do
+			for _, binding in next, keys do
 				SetBinding(binding, commandName)
 			end
 		end
