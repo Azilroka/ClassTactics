@@ -38,6 +38,8 @@ local GetCurrentBindingSet = GetCurrentBindingSet
 local GetBindingKey = GetBindingKey
 local SetBinding = SetBinding
 
+local SaveBindings = SaveBindings or AttemptToSaveBindings
+
 local TALENT_NOT_SELECTED = TALENT_NOT_SELECTED
 local MAX_TALENT_TIERS = MAX_TALENT_TIERS
 local NUM_TALENT_COLUMNS = NUM_TALENT_COLUMNS
@@ -342,8 +344,7 @@ function CT:GetPvPTalentInfoByID(id)
 end
 
 -- Auto Talent
-local talentTierLevels = {}
-local autoTalentWait = false
+local autoTalentWait, talentTierLevels = false, {}
 
 function CT:AutoTalent()
 	if not next(talentTierLevels) then
@@ -380,40 +381,42 @@ function CT:DelayAutoTalent()
 end
 
 -- Macros
+local accountMacroTable, characterMacroTable, importedMacroTable = {}, {}, {}
+
 function CT:GetAccountMacros()
-	local macroTable = {}
+	wipe(accountMacroTable)
 
 	for i = 1, MAX_ACCOUNT_MACROS do
-		local name, icon, body = GetMacroInfo(i)
+		local name = GetMacroInfo(i)
 		if name then
-			macroTable[name] = name
+			accountMacroTable[name] = name
 		end
 	end
 
-	return macroTable
+	return accountMacroTable
 end
 
 function CT:GetCharacterMacros()
-	local macroTable = {}
+	wipe(characterMacroTable)
 
 	for i = MAX_ACCOUNT_MACROS + 1, MAX_ACCOUNT_MACROS + MAX_CHARACTER_MACROS do
-		local name, icon, body = GetMacroInfo(i)
+		local name = GetMacroInfo(i)
 		if name then
-			macroTable[name] = name
+			characterMacroTable[name] = name
 		end
 	end
 
-	return macroTable
+	return characterMacroTable
 end
 
 function CT:GetImportedMacros()
-	local macroTable = {}
+	wipe(importedMacroTable)
 
 	for name in pairs(CT.db.macros) do
-		macroTable[name] = name
+		importedMacroTable[name] = name
 	end
 
-	return macroTable
+	return importedMacroTable
 end
 
 function CT:GetMacroInfo(macroName)
@@ -468,13 +471,64 @@ function CT:CanAddDefaultMacro(classTag, specGroup, selected)
 end
 
 -- Keybinds
-function CT:SaveKeybinds()
+local keybindsTable = {}
+
+function CT:SetupKeybindPopup()
+	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS
+	Dialog.text = 'Enter a Name:'
+	Dialog.button1 = 'Create'
+	Dialog.hasEditBox = 1
+	Dialog.EditBoxOnEscapePressed = function(s) s:GetParent():Hide() end
+	Dialog.OnAccept = function(s) CT:SaveKeybinds(s.editBox:GetText()) end
+	Dialog.EditBoxOnEnterPressed = function(s) CT:SaveKeybinds(s:GetText()) s:GetParent():Hide() end
+
+	_G.StaticPopup_Show('CLASSTACTICS')
+end
+
+function CT:GetKeybinds()
+	wipe(keybindsTable)
+
+	for bindSetName in next, CT.db.keybinds do
+		keybindsTable[bindSetName] = bindSetName
+	end
+
+	if not next(keybindsTable) then
+		keybindsTable.NONE = 'None'
+	end
+
+	return keybindsTable
+end
+
+function CT:SaveKeybinds(bindSetName)
 	for i = 1, GetNumBindings() do
 		local commandName = GetBinding(i, GetCurrentBindingSet())
 		local keys = { GetBindingKey(commandName) }
-		if next(keys) then
-			for _, binding in next, keys do
+
+		CT.db.keybinds[bindSetName] = CT.db.keybinds[bindSetName] or {}
+		CT.db.keybinds[bindSetName][commandName] = keys
+	end
+
+	CT.OptionsData.Keybind.SelectedSet = bindSetName
+
+	if _G.ElvUI then
+		_G.ElvUI[1].Libs.AceConfigRegistry:NotifyChange('ElvUI')
+	else
+		CT.Libs.ACR:NotifyChange('ClassTactics')
+	end
+end
+
+function CT:LoadKeybinds(bindSetName)
+	if CT.db.keybinds[bindSetName] then
+		for commandName, keys in next, CT.db.keybinds[bindSetName] do
+			for _, binding in pairs(keys) do
+				SetBinding(binding, commandName)
 			end
 		end
+
+		SaveBindings(CT.db.characterKeybind and 2 or 1)
 	end
+end
+
+function CT:DeleteKeybinds(bindSetName)
+	CT.db.keybinds[bindSetName] = nil
 end
