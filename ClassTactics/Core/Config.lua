@@ -61,16 +61,16 @@ function CTC:PositionGameMenuButton()
 end
 
 function CTC.OnConfigClosed(widget, event)
-	CTC.ACD.OpenFrames['ClassTactics_Config'] = nil
-	CTC.GUI:Release(widget)
+	CT.Libs.ACD.OpenFrames['ClassTactics'] = nil
+	CT.Libs.GUI:Release(widget)
 end
 
 function CTC:ToggleConfig()
-	if not CT.Libs.ACD.OpenFrames['ClassTactics_Config'] then
+	if not CT.Libs.ACD.OpenFrames['ClassTactics'] then
 		local Container = CT.Libs.GUI:Create('Frame')
-		CT.Libs.ACD.OpenFrames['ClassTactics_Config'] = Container
+		CT.Libs.ACD.OpenFrames['ClassTactics'] = Container
 		Container:SetCallback('OnClose', CTC.OnConfigClosed)
-		CT.Libs.ACD:Open('ClassTactics_Config', Container)
+		CT.Libs.ACD:Open('ClassTactics', Container)
 	end
 
 	GameTooltip:Hide()
@@ -99,8 +99,8 @@ function CTC:Initialize()
 		hooksecurefunc('GameMenuFrame_UpdateVisibleButtons', self.PositionGameMenuButton)
 	end
 
-	CT.Libs.AC:RegisterOptionsTable('ClassTactics_Config', CTC.Options)
-	CT.Libs.ACD:SetDefaultSize('ClassTactics_Config', 1200, 800)
+	CT.Libs.AC:RegisterOptionsTable('ClassTactics', CTC.Options)
+	CT.Libs.ACD:SetDefaultSize('ClassTactics', 1200, 800)
 	CTC:RegisterChatCommand('classtactics', 'ToggleConfig')
 
 	CTC:RegisterEvent('ADDON_LOADED')

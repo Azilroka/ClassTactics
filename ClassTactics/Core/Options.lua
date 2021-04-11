@@ -166,7 +166,7 @@ function CT:BuildOptions()
 
 	-- Keybinds
 	CT.Options.args.Keybind = ACH:Group('Key Bindings Management', nil, 1)
-	CT.Options.args.Keybind.args.CharacterKeybinds = ACH:Toggle('Character Specific Bindings', nil, 0, nil, nil, nil, function() return CT.db.characterKeybind end, function(_, value) CT.db.characterKeybind = value end)
+	CT.Options.args.Keybind.args.CharacterKeybinds = ACH:Toggle('Character Specific Bindings', nil, 0, nil, nil, 'double', function() return CT.db.characterKeybind end, function(_, value) CT.db.characterKeybind = value end)
 	CT.Options.args.Keybind.args.LoadKeyBindSet = ACH:Execute('Load Binding Set', nil, 1, function() CT:LoadKeybinds(CT.OptionsData.Keybind.SelectedSet) end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData.Keybind.SelectedSet or CT.OptionsData.Keybind.SelectedSet == '' or CT.OptionsData.Keybind.SelectedSet == 'NONE' end)
 	CT.Options.args.Keybind.args.SaveKeyBindSet = ACH:Execute('Save Binding Set', nil, 2, function() CT:SetupKeybindPopup() end)
 	CT.Options.args.Keybind.args.DeleteKeyBindSet = ACH:Execute('Delete Binding Set', nil, 3, function() CT:DeleteKeybinds(CT.OptionsData.Keybind.SelectedSet) CT.OptionsData.Keybind.SelectedSet = nil end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData.Keybind.SelectedSet or CT.OptionsData.Keybind.SelectedSet == '' or CT.OptionsData.Keybind.SelectedSet == 'NONE' end)
