@@ -308,6 +308,17 @@ function CT:CanAddDefaultBuild(classTag, specGroup, selected)
 	return false
 end
 
+--[[  -- Classic / TBC
+	MAX_TALENT_TABS = 5;
+	MAX_NUM_TALENTS = 40;
+	MAX_NUM_TALENT_TIERS = 10;
+	NUM_TALENT_COLUMNS = 4;
+
+	for i = 1, MAX_NUM_TALENTS do
+		local name, iconTexture, tier, column, rank, maxRank, isExceptional, available = GetTalentInfo(PanelTemplates_GetSelectedTab(TalentFrame), i);
+	end
+]]
+
 -- PvP Talents
 function CT:GetPvPTalentIDByString(classTag, specGroup, name)
 	local talentString = CT.db.talentBuildsPvP[classTag] and CT.db.talentBuildsPvP[classTag][specGroup] and CT.db.talentBuildsPvP[classTag][specGroup][name]

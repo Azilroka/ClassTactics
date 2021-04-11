@@ -173,16 +173,6 @@ function CT:BuildOptions()
 
 	CT.Options.args.Keybind.args.KeyBindSets = ACH:MultiSelect('Binding Sets', nil, 4, function() return CT:GetKeybinds() end, nil, nil, function(_, key) return CT.OptionsData.Keybind.SelectedSet == key end, function(_, key) CT.OptionsData.Keybind.SelectedSet = key end)
 
-	--for i = 1, GetNumBindings() do
-	--	local command, category = GetBinding(i)
-	--	if not strfind(command, 'HEADER_') then
-	--		if not category then category = 'Other' end
-	--		CT.Options.args.Keybind.args[category] = CT.Options.args.Keybind.args[category] or ACH:Group(_G[category] or category)
-	--		CT.Options.args.Keybind.args[category].inline = true
-	--		CT.Options.args.Keybind.args[category].args[command] = { type = 'keybinding', order = i, name = function() local cmd = GetBinding(i) return _G["BINDING_NAME_"..cmd] or cmd end, get = function() local key1, key2 = select(3, GetBinding(i)) return key1 and (_G['KEY_'..key1] or key1) or '' end }
-	--	end
-	--end
-
 	-- Auto Talent
 	CT.Options.args.AutoTalent = ACH:Group('Auto Talents', nil, 1, 'select')
 
