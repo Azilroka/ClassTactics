@@ -46,6 +46,7 @@ function CT:BuildProfile()
 			talentBuildsPvP = {},
 			macros = {},
 			keybinds = {},
+			actionbars = {},
 			autoTalents = {
 				[CT.MyRealm] = {
 					[CT.MyName] = {}
@@ -57,10 +58,12 @@ function CT:BuildProfile()
 	for classTag, classID in next, CT.ClassData.Numerical do
 		Defaults.profile.talentBuilds[classTag] = {}
 		Defaults.profile.talentBuildsPvP[classTag] = {}
+		Defaults.profile.actionbars[classTag] = {}
 
 		for k = 1, GetNumSpecializationsForClassID(classID) do
 			Defaults.profile.talentBuilds[classTag][k] = {}
 			Defaults.profile.talentBuildsPvP[classTag][k] = {}
+			Defaults.profile.actionbars[classTag][k] = {}
 		end
 	end
 
@@ -146,7 +149,7 @@ function CT:BuildOptions()
 	CT.Options.args.DataHandle.args.Export = ACH:Group('Export', nil, 2)
 	CT.Options.args.DataHandle.args.Export.args.DataType = ACH:MultiSelect('Export Data', nil, 1, nil, nil, nil, function(_, key) return CT.OptionsData.Export.Table == key end, function(_, key) CT.OptionsData.Export.Table = key end)
 
-	CT.Options.args.DataHandle.args.Export.args.DataType.values = { none = 'None', macros = 'Macros', talentBuilds = 'Talents', talentBuildsPvP = 'PvP Talents', keybinds = 'Key Bindings'}
+	CT.Options.args.DataHandle.args.Export.args.DataType.values = { none = 'None', macros = 'Macros', talentBuilds = 'Talents', talentBuildsPvP = 'PvP Talents', keybinds = 'Key Bindings', actionbars = 'ActionBars' }
 
 	CT.Options.args.DataHandle.args.Export.args.ExportData = ACH:Input('Export String', nil, -1, 20, 'full', function() return CT.OptionsData.Export.Table ~= 'none' and CT:ExportData(CT.OptionsData.Export.Table) end, nil, nil, function() return not CT.OptionsData.Export.Table end)
 
@@ -166,11 +169,10 @@ function CT:BuildOptions()
 
 	-- Keybinds
 	CT.Options.args.Keybind = ACH:Group('Key Bindings Management', nil, 1)
-	CT.Options.args.Keybind.args.CharacterKeybinds = ACH:Toggle('Character Specific Bindings', nil, 0, nil, nil, 'double', function() return CT.db.characterKeybind end, function(_, value) CT.db.characterKeybind = value end)
+	CT.Options.args.Keybind.args.CharacterKeybinds = ACH:Toggle('Character Specific Bindings', nil, 0, nil, nil, 1.25, function() return CT.db.characterKeybind end, function(_, value) CT.db.characterKeybind = value end)
 	CT.Options.args.Keybind.args.LoadKeyBindSet = ACH:Execute('Load Binding Set', nil, 1, function() CT:LoadKeybinds(CT.OptionsData.Keybind.SelectedSet) end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData.Keybind.SelectedSet or CT.OptionsData.Keybind.SelectedSet == '' or CT.OptionsData.Keybind.SelectedSet == 'NONE' end)
 	CT.Options.args.Keybind.args.SaveKeyBindSet = ACH:Execute('Save Binding Set', nil, 2, function() CT:SetupKeybindPopup() end)
 	CT.Options.args.Keybind.args.DeleteKeyBindSet = ACH:Execute('Delete Binding Set', nil, 3, function() CT:DeleteKeybinds(CT.OptionsData.Keybind.SelectedSet) CT.OptionsData.Keybind.SelectedSet = nil end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData.Keybind.SelectedSet or CT.OptionsData.Keybind.SelectedSet == '' or CT.OptionsData.Keybind.SelectedSet == 'NONE' end)
-
 	CT.Options.args.Keybind.args.KeyBindSets = ACH:MultiSelect('Binding Sets', nil, 4, function() return CT:GetKeybinds() end, nil, nil, function(_, key) return CT.OptionsData.Keybind.SelectedSet == key end, function(_, key) CT.OptionsData.Keybind.SelectedSet = key end)
 
 	-- Auto Talent
@@ -218,6 +220,15 @@ function CT:BuildOptions()
 			for siteName, siteLink in next, CT.RetailData[classTag][specGroup].Guides do
 				specOption.args.Guides.args[siteName] = ACH:Input(siteName, nil, nil, nil, 'full', function() return siteLink end)
 			end
+
+			-- ActionBars
+			specOption.args.ActionBars = ACH:Group('ActionBars Management', nil, 1)
+			specOption.args.ActionBars.args.CreateCharacterMacros = ACH:Toggle('Create Character Macros', nil, 0, nil, nil, 1.25, function() return CT.db.CreateCharacterMacros end, function(_, value) CT.db.CreateCharacterMacros = value end)
+			specOption.args.ActionBars.args.LoadActionBarSet = ACH:Execute('Load ActionBar Set', nil, 1, function() CT:LoadActionSet(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) end, nil, nil, nil, nil, nil, nil, function() return classTag ~= CT.MyClass or specGroup ~= GetSpecialization() or not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
+			specOption.args.ActionBars.args.SaveActionBarSet = ACH:Execute('Save ActionBar Set', nil, 2, function() CT:SetupActionBarPopup() end, nil, nil, nil, nil, nil, nil, function() return classTag ~= CT.MyClass or specGroup ~= GetSpecialization() or not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
+			specOption.args.ActionBars.args.DeleteActionBarSet = ACH:Execute('Delete ActionBar Set', nil, 3, function() CT:DeleteActionBarSet(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) CT.OptionsData[classTag][specGroup].SelectedActionBarSet = nil end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
+
+			specOption.args.ActionBars.args.ActionBarSets = ACH:MultiSelect('ActionBar Sets', nil, 4, function() return CT:GetActionBarSets(classTag, specGroup) end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedActionBarSet == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedActionBarSet = key end)
 
 			-- Macros
 			specOption.args.Macros = ACH:Group('Macros')
@@ -270,6 +281,7 @@ end
 function CT:GetOptions()
 	local Ace3OptionsPanel = _G.ElvUI and _G.ElvUI[1] or _G.Enhanced_Config
 	if Ace3OptionsPanel then
+		CT.Options.childGroups = _G.ElvUI and 'tree' or 'tab'
 		Ace3OptionsPanel.Options.args.ClassTactics = CT.Options
 	elseif _G.ClassTactics_Config then
 		_G.ClassTactics_Config.Options.args = CT.Options.args

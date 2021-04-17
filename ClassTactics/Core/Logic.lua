@@ -18,6 +18,7 @@ local strmatch = strmatch
 local strtrim = strtrim
 local next = next
 local sort = sort
+local min = min
 
 local CopyTable = CopyTable
 local tInvert = tInvert
@@ -38,6 +39,26 @@ local GetBinding = GetBinding
 local GetCurrentBindingSet = GetCurrentBindingSet
 local GetBindingKey = GetBindingKey
 local SetBinding = SetBinding
+local GetActionInfo = GetActionInfo
+local GetActionTexture = GetActionTexture
+local GetActionText = GetActionText
+local FindBaseSpellByID = FindBaseSpellByID
+local PickupAction = PickupAction
+local ClearCursor = ClearCursor
+local GetMacroIndexByName = GetMacroIndexByName
+local GetNumMacros = GetNumMacros
+local PickupMacro = PickupMacro
+local GetNumSpellTabs = GetNumSpellTabs
+local GetSpellTabInfo = GetSpellTabInfo
+local GetSpellBookItemInfo = GetSpellBookItemInfo
+local PickupSpellBookItem = PickupSpellBookItem
+local PickupPvpTalent = PickupPvpTalent
+local GetCursorInfo = GetCursorInfo
+local IsSpellKnown = IsSpellKnown
+local PickupPetSpell = PickupPetSpell
+local PickupSpell = PickupSpell
+local PickupItem = PickupItem
+local PlaceAction = PlaceAction
 
 local SaveBindings = SaveBindings or AttemptToSaveBindings
 
@@ -66,12 +87,12 @@ sort(CT.ClassData.Sorted)
 
 function CT:ReturnTimeHex()
 	local dateTable = date('*t')
-	return format("%02x%02x%02x", (dateTable.hour / 24) * 255, (dateTable.min / 60) * 255, (dateTable.sec / 60) * 255)
+	return format('%02x%02x%02x', (dateTable.hour / 24) * 255, (dateTable.min / 60) * 255, (dateTable.sec / 60) * 255)
 end
 
 function CT:ClearDuplicates(current)
-	for optionA, valueA in pairs(current) do
-		for optionB, valueB in pairs(current) do
+	for optionA, valueA in next, current do
+		for optionB, valueB in next, current do
 			if valueA == valueB and optionA ~= optionB then
 				current[optionB] = nil
 			end
@@ -84,7 +105,7 @@ end
 function CT:NameDuplicates(current, default)
 	if type(current) ~= 'table' or type(default) ~= 'table' then return default end
 
-	for option, value in pairs(current) do
+	for option, value in next, current do
 		if option ~= 'selected' then
 			if type(value) == 'table' then
 				default[option] = CT:NameDuplicates(current[option], default[option])
@@ -107,7 +128,7 @@ function CT:CopyTable(current, default)
 		default = CT:ClearDuplicates(default)
 		default = CT:NameDuplicates(current, default)
 
-		for option, value in pairs(default) do
+		for option, value in next, default do
 			current[option] = (type(value) == 'table' and CT:CopyTable(current[option], value)) or value
 		end
 	end
@@ -424,7 +445,7 @@ end
 function CT:GetImportedMacros()
 	wipe(importedMacroTable)
 
-	for name in pairs(CT.db.macros) do
+	for name in next, CT.db.macros do
 		importedMacroTable[name] = name
 	end
 
@@ -472,7 +493,7 @@ end
 
 function CT:AddDefaultMacro(macroName, newName, perCharacter)
 	local text = CT.RetailData[CT.MyClass][GetSpecialization()].Macros[macroName]
-	CreateMacro(newName, "INV_MISC_QUESTIONMARK", text, perCharacter)
+	CreateMacro(newName, 'INV_MISC_QUESTIONMARK', text, perCharacter)
 end
 
 function CT:CanAddDefaultMacro(classTag, specGroup, selected)
@@ -543,4 +564,191 @@ end
 
 function CT:DeleteKeybinds(bindSetName)
 	CT.db.keybinds[bindSetName] = nil
+end
+
+-- ActionBar Slots
+local ActionSlotsByBar, ActionBarTable = {
+	[1] = {  1, 12 },
+	[2] = { 13, 24 },
+	[3] = { 25, 36 },
+	[4] = { 37, 48 },
+	[5] = { 49, 60 },
+	[6] = { 61, 72 },
+	[7] = { 73, 84 },
+	[8] = { 85, 96 },
+	[9] = { 96, 108 },
+	[10] = { 109, 120 },
+}, {}
+
+function CT:SaveAllActionSlots(profileName)
+	local specGroup = GetSpecialization()
+
+	local profileKey = CT.db.actionbars[CT.MyClass][specGroup][profileName]
+	profileKey = wipe(profileKey or {})
+
+	for slot = 1, 120 do
+		local actionType, id, subType = GetActionInfo(slot)
+		local icon, name, macroText = GetActionTexture(slot), GetActionText(slot)
+
+		if actionType == 'spell' then
+			id = FindBaseSpellByID(id) or id
+		elseif actionType == 'macro' then
+			if id == 0 then
+				actionType, id, subType, icon, name, macroText = nil, nil, nil, nil, nil, nil
+			else
+				name, icon, macroText = GetMacroInfo(id)
+				macroText = strtrim(macroText)
+			end
+		end
+
+		profileKey[slot] = { actionType = actionType, id = id, subType = subType, icon = icon, name = name, macroText = macroText }
+	end
+
+	CT.db.actionbars[CT.MyClass][GetSpecialization()][profileName] = profileKey
+
+	CT.OptionsData.ActionBars.SelectedSet = profileName
+
+	if _G.ElvUI then
+		_G.ElvUI[1].Libs.AceConfigRegistry:NotifyChange('ElvUI')
+	else
+		CT.Libs.ACR:NotifyChange('ClassTactics')
+	end
+end
+
+function CT:GetActionBarSets(classTag, specGroup)
+	wipe(ActionBarTable)
+
+	for name in next, CT.db.actionbars[classTag or CT.MyClass][specGroup or GetSpecialization()] do
+		ActionBarTable[name] = name
+	end
+
+	if not next(ActionBarTable) then
+		ActionBarTable.NONE = 'None'
+	end
+
+	return ActionBarTable
+end
+
+function CT:ClearActionBar(bar)
+	local isAll = type(bar) == 'boolean'
+	local slotMin, slotMax = isAll and 1 or ActionSlotsByBar[bar][1], isAll and 120 or ActionSlotsByBar[bar][2]
+	for slot = slotMin, slotMax do PickupAction(slot) ClearCursor() end
+end
+
+function CT:SetActionSlot(slot, slotInfo)
+	ClearCursor() -- Clear the cursor
+
+	if not next(slotInfo) then
+		PickupAction(slot) -- Pickup the slot
+		ClearCursor() -- Clear the slot
+		return
+	end
+
+	local actionType, id, subType, icon, name, macroText = slotInfo.actionType, slotInfo.id, slotInfo.subType, slotInfo.icon, slotInfo.name, slotInfo.macroText
+
+	if actionType == 'item' then
+		PickupItem(id)
+	elseif actionType == 'spell' or actionType == 'flyout' then
+		if actionType == 'spell' then
+			id = FindBaseSpellByID(id) or id
+		end
+
+		local index
+		if subType == 'spell' or actionType == 'flyout' then
+			for tabIndex = 1, min(2, GetNumSpellTabs()) do
+				local offset, numEntries = select(3, GetSpellTabInfo(tabIndex))
+				for spellIndex = offset, offset + numEntries do
+					local skillType, spellID = GetSpellBookItemInfo(spellIndex, 'spell')
+					if ((actionType == 'spell' and skillType == 'SPELL') or (actionType == 'flyout' and skillType == 'FLYOUT')) and id == spellID then
+						index = spellIndex
+						break
+					end
+				end
+			end
+		else
+			local spellIndex, skillType, spellID = 1, GetSpellBookItemInfo(1, subType)
+			while skillType do
+				if (skillType == 'SPELL' or (skillType == 'PETACTION' and subType == 'pet')) and id == spellID then
+					index = spellIndex
+					break
+				end
+
+				spellIndex = spellIndex + 1
+				skillType, spellID = GetSpellBookItemInfo(spellIndex, subType)
+			end
+		end
+
+		if index then
+			PickupSpellBookItem(index, subType)
+		elseif actionType == 'spell' then
+			for _, talentId in next, C_SpecializationInfo.GetAllSelectedPvpTalentIDs() do
+				if select(6, GetPvpTalentInfoByID(talentId)) == id then
+					PickupPvpTalent(talentId)
+				end
+			end
+
+			if not GetCursorInfo() and (subType == 'pet' or subType == 'spell') then
+				if IsSpellKnown(id, subType == 'pet') then
+					(subType == 'pet' and PickupPetSpell or PickupSpell)(id)
+				end
+			end
+		end
+	elseif actionType == 'macro' then
+		local index = GetMacroIndexByName(name)
+		local account, character = GetNumMacros()
+		local makeCharacterMacro = true
+
+		if not index then
+			if makeCharacterMacro and character < MAX_CHARACTER_MACROS or account < MAX_ACCOUNT_MACROS then
+				index = CreateMacro(name, icon, macroText, makeCharacterMacro)
+			end
+		end
+
+		if index then
+			PickupMacro(index)
+		end
+	elseif actionType == 'summonmount' then
+		if id == 0xFFFFFFF then
+			C_MountJournal.Pickup(0)
+		else
+			PickupSpell((select(2, C_MountJournal.GetMountInfoByID(id))))
+		end
+	elseif actionType == 'summonpet' then
+		C_PetJournal.PickupPet(id)
+	elseif actionType == 'equipmentset' then
+		local equipID = C_EquipmentSet.GetEquipmentSetID(id)
+		if equipID then
+			C_EquipmentSet.PickupEquipmentSet(equipID)
+		end
+	end
+
+	if GetCursorInfo() then
+		PlaceAction(slot)
+		ClearCursor()
+	end
+end
+
+function CT:LoadActionSet(profileName)
+	local profileKey = CT.db.actionbars[CT.MyClass][GetSpecialization()][profileName]
+	if not profileKey then return end
+
+	for slot = 1, 120 do
+		CT:SetActionSlot(slot, profileKey[slot])
+	end
+end
+
+function CT:DeleteActionBarSet(classTag, specGroup, profileName)
+	CT.db.actionbars[classTag or CT.MyClass][specGroup or GetSpecialization()][profileName] = nil
+end
+
+function CT:SetupActionBarPopup()
+	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS
+	Dialog.text = 'Enter a Name:'
+	Dialog.button1 = 'Create'
+	Dialog.hasEditBox = 1
+	Dialog.EditBoxOnEscapePressed = function(s) s:GetParent():Hide() end
+	Dialog.OnAccept = function(s) CT:SaveAllActionSlots(s.editBox:GetText()) end
+	Dialog.EditBoxOnEnterPressed = function(s) CT:SaveAllActionSlots(s:GetText()) s:GetParent():Hide() end
+
+	_G.StaticPopup_Show('CLASSTACTICS')
 end
