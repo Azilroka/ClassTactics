@@ -36,7 +36,7 @@ AddOn.Authors = GetAddOnMetadata(AddOnName, 'Author'):gsub(", ", "    ")
 AddOn.MyClass = select(2, UnitClass('player'))
 AddOn.MyName = UnitName('player')
 AddOn.MyRealm = GetRealmName()
-AddOn.TexCoords = {.08, .92, .08, .92}
+AddOn.TexCoords = {.075, .925, .075, .925}
 AddOn.TicketTracker = 'https://git.tukui.org/Azilroka/ClassTactics/issues'
 
 AddOn.Libs = {
