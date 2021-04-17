@@ -741,7 +741,7 @@ function CT:DeleteActionBarSet(classTag, specGroup, profileName)
 	CT.db.actionbars[classTag or CT.MyClass][specGroup or GetSpecialization()][profileName] = nil
 end
 
-function CT:SetupActionBarPopup()
+function CT:SetupActionBarPopup(name)
 	local Dialog = _G.StaticPopupDialogs.CLASSTACTICS
 	Dialog.text = 'Enter a Name:'
 	Dialog.button1 = 'Create'
@@ -749,6 +749,7 @@ function CT:SetupActionBarPopup()
 	Dialog.EditBoxOnEscapePressed = function(s) s:GetParent():Hide() end
 	Dialog.OnAccept = function(s) CT:SaveAllActionSlots(s.editBox:GetText()) end
 	Dialog.EditBoxOnEnterPressed = function(s) CT:SaveAllActionSlots(s:GetText()) s:GetParent():Hide() end
+	Dialog.OnShow = function(s) if name then s.editBox:SetAutoFocus(false) s.editBox:SetText(name) s.editBox:HighlightText() end end
 
 	_G.StaticPopup_Show('CLASSTACTICS')
 end
