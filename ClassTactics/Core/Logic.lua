@@ -566,18 +566,7 @@ function CT:DeleteKeybinds(bindSetName)
 end
 
 -- ActionBar Slots
-local ActionSlotsByBar, ActionBarTable = {
-	[1] = {  1, 12 },
-	[2] = { 13, 24 },
-	[3] = { 25, 36 },
-	[4] = { 37, 48 },
-	[5] = { 49, 60 },
-	[6] = { 61, 72 },
-	[7] = { 73, 84 },
-	[8] = { 85, 96 },
-	[9] = { 96, 108 },
-	[10] = { 109, 120 },
-}, {}
+local ActionBarTable = {}
 
 function CT:SaveAllActionSlots(profileName)
 	local specGroup = GetSpecialization()
@@ -630,7 +619,7 @@ end
 
 function CT:ClearActionBar(bar)
 	local isAll = type(bar) == 'boolean'
-	local slotMin, slotMax = isAll and 1 or ActionSlotsByBar[bar][1], isAll and 120 or ActionSlotsByBar[bar][2]
+	local slotMin, slotMax = isAll and 1 or ((bar - 1) * 12) + 1, isAll and 120 or bar * 12
 	for slot = slotMin, slotMax do PickupAction(slot) ClearCursor() end
 end
 
