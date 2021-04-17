@@ -59,6 +59,7 @@ function CT:SetupTalentPopup(setupType, funcSetup, name)
 
 	local db = CT.db[funcSetup == 'PvP' and 'talentBuildsPvP' or 'talentBuilds'][CT.MyClass][GetSpecialization()]
 
+	Dialog.OnShow = function(s) s.editBox:SetAutoFocus(false) s.editBox:SetText(name) s.editBox:HighlightText() end
 	Dialog.OnAccept = function(s) CT:SaveTalentBuild(funcSetup, s.editBox:GetText()) end
 	Dialog.EditBoxOnEnterPressed = function(s) CT:SaveTalentBuild(funcSetup, s:GetText()) s:GetParent():Hide() end
 
@@ -69,7 +70,6 @@ function CT:SetupTalentPopup(setupType, funcSetup, name)
 		Dialog.OnAccept = function() db[name] = nil CT:TalentProfiles_Update() end
 	elseif setupType == 'rename' then
 		Dialog.button1 = 'Update'
-		Dialog.OnShow = function(s) s.editBox:SetAutoFocus(false) s.editBox:SetText(name) s.editBox:HighlightText() end
 		Dialog.OnAccept = function(s) db[s.editBox:GetText()] = db[name] db[name] = nil CT:TalentProfiles_Update() end
 		Dialog.EditBoxOnEnterPressed = function(s) db[s:GetText()] = db[name] db[name] = nil CT:TalentProfiles_Update() s:GetParent():Hide() end
 	end

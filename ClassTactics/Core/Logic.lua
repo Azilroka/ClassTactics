@@ -311,8 +311,7 @@ function CT:GetMaximumTalentsByString(talentString)
 		end
 	end
 
-	local compareString = next(compareTable) and table.concat(compareTable, ',')
-
+	local compareString = compareTable[1] and table.concat(compareTable, ',') or ''
 	return compareString and strmatch(talentString, compareString)
 end
 

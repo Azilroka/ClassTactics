@@ -177,7 +177,7 @@ function CT:BuildOptions()
 	CT.Options.args.Keybind.args.KeybindTextExport = ACH:Input('Export Keybinds', nil, -4, 10, 'full', function() local name, dbKey = CT.OptionsData.Keybind.SelectedSet, 'keybinds' return CT:ExportData(name, dbKey) end, nil, nil, function() return not CT.OptionsData.Keybind.SelectedSet or CT.OptionsData.Keybind.SelectedSet == '' or CT.OptionsData.Keybind.SelectedSet == 'NONE' end)
 
 	-- Auto Talent
-	CT.Options.args.AutoTalent = ACH:Group('Auto Talents', nil, 1, 'select')
+	CT.Options.args.AutoTalent = ACH:Group('Auto Level Talents', nil, 1, 'select')
 
 	for realm, playerInfo in next, CT.db.autoTalents do
 		local RealmInfo = ACH:Group(realm)
