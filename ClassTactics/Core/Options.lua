@@ -174,6 +174,7 @@ function CT:BuildOptions()
 	CT.Options.args.Keybind.args.SaveKeyBindSet = ACH:Execute('Save Binding Set', nil, 2, function() CT:SetupKeybindPopup() end)
 	CT.Options.args.Keybind.args.DeleteKeyBindSet = ACH:Execute('Delete Binding Set', nil, 3, function() CT:DeleteKeybinds(CT.OptionsData.Keybind.SelectedSet) CT.OptionsData.Keybind.SelectedSet = nil end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData.Keybind.SelectedSet or CT.OptionsData.Keybind.SelectedSet == '' or CT.OptionsData.Keybind.SelectedSet == 'NONE' end)
 	CT.Options.args.Keybind.args.KeyBindSets = ACH:MultiSelect('Binding Sets', nil, 4, function() return CT:GetKeybinds() end, nil, nil, function(_, key) return CT.OptionsData.Keybind.SelectedSet == key end, function(_, key) CT.OptionsData.Keybind.SelectedSet = key end)
+	CT.Options.args.Keybind.args.KeybindTextExport = ACH:Input('Export Keybinds', nil, -4, 10, 'full', function() local name, dbKey = CT.OptionsData.Keybind.SelectedSet, 'keybinds' return CT:ExportData(name, dbKey) end, nil, nil, function() return not CT.OptionsData.Keybind.SelectedSet or CT.OptionsData.Keybind.SelectedSet == '' or CT.OptionsData.Keybind.SelectedSet == 'NONE' end)
 
 	-- Auto Talent
 	CT.Options.args.AutoTalent = ACH:Group('Auto Talents', nil, 1, 'select')
@@ -229,6 +230,7 @@ function CT:BuildOptions()
 			specOption.args.ActionBars.args.DeleteActionBarSet = ACH:Execute('Delete ActionBar Set', nil, 3, function() CT:DeleteActionBarSet(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) CT.OptionsData[classTag][specGroup].SelectedActionBarSet = nil end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
 
 			specOption.args.ActionBars.args.ActionBarSets = ACH:MultiSelect('ActionBar Sets', nil, 4, function() return CT:GetActionBarSets(classTag, specGroup) end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedActionBarSet == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedActionBarSet = key end)
+			specOption.args.ActionBars.args.ExportActionBarSet = ACH:Input('Export ActionBar Set', nil, -1, 5, 'full', function() local name, dbKey = CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet, strjoin('\a', 'actionbars', classTag, specGroup) return CT:ExportData(name, dbKey) end, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
 
 			-- Macros
 			specOption.args.Macros = ACH:Group('Macros')
