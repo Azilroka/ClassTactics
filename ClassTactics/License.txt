@@ -18,4 +18,3 @@
 	the copyright holders.
 
 	You can write us at Tukui.org for reporting abuse.
-	For reporting bugs visit: http://git.tukui.org/Azilroka/addonskins
