@@ -606,7 +606,7 @@ function CT:SaveAllActionSlots(profileName)
 
 	CT.db.actionbars[CT.MyClass][GetSpecialization()][profileName] = profileKey
 
-	CT.OptionsData.ActionBars.SelectedSet = profileName
+	CT.OptionsData[CT.MyClass][specGroup].SelectedActionBarSet = profileName
 
 	if _G.ElvUI then
 		_G.ElvUI[1].Libs.AceConfigRegistry:NotifyChange('ElvUI')
