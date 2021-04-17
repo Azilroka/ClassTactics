@@ -1,0 +1,13 @@
+package-as: ClassTactics
+
+enable-nolib-creation: no
+
+externals:
+  ClassTactics/Libs/Ace3:
+    url: https://repos.wowace.com/wow/ace3/trunk
+
+ignore:
+    - ClassTactics/Libs/Ace3/tests
+
+move-folders:
+    ClassTactics/ClassTactics: ClassTactics
