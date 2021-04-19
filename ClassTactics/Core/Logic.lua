@@ -645,18 +645,21 @@ function CT:SetActionSlot(slot, slotInfo)
 			id = FindBaseSpellByID(id) or id
 		end
 
-		if subType == 'spell' or actionType == 'flyout' then
+		if not subType or actionType == 'flyout' then
 			for tabIndex = 1, min(2, GetNumSpellTabs()) do
 				local offset, numEntries = select(3, GetSpellTabInfo(tabIndex))
 				for spellIndex = offset, offset + numEntries do
 					local skillType, spellID = GetSpellBookItemInfo(spellIndex, 'spell')
 					if ((actionType == 'spell' and skillType == 'SPELL') or (actionType == 'flyout' and skillType == 'FLYOUT')) and id == spellID then
 						index = spellIndex
+						if not subType then
+							subType = 'spell'
+						end
 						break
 					end
 				end
 			end
-		else
+		elseif subType then
 			local spellIndex = 1
 			local skillType, spellID = GetSpellBookItemInfo(spellIndex, subType)
 			while skillType do
@@ -679,7 +682,7 @@ function CT:SetActionSlot(slot, slotInfo)
 				end
 			end
 
-			if not GetCursorInfo() and (subType == 'pet' or subType == 'spell' or not subType) then
+			if not GetCursorInfo() and (subType == 'pet' or subType == 'spell') then
 				if IsSpellKnown(id, subType == 'pet') then
 					(subType == 'pet' and PickupPetSpell or PickupSpell)(id)
 				end
