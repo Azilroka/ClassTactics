@@ -59,7 +59,7 @@ function CT:SetupTalentPopup(setupType, funcSetup, name)
 
 	local db = CT.db[funcSetup == 'PvP' and 'talentBuildsPvP' or 'talentBuilds'][CT.MyClass][GetSpecialization()]
 
-	Dialog.OnShow = function(s) s.editBox:SetAutoFocus(false) s.editBox:SetText(name) s.editBox:HighlightText() end
+	Dialog.OnShow = function(s) if name then s.editBox:SetAutoFocus(false) s.editBox:SetText(name) s.editBox:HighlightText() end end
 	Dialog.OnAccept = function(s) CT:SaveTalentBuild(funcSetup, s.editBox:GetText()) end
 	Dialog.EditBoxOnEnterPressed = function(s) CT:SaveTalentBuild(funcSetup, s:GetText()) s:GetParent():Hide() end
 
@@ -103,8 +103,8 @@ function CT:SaveTalentBuild(funcSetup, text)
 end
 
 function CT:TalentProfiles()
-	local ProfileMenu = CreateFrame('Frame', nil, _G.PlayerTalentFrameTalents, 'BackdropTemplate')
-	ProfileMenu:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 'TOPRIGHT', 2, -1)
+	local ProfileMenu = CreateFrame('Frame', nil, _G.PlayerTalentFrameTalents, 'SimplePanelTemplate')
+	ProfileMenu:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 'TOPRIGHT', 4, 4)
 	ProfileMenu:SetSize(250, 50)
 	ProfileMenu:SetShown(CT.db.isShown)
 	ProfileMenu:SetScript('OnShow', CT.TalentProfiles_Update)
@@ -114,7 +114,7 @@ function CT:TalentProfiles()
 	ProfileMenu:RegisterEvent('ZONE_CHANGED_NEW_AREA')
 	ProfileMenu:SetScript('OnEvent', CT.TalentProfiles_CheckBags)
 
-	ProfileMenu.ToggleButton = CreateFrame('Button', nil, _G.PlayerTalentFrameTalents, 'BackdropTemplate, UIPanelButtonTemplate')
+	ProfileMenu.ToggleButton = CreateFrame('Button', nil, _G.PlayerTalentFrameTalents, 'UIPanelButtonTemplate')
 	ProfileMenu.ToggleButton:SetPoint('BOTTOMRIGHT', _G.PlayerTalentFrameTalents, 'BOTTOMRIGHT', -5, -20)
 	ProfileMenu.ToggleButton:SetText('Talent Manager')
 	ProfileMenu.ToggleButton:SetSize(ProfileMenu.ToggleButton.Text:GetStringWidth() + 20, 20)
@@ -122,27 +122,21 @@ function CT:TalentProfiles()
 
 	ProfileMenu.Buttons = {}
 	ProfileMenu.ExtraButtons = {}
-	ProfileMenu.Gradients = {}
 
-	ProfileMenu.Gradients[1] = CT:AddGradientColor(ProfileMenu, 240, 2, CT.ClassColor)
+	ProfileMenu.TitleText = ProfileMenu:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+	ProfileMenu.TitleText:SetText('Talent Profiles')
+	ProfileMenu.TitleText:SetPoint('TOP', 0, -10)
+	ProfileMenu.TitleText:SetJustifyH('CENTER')
 
-	ProfileMenu.Title = ProfileMenu:CreateFontString(nil, 'OVERLAY')
-	ProfileMenu.Title:SetFont(CT.Libs.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
-	ProfileMenu.Title:SetText('Talent Profiles')
-	ProfileMenu.Title:SetPoint('TOP', 0, -5)
-	ProfileMenu.Title:SetJustifyH('CENTER')
-
-	ProfileMenu.Gradients[1]:SetPoint('TOP', ProfileMenu.Title, 'BOTTOM', 0, -5)
-
-	ProfileMenu.NewButton = CreateFrame('Button', nil, ProfileMenu, 'BackdropTemplate, UIPanelButtonTemplate')
+	ProfileMenu.NewButton = CreateFrame('Button', nil, ProfileMenu, 'UIPanelButtonTemplate')
 	ProfileMenu.NewButton:SetText('Save Talents')
 	ProfileMenu.NewButton:SetSize(240, 20)
-	ProfileMenu.NewButton:SetPoint('TOP', ProfileMenu.Gradients[1], 'BOTTOM', 0, -5)
+	ProfileMenu.NewButton:SetPoint('TOP', ProfileMenu.Inset, 'BOTTOM', 0, -1)
 	ProfileMenu.NewButton:SetScript('OnClick', function() CT:SetupTalentPopup() end)
 
 	ProfileMenu.Exchange = CreateFrame("Frame", nil, _G.PlayerTalentFrameTalents)
 	ProfileMenu.Exchange:SetSize(32, 32)
-	ProfileMenu.Exchange:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 20, -31)
+	ProfileMenu.Exchange:SetPoint('TOPRIGHT', _G.PlayerTalentFrame, -130, -25)
 	ProfileMenu.Exchange.Status = ProfileMenu.Exchange:CreateTexture(nil, "ARTWORK")
 	ProfileMenu.Exchange.Status:SetTexture([[Interface\AddOns\ClassTactics\Media\Exchange]])
 	ProfileMenu.Exchange.Status:SetAllPoints()
@@ -153,30 +147,25 @@ function CT:TalentProfiles()
 	ProfileMenu.Exchange:RegisterEvent('PLAYER_REGEN_ENABLED')
 	ProfileMenu.Exchange:SetScript('OnEvent', CT.CanChangeTalents)
 
-	ProfileMenu.PvPTalents = CreateFrame('Frame', nil, ProfileMenu, 'BackdropTemplate')
+	ProfileMenu.PvPTalents = CreateFrame('Frame', nil, ProfileMenu, 'SimplePanelTemplate')
 	ProfileMenu.PvPTalents:SetPoint('TOPLEFT', ProfileMenu, 'TOPRIGHT', 3, 0)
 	ProfileMenu.PvPTalents:SetSize(250, 50)
 	ProfileMenu.PvPTalents:SetShown(CT.db.pvpShown)
 
 	ProfileMenu.PvPTalents.Buttons = {}
-	ProfileMenu.PvPTalents.Gradients = {}
-	ProfileMenu.PvPTalents.Gradients[1] = CT:AddGradientColor(ProfileMenu.PvPTalents, 240, 2, CT.ClassColor)
 
-	ProfileMenu.PvPTalents.Title = ProfileMenu.PvPTalents:CreateFontString(nil, 'OVERLAY')
-	ProfileMenu.PvPTalents.Title:SetFont(CT.Libs.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
-	ProfileMenu.PvPTalents.Title:SetText('PvP Profiles')
-	ProfileMenu.PvPTalents.Title:SetPoint('TOP', 0, -5)
-	ProfileMenu.PvPTalents.Title:SetJustifyH('CENTER')
+	ProfileMenu.PvPTalents.TitleText = ProfileMenu.PvPTalents:CreateFontString(nil, 'OVERLAY', 'GameFontNormal')
+	ProfileMenu.PvPTalents.TitleText:SetText('PvP Profiles')
+	ProfileMenu.PvPTalents.TitleText:SetPoint('TOP', 0, -10)
+	ProfileMenu.PvPTalents.TitleText:SetJustifyH('CENTER')
 
-	ProfileMenu.PvPTalents.Gradients[1]:SetPoint('TOP', ProfileMenu.PvPTalents.Title, 'BOTTOM', 0, -5)
-
-	ProfileMenu.PvPTalents.NewButton = CreateFrame('Button', nil, ProfileMenu.PvPTalents, 'BackdropTemplate, UIPanelButtonTemplate')
+	ProfileMenu.PvPTalents.NewButton = CreateFrame('Button', nil, ProfileMenu.PvPTalents, 'UIPanelButtonTemplate')
 	ProfileMenu.PvPTalents.NewButton:SetText('Save Talents')
 	ProfileMenu.PvPTalents.NewButton:SetSize(240, 20)
-	ProfileMenu.PvPTalents.NewButton:SetPoint('TOP', ProfileMenu.PvPTalents.Gradients[1], 'BOTTOM', 0, -5)
+	ProfileMenu.PvPTalents.NewButton:SetPoint('TOP', ProfileMenu.PvPTalents.Inset, 'BOTTOM', 0, -1)
 	ProfileMenu.PvPTalents.NewButton:SetScript('OnClick', function() CT:SetupTalentPopup(nil, 'PvP') end)
 
-	ProfileMenu.PvPTalents.ToggleButton = CreateFrame('Button', nil, _G.PlayerTalentFrameTalents, 'BackdropTemplate, UIPanelButtonTemplate')
+	ProfileMenu.PvPTalents.ToggleButton = CreateFrame('Button', nil, _G.PlayerTalentFrameTalents, 'UIPanelButtonTemplate')
 	ProfileMenu.PvPTalents.ToggleButton:SetPoint('BOTTOMRIGHT', ProfileMenu.ToggleButton, 'BOTTOMLEFT', -2, 0)
 	ProfileMenu.PvPTalents.ToggleButton:SetText('PvP Talent Manager')
 	ProfileMenu.PvPTalents.ToggleButton:SetSize(ProfileMenu.PvPTalents.ToggleButton.Text:GetStringWidth() + 20, 20)
@@ -221,27 +210,6 @@ function CT:CanChangeTalents()
 	return isTrue
 end
 
-function CT:AddGradientColor(frame, width, height, color)
-	local r, g, b = unpack(color)
-
-	local gradient = CreateFrame('Frame', nil, frame)
-	gradient:SetSize(width, height)
-
-	gradient.left = gradient:CreateTexture(nil, 'OVERLAY')
-	gradient.left:SetSize(gradient:GetWidth() * 0.5, gradient:GetHeight())
-	gradient.left:SetPoint('LEFT', gradient, 'CENTER')
-	gradient.left:SetTexture(CT.Libs.LSM:Fetch('background', 'Solid'))
-	gradient.left:SetGradientAlpha('Horizontal', r, g, b, .7, r, g, b, .35)
-
-	gradient.right = gradient:CreateTexture(nil, 'OVERLAY')
-	gradient.right:SetSize(gradient:GetWidth() * 0.5, gradient:GetHeight())
-	gradient.right:SetPoint('RIGHT', gradient, 'CENTER')
-	gradient.right:SetTexture(CT.Libs.LSM:Fetch('background', 'Solid'))
-	gradient.right:SetGradientAlpha('Horizontal', r, g, b, .35, r, g, b, .7)
-
-	return gradient
-end
-
 function CT:SetEasyMenuAnchor(button)
 	_G.UIDropDownMenu_SetAnchor(CT.EasyMenu, 3, 0, 'TOPLEFT', button, 'TOPRIGHT')
 end
@@ -260,7 +228,7 @@ function CT:TalentProfiles_CreateLoadout()
 	Frame:Hide()
 
 	for _, Button in next, { 'Load', 'Options' } do
-		Frame[Button] = CreateFrame('Button', nil, Frame, 'BackdropTemplate, UIPanelButtonTemplate')
+		Frame[Button] = CreateFrame('Button', nil, Frame, 'UIPanelButtonTemplate')
 		Frame[Button]:SetSize(20, 20)
 		Frame[Button]:RegisterForClicks('AnyDown')
 	end
@@ -268,11 +236,11 @@ function CT:TalentProfiles_CreateLoadout()
 	Frame.Load:SetWidth(218)
 	Frame.Load:SetPoint('LEFT', Frame, 0, 0)
 
-	Frame.Options:SetPoint('LEFT', Frame.Load, 'RIGHT', 2, 0)
+	Frame.Options:SetPoint('LEFT', Frame.Load, 'RIGHT', -2, 0)
 
 	Frame.Options.Icon = Frame.Options:CreateTexture(nil, 'ARTWORK')
-	Frame.Options.Icon:SetPoint('TOPLEFT', 2, -2)
-	Frame.Options.Icon:SetPoint('BOTTOMRIGHT', -2, 2)
+	Frame.Options.Icon:SetPoint('TOPLEFT', 4, -4)
+	Frame.Options.Icon:SetPoint('BOTTOMRIGHT', -4, 4)
 	Frame.Options.Icon:SetTexture([[Interface\AddOns\ClassTactics\Media\Options]])
 
 	return Frame
@@ -304,7 +272,7 @@ function CT:PvPTalentProfiles_Create()
 end
 
 function CT:TalentProfiles_CreateExtraButton()
-	local Button = CreateFrame("Button", nil, _G.PlayerTalentFrameTalents, "ActionButtonTemplate, InsecureActionButtonTemplate, BackdropTemplate")
+	local Button = CreateFrame("Button", nil, _G.PlayerTalentFrameTalents, "ActionButtonTemplate, InsecureActionButtonTemplate")
 	Button:SetSize(32, 32)
 	Button:SetClampedToScreen(true)
 	Button:SetAttribute("type", "item")
@@ -377,7 +345,7 @@ function CT:TalentProfiles_Update()
 			Button.Name = name
 
 			if index == 1 then
-				Button:SetPoint('TOPLEFT', CT.TalentsFrames.NewButton, 'BOTTOMLEFT', 0, -2)
+				Button:SetPoint('TOPLEFT', CT.TalentsFrames.Inset, 'TOPLEFT', 2, -4)
 			else
 				Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -2)
 			end
@@ -390,12 +358,14 @@ function CT:TalentProfiles_Update()
 		CT.TalentsFrames.Buttons[i]:Hide()
 	end
 
-	local maxHeight = _G.PlayerTalentFrame:GetHeight()
-	local minHeight = (30 + (index + 1) * 22)
+	local baseHeight, maxHeight = 148, _G.PlayerTalentFrame:GetHeight()
+	local addHeight = index and index > 3 and (index - 4) * 22 or 0
+	local minHeight = baseHeight + addHeight
+
 	if minHeight < maxHeight then
 		CT.TalentsFrames:SetHeight(minHeight)
 	else
-		CT.TalentsFrames:SetHeight(_G.PlayerTalentFrame:GetHeight())
+		CT.TalentsFrames:SetHeight(maxHeight)
 	end
 
 	-- PvP Saved
@@ -410,7 +380,7 @@ function CT:TalentProfiles_Update()
 			Button.Name = name
 
 			if pvpIndex == 1 then
-				Button:SetPoint('TOPLEFT', CT.TalentsFrames.PvPTalents.NewButton, 'BOTTOMLEFT', 0, -2)
+				Button:SetPoint('TOPLEFT', CT.TalentsFrames.PvPTalents.Inset, 'TOPLEFT', 2, -4)
 			else
 				Button:SetPoint('TOPLEFT', PreviousButton, 'BOTTOMLEFT', 0, -2)
 			end
@@ -423,12 +393,13 @@ function CT:TalentProfiles_Update()
 		CT.TalentsFrames.PvPTalents.Buttons[i]:Hide()
 	end
 
-	maxHeight = _G.PlayerTalentFrame:GetHeight()
-	minHeight = (30 + (pvpIndex + 1) * 22)
+	addHeight = pvpIndex and pvpIndex > 3 and (pvpIndex - 5) * 22 or 0
+	minHeight = baseHeight + addHeight
+
 	if minHeight < maxHeight then
 		CT.TalentsFrames.PvPTalents:SetHeight(minHeight)
 	else
-		CT.TalentsFrames.PvPTalents:SetHeight(_G.PlayerTalentFrame:GetHeight())
+		CT.TalentsFrames.PvPTalents:SetHeight(maxHeight)
 	end
 
 	CT:SkinTalentManager()
@@ -520,6 +491,10 @@ function CT:SkinTalentManager()
 		AS:SkinButton(CT.TalentsFrames.PvPTalents.NewButton)
 		AS:SkinButton(CT.TalentsFrames.ToggleButton)
 		AS:SkinButton(CT.TalentsFrames.PvPTalents.ToggleButton)
+
+		CT.TalentsFrames:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 'TOPRIGHT', 2, -1)
+		CT.TalentsFrames.TitleText:SetFont(CT.Libs.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
+		CT.TalentsFrames.PvPTalents.TitleText:SetFont(CT.Libs.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
 
 		for _, Frame in next, CT.TalentsFrames.Buttons do
 			for _, Button in next, { 'Load', 'Options' } do
