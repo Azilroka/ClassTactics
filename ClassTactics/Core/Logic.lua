@@ -651,10 +651,7 @@ function CT:SetActionSlot(slot, slotInfo)
 				for spellIndex = offset, offset + numEntries do
 					local skillType, spellID = GetSpellBookItemInfo(spellIndex, 'spell')
 					if ((actionType == 'spell' and skillType == 'SPELL') or (actionType == 'flyout' and skillType == 'FLYOUT')) and id == spellID then
-						index = spellIndex
-						if not subType then
-							subType = 'spell'
-						end
+						index, subType = spellIndex, subType or 'spell'
 						break
 					end
 				end
