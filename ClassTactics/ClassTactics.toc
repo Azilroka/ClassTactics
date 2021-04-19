@@ -4,5 +4,7 @@
 ## Author: Azilroka
 ## SavedVariables: ClassTacticsDB
 ## OptionalDeps: ElvUI, AddOnSkins, ProjectAzilroka
+## X-Curse-Project-ID: 473120
+## X-Wago-ID: rkGrqrKy
 
 Load.xml
