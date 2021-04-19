@@ -43,6 +43,7 @@ function CT:BuildProfile()
 			autoTalent = true,
 			accountKeybind = true,
 			preferCharacterMacros = false,
+			createMissingMacros = true,
 			talentBuilds = {},
 			talentBuildsPvP = {},
 			macros = {},
@@ -225,10 +226,11 @@ function CT:BuildOptions()
 
 			-- ActionBars
 			specOption.args.ActionBars = ACH:Group('ActionBars Management', nil, 1)
-			specOption.args.ActionBars.args.PreferCharacterMacros = ACH:Toggle('Prefer Character Macros', nil, 0, nil, nil, 1.25, function() return CT.db.preferCharacterMacros end, function(_, value) CT.db.CreateCharacterMacros = value end)
-			specOption.args.ActionBars.args.LoadActionBarSet = ACH:Execute('Load ActionBar Set', nil, 1, function() CT:LoadActionSet(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) end, nil, nil, nil, nil, nil, nil, function() return classTag ~= CT.MyClass or specGroup ~= GetSpecialization() or not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
-			specOption.args.ActionBars.args.SaveActionBarSet = ACH:Execute('Save ActionBar Set', nil, 2, function() CT:SetupActionBarPopup(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) end, nil, nil, nil, nil, nil, nil, function() return classTag ~= CT.MyClass or specGroup ~= GetSpecialization() end)
-			specOption.args.ActionBars.args.DeleteActionBarSet = ACH:Execute('Delete ActionBar Set', nil, 3, function() CT:DeleteActionBarSet(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedActionBarSet) CT.OptionsData[classTag][specGroup].SelectedActionBarSet = nil end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
+			specOption.args.ActionBars.args.CreateMissingMacros = ACH:Toggle('Create Missing Macros', nil, 0, nil, nil, 1.25, function() return CT.db.createMissingMacros end, function(_, value) CT.db.createMissingMacros = value end)
+			specOption.args.ActionBars.args.PreferCharacterMacros = ACH:Toggle('Prefer Character Macros', nil, 1, nil, nil, 1.25, function() return CT.db.preferCharacterMacros end, function(_, value) CT.db.preferCharacterMacros = value end)
+			specOption.args.ActionBars.args.LoadActionBarSet = ACH:Execute('Load ActionBar Set', nil, 2, function() CT:LoadActionSet(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) end, nil, nil, nil, nil, nil, nil, function() return classTag ~= CT.MyClass or specGroup ~= GetSpecialization() or not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
+			specOption.args.ActionBars.args.SaveActionBarSet = ACH:Execute('Save ActionBar Set', nil, 3, function() CT:SetupActionBarPopup(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) end, nil, nil, nil, nil, nil, nil, function() return classTag ~= CT.MyClass or specGroup ~= GetSpecialization() end)
+			specOption.args.ActionBars.args.DeleteActionBarSet = ACH:Execute('Delete ActionBar Set', nil, 4, function() CT:DeleteActionBarSet(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedActionBarSet) CT.OptionsData[classTag][specGroup].SelectedActionBarSet = nil end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
 
 			specOption.args.ActionBars.args.ActionBarSets = ACH:MultiSelect('ActionBar Sets', nil, 4, function() return CT:GetActionBarSets(classTag, specGroup) end, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedActionBarSet == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedActionBarSet = key end)
 			specOption.args.ActionBars.args.ExportActionBarSet = ACH:Input('Export ActionBar Set', nil, -1, 5, 'full', function() local name, dbKey = CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet, strjoin('\a', 'actionbars', classTag, specGroup) return CT:ExportData(name, dbKey) end, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)

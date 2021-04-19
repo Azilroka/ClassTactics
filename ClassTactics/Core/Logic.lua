@@ -688,7 +688,7 @@ function CT:SetActionSlot(slot, slotInfo)
 	elseif actionType == 'macro' then
 		index = GetMacroIndexByName(name)
 		local account, character = GetNumMacros()
-		local canMakeMacro = character < MAX_CHARACTER_MACROS or account < MAX_ACCOUNT_MACROS
+		local canMakeMacro = CT.db.createMissingMacros and (character < MAX_CHARACTER_MACROS or account < MAX_ACCOUNT_MACROS)
 		local preferCharacterMacro = CT.db.preferCharacterMacros and character < MAX_CHARACTER_MACROS
 
 		if (not index or index == 0) and canMakeMacro then
