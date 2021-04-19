@@ -136,7 +136,7 @@ function CT:TalentProfiles()
 
 	ProfileMenu.Exchange = CreateFrame("Frame", nil, _G.PlayerTalentFrameTalents)
 	ProfileMenu.Exchange:SetSize(32, 32)
-	ProfileMenu.Exchange:SetPoint('TOPRIGHT', _G.PlayerTalentFrame, -130, -25)
+	ProfileMenu.Exchange:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 102, -27)
 	ProfileMenu.Exchange.Status = ProfileMenu.Exchange:CreateTexture(nil, "ARTWORK")
 	ProfileMenu.Exchange.Status:SetTexture([[Interface\AddOns\ClassTactics\Media\Exchange]])
 	ProfileMenu.Exchange.Status:SetAllPoints()
@@ -273,6 +273,7 @@ end
 
 function CT:TalentProfiles_CreateExtraButton()
 	local Button = CreateFrame("Button", nil, _G.PlayerTalentFrameTalents, "ActionButtonTemplate, InsecureActionButtonTemplate")
+	Button.NormalTexture:SetTexture()
 	Button:SetSize(32, 32)
 	Button:SetClampedToScreen(true)
 	Button:SetAttribute("type", "item")
@@ -319,7 +320,7 @@ function CT:TalentProfiles_CheckBags()
 	end
 
 	for i, Button in next, CT.TalentsFrames.ExtraButtons do
-		Button:SetPoint('LEFT', i == 1 and CT.TalentsFrames.Exchange or CT.TalentsFrames.ExtraButtons[i - 1], 'RIGHT', i == 1 and 27 or 2, 0)
+		Button:SetPoint('LEFT', i == 1 and CT.TalentsFrames.Exchange or CT.TalentsFrames.ExtraButtons[i - 1], 'RIGHT', i == 1 and 10 or 2, 0)
 	end
 end
 
