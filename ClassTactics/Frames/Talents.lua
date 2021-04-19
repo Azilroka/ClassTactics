@@ -393,7 +393,7 @@ function CT:TalentProfiles_Update()
 		CT.TalentsFrames.PvPTalents.Buttons[i]:Hide()
 	end
 
-	addHeight = pvpIndex and pvpIndex > 3 and (pvpIndex - 5) * 22 or 0
+	addHeight = pvpIndex and pvpIndex > 3 and (pvpIndex - 4) * 22 or 0
 	minHeight = baseHeight + addHeight
 
 	if minHeight < maxHeight then
