@@ -552,8 +552,11 @@ end
 function CT:LoadKeybinds(bindSetName)
 	if CT.db.keybinds[bindSetName] then
 		for commandName, keys in next, CT.db.keybinds[bindSetName] do
+			for _, binding in next, { GetBindingKey(commandName) } do
+				SetBinding(binding) -- Clear Binding
+			end
 			for _, binding in next, keys do
-				SetBinding(binding, commandName)
+				SetBinding(binding, commandName) -- Set Binding
 			end
 		end
 
@@ -633,6 +636,7 @@ function CT:SetActionSlot(slot, slotInfo)
 	end
 
 	local actionType, id, subType, icon, name, macroText = slotInfo.actionType, slotInfo.id, slotInfo.subType, slotInfo.icon, slotInfo.name, slotInfo.macroText
+	local index
 
 	if actionType == 'item' then
 		PickupItem(id)
@@ -641,7 +645,6 @@ function CT:SetActionSlot(slot, slotInfo)
 			id = FindBaseSpellByID(id) or id
 		end
 
-		local index
 		if subType == 'spell' or actionType == 'flyout' then
 			for tabIndex = 1, min(2, GetNumSpellTabs()) do
 				local offset, numEntries = select(3, GetSpellTabInfo(tabIndex))
@@ -654,7 +657,8 @@ function CT:SetActionSlot(slot, slotInfo)
 				end
 			end
 		else
-			local spellIndex, skillType, spellID = 1, GetSpellBookItemInfo(1, subType)
+			local spellIndex = 1
+			local skillType, spellID = GetSpellBookItemInfo(spellIndex, subType)
 			while skillType do
 				if (skillType == 'SPELL' or (skillType == 'PETACTION' and subType == 'pet')) and id == spellID then
 					index = spellIndex
@@ -675,21 +679,20 @@ function CT:SetActionSlot(slot, slotInfo)
 				end
 			end
 
-			if not GetCursorInfo() and (subType == 'pet' or subType == 'spell') then
+			if not GetCursorInfo() and (subType == 'pet' or subType == 'spell' or not subType) then
 				if IsSpellKnown(id, subType == 'pet') then
 					(subType == 'pet' and PickupPetSpell or PickupSpell)(id)
 				end
 			end
 		end
 	elseif actionType == 'macro' then
-		local index = GetMacroIndexByName(name)
+		index = GetMacroIndexByName(name)
 		local account, character = GetNumMacros()
-		local makeCharacterMacro = true
+		local canMakeMacro = character < MAX_CHARACTER_MACROS or account < MAX_ACCOUNT_MACROS
+		local preferCharacterMacro = CT.db.preferCharacterMacros and character < MAX_CHARACTER_MACROS
 
-		if not index then
-			if makeCharacterMacro and character < MAX_CHARACTER_MACROS or account < MAX_ACCOUNT_MACROS then
-				index = CreateMacro(name, icon, macroText, makeCharacterMacro)
-			end
+		if (not index or index == 0) and canMakeMacro then
+			index = CreateMacro(name, icon, macroText, preferCharacterMacro and 1)
 		end
 
 		if index then

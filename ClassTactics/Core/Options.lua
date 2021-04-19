@@ -42,6 +42,7 @@ function CT:BuildProfile()
 			pvpShown = true,
 			autoTalent = true,
 			accountKeybind = true,
+			preferCharacterMacros = false,
 			talentBuilds = {},
 			talentBuildsPvP = {},
 			macros = {},
@@ -224,7 +225,7 @@ function CT:BuildOptions()
 
 			-- ActionBars
 			specOption.args.ActionBars = ACH:Group('ActionBars Management', nil, 1)
-			specOption.args.ActionBars.args.CreateCharacterMacros = ACH:Toggle('Create Character Macros', nil, 0, nil, nil, 1.25, function() return CT.db.CreateCharacterMacros end, function(_, value) CT.db.CreateCharacterMacros = value end)
+			specOption.args.ActionBars.args.PreferCharacterMacros = ACH:Toggle('Prefer Character Macros', nil, 0, nil, nil, 1.25, function() return CT.db.preferCharacterMacros end, function(_, value) CT.db.CreateCharacterMacros = value end)
 			specOption.args.ActionBars.args.LoadActionBarSet = ACH:Execute('Load ActionBar Set', nil, 1, function() CT:LoadActionSet(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) end, nil, nil, nil, nil, nil, nil, function() return classTag ~= CT.MyClass or specGroup ~= GetSpecialization() or not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
 			specOption.args.ActionBars.args.SaveActionBarSet = ACH:Execute('Save ActionBar Set', nil, 2, function() CT:SetupActionBarPopup(CT.OptionsData[classTag][specGroup].SelectedActionBarSet) end, nil, nil, nil, nil, nil, nil, function() return classTag ~= CT.MyClass or specGroup ~= GetSpecialization() end)
 			specOption.args.ActionBars.args.DeleteActionBarSet = ACH:Execute('Delete ActionBar Set', nil, 3, function() CT:DeleteActionBarSet(classTag, specGroup, CT.OptionsData[classTag][specGroup].SelectedActionBarSet) CT.OptionsData[classTag][specGroup].SelectedActionBarSet = nil end, nil, nil, nil, nil, nil, nil, function() return not CT.OptionsData[classTag][specGroup].SelectedActionBarSet or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == '' or CT.OptionsData[classTag][specGroup].SelectedActionBarSet == 'NONE' end)
