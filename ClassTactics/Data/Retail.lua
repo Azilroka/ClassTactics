@@ -342,7 +342,6 @@ CT.RetailData['MAGE'] = {
 CT.RetailData['MONK'] = {
 	Discord =  {
 		["Peak of Serenity"] = "https://discord.gg/peakofserenity",
-		["Skyhold"] = "https://discord.gg/skyhold",
 	},
 	[1] = { -- Brewmaster
 		Guides = {
