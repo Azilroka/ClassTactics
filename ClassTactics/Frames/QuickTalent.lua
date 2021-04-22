@@ -90,8 +90,6 @@ do
 			button.icon:SetAllPoints()
 			button.icon:SetTexCoord(.075, .925, .075, .925)
 
-			OnEvent(button)
-
 			QuickTalents.Buttons[tier][column] = button
 		end
 	end
