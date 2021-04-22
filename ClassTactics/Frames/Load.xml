@@ -1,3 +1,4 @@
 <Ui>
 	<Script file="Talents.lua"/>
+	<Script file="QuickTalent.lua"/>
 </Ui>
