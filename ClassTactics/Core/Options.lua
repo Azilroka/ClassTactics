@@ -45,6 +45,14 @@ function CT:BuildProfile()
 			accountKeybind = true,
 			preferCharacterMacros = false,
 			createMissingMacros = true,
+			general = {
+				quicktalents = {
+					buttonSize = 24,
+					layout = 'vertical',
+					alpha = 1,
+				},
+				actionbars = {},
+			},
 			talentBuilds = {},
 			talentBuildsPvP = {},
 			macros = {},
@@ -126,6 +134,11 @@ for classTag, classID in next, CT.ClassData.Numerical do
 end
 
 function CT:BuildOptions()
+	CT.Options.args.general.args.QuickTalents = ACH:Group('Quick Talents', nil, 2, nil, function(info) return CT.db.general.quicktalents[info[#info]] end, function(info, value) CT.db.general.quicktalents[info[#info]] = value CT:QuickTalents_Update() end)
+	CT.Options.args.general.args.QuickTalents.args.layout = ACH:Select('Layout', nil, 1, { horizontal = 'Horizontal', vertical = 'Vertical' })
+	CT.Options.args.general.args.QuickTalents.args.buttonSize = ACH:Range('Size', nil, 2, { min = 16, max = 60, step = 2 })
+	CT.Options.args.general.args.QuickTalents.args.alpha = ACH:Range('Mouseover Alpha', nil, 3, { min = 0, max = 1, isPercent = true })
+
 	-- Import / Export
 	CT.Options.args.DataHandle = ACH:Group('Import / Export', nil, 1, 'tab')
 

@@ -30,6 +30,7 @@ function CT:Init()
 	end
 
 	CT:AutoTalent()
+	CT:QuickTalents_Create()
 end
 
 function CT:ADDON_LOADED(event, addon)
