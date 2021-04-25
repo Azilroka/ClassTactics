@@ -53,8 +53,6 @@ function CT:QuickTalents_Create()
 		end
 
 		local function OnLeave(btn)
-			if InCombatLockdown() then return end
-
 			GameTooltip:Hide()
 
 			UIFrameFadeOut(btn, .1, btn:GetAlpha(), btn.selected and 1 or 0.25)
