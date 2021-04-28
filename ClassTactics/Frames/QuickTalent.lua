@@ -65,7 +65,9 @@ function CT:QuickTalents_Create()
 
 	do
 		local function OnEnter(btn)
-			if InCombatLockdown() then return end
+			local combatOnly = not CT.db.general.quicktalents.onEnterOnlyWhenUsable or CT:HasUnselectedRow()
+
+			if InCombatLockdown() or (not combatOnly and not CT:CanChangeTalents()) then return end
 
 			if btn.talentID then
 				GameTooltip:SetOwner(btn, 'ANCHOR_RIGHT')

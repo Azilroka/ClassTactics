@@ -52,6 +52,7 @@ function CT:BuildProfile()
 					buttonSize = 24,
 					layout = 'vertical',
 					alpha = 1,
+                    onEnterOnlyWhenUsable = false,
 				},
 				actionbars = {},
 			},
@@ -142,6 +143,7 @@ function CT:BuildOptions()
 	CT.Options.args.general.args.QuickTalents.args.layout = ACH:Select('Layout', nil, 2, { horizontal = 'Horizontal', vertical = 'Vertical' })
 	CT.Options.args.general.args.QuickTalents.args.buttonSize = ACH:Range('Size', nil, 3, { min = 16, max = 60, step = 2 })
 	CT.Options.args.general.args.QuickTalents.args.alpha = ACH:Range('Mouseover Alpha', nil, 4, { min = 0, max = 1, isPercent = true })
+    CT.Options.args.general.args.QuickTalents.args.onEnterOnlyWhenUsable = ACH:Toggle('On Enter Only When Usable', nil, 5)
 
 	-- Import / Export
 	CT.Options.args.DataHandle = ACH:Group('Import / Export', nil, 1, 'tab')

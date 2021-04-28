@@ -298,6 +298,23 @@ function CT:GetSelectedTalents()
 	return noneSelected and '' or table.concat(CT.CurrentTalentTable, ',')
 end
 
+function CT:HasUnselectedRow()
+	for tier = 1, MAX_TALENT_TIERS do
+		local noneSelected = true
+		for column = 1, NUM_TALENT_COLUMNS do
+			local selected = select(4,GetTalentInfo(tier, column, GetActiveSpecGroup()))
+			if selected then
+				noneSelected = false
+				break
+			end
+		end
+		if noneSelected then
+			return true
+		end
+	end
+	return false
+end
+
 local compareTable = {}
 
 function CT:GetMaximumTalentsByString(talentString)
