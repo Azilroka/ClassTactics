@@ -205,6 +205,7 @@ function CT:QuickTalents_Update()
 
 	for tier = 1, MAX_TALENT_TIERS do
 		QuickTalentFlyoutBar.Tier[tier]:SetSize(db.buttonSize, db.buttonSize)
+		QuickTalentFlyoutBar.Tier[tier]:ClearAllPoints()
 
 		if db.layout == 'vertical' then
 			if tier == 1 then
@@ -222,6 +223,8 @@ function CT:QuickTalents_Update()
 
 		for column = 1, NUM_TALENT_COLUMNS do
 			QuickTalents.Buttons[tier][column]:SetSize(db.buttonSize, db.buttonSize)
+			QuickTalents.Buttons[tier][column]:ClearAllPoints()
+			QuickTalentFlyoutBar.Flyout.Buttons[column]:ClearAllPoints()
 
 			if db.layout == 'vertical' then
 				if tier == 1 and column == 1 then
