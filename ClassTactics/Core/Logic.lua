@@ -302,8 +302,8 @@ function CT:HasUnselectedRow()
 	for tier = 1, MAX_TALENT_TIERS do
 		local noneSelected = true
 		for column = 1, NUM_TALENT_COLUMNS do
-			local selected = select(4,GetTalentInfo(tier, column, GetActiveSpecGroup()))
-			if selected then
+			local selected, available  = select(4,GetTalentInfo(tier, column, GetActiveSpecGroup()))
+			if selected or not available then
 				noneSelected = false
 				break
 			end
