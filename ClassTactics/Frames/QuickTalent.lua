@@ -121,13 +121,14 @@ function CT:QuickTalents_Create()
 		end
 
 		local function FlyoutOnClick(btn)
-			if QuickTalentFlyoutBar.Flyout:IsShown() then
+			if QuickTalentFlyoutBar.Flyout:IsShown() and QuickTalentFlyoutBar.Flyout.tier == btn.tier then
 				QuickTalentFlyoutBar.Flyout:Hide()
 			else
 				QuickTalentFlyoutBar.Flyout:Hide()
 
 				for _, button in next, QuickTalentFlyoutBar.Flyout.Buttons do
 					button.tier = btn.tier
+					QuickTalentFlyoutBar.Flyout.tier = btn.tier
 					button:SetSize(CT.db.general.quicktalents.buttonSize, CT.db.general.quicktalents.buttonSize)
 				end
 
@@ -209,18 +210,12 @@ function CT:QuickTalents_Update()
 		QuickTalentFlyoutBar.Tier[tier]:SetSize(db.buttonSize, db.buttonSize)
 		QuickTalentFlyoutBar.Tier[tier]:ClearAllPoints()
 
-		if db.layout == 'vertical' then
-			if tier == 1 then
-				QuickTalentFlyoutBar.Tier[tier]:SetPoint('TOPLEFT', QuickTalentFlyoutBar, 'TOPLEFT', 3, -3)
-			else
-				QuickTalentFlyoutBar.Tier[tier]:SetPoint('TOP', QuickTalentFlyoutBar.Tier[tier - 1], 'BOTTOM', 0, -1)
-			end
+		if tier == 1 then
+			QuickTalentFlyoutBar.Tier[tier]:SetPoint('TOPLEFT', QuickTalentFlyoutBar, 'TOPLEFT', 3, -3)
+		elseif db.layout == 'vertical' then
+			QuickTalentFlyoutBar.Tier[tier]:SetPoint('TOP', QuickTalentFlyoutBar.Tier[tier - 1], 'BOTTOM', 0, -1)
 		else
-			if tier == 1 then
-				QuickTalentFlyoutBar.Tier[tier]:SetPoint('TOPLEFT', QuickTalentFlyoutBar, 'TOPLEFT', 3, -3)
-			else
-				QuickTalentFlyoutBar.Tier[tier]:SetPoint('LEFT', QuickTalentFlyoutBar.Tier[tier - 1], 'RIGHT', 1, 0)
-			end
+			QuickTalentFlyoutBar.Tier[tier]:SetPoint('LEFT', QuickTalentFlyoutBar.Tier[tier - 1], 'RIGHT', 1, 0)
 		end
 
 		for column = 1, NUM_TALENT_COLUMNS do
@@ -228,25 +223,21 @@ function CT:QuickTalents_Update()
 			QuickTalents.Buttons[tier][column]:ClearAllPoints()
 			QuickTalentFlyoutBar.Flyout.Buttons[column]:ClearAllPoints()
 
-			if db.layout == 'vertical' then
-				if tier == 1 and column == 1 then
-					QuickTalents.Buttons[tier][column]:SetPoint('TOPLEFT', QuickTalents, 'TOPLEFT', 3, -3)
-				elseif column == 1 then
-					QuickTalents.Buttons[tier][column]:SetPoint('TOPLEFT', QuickTalents.Buttons[tier - 1][1], 'BOTTOMLEFT', 0, -1)
-				else
-					QuickTalents.Buttons[tier][column]:SetPoint('LEFT', QuickTalents.Buttons[tier][column - 1], 'RIGHT', 1, 0)
-				end
+			if tier == 1 and column == 1 then
+				QuickTalents.Buttons[tier][column]:SetPoint('TOPLEFT', QuickTalents, 'TOPLEFT', 3, -3)
+			elseif column == 1 and db.layout == 'vertical' then
+				QuickTalents.Buttons[tier][column]:SetPoint('TOPLEFT', QuickTalents.Buttons[tier - 1][1], 'BOTTOMLEFT', 0, -1)
+			elseif column == 1 then
+				QuickTalents.Buttons[tier][column]:SetPoint('TOPLEFT', QuickTalents.Buttons[tier - 1][1], 'TOPRIGHT', 1, 0)
+			elseif db.layout == 'vertical' then
+				QuickTalents.Buttons[tier][column]:SetPoint('LEFT', QuickTalents.Buttons[tier][column - 1], 'RIGHT', 1, 0)
+			else
+				QuickTalents.Buttons[tier][column]:SetPoint('TOP', QuickTalents.Buttons[tier][column - 1], 'BOTTOM', 0, 1)
+			end
 
+			if db.layout == 'vertical' then
 				QuickTalentFlyoutBar.Flyout.Buttons[column]:SetPoint('LEFT', column == 1 and QuickTalentFlyoutBar.Flyout or QuickTalentFlyoutBar.Flyout.Buttons[column - 1], column == 1 and 'LEFT' or 'RIGHT', 3, 0)
 			else
-				if tier == 1 and column == 1 then
-					QuickTalents.Buttons[tier][column]:SetPoint('TOPLEFT', QuickTalents, 'TOPLEFT', 3, -3)
-				elseif column == 1 then
-					QuickTalents.Buttons[tier][column]:SetPoint('TOPLEFT', QuickTalents.Buttons[tier - 1][1], 'TOPRIGHT', 1, 0)
-				else
-					QuickTalents.Buttons[tier][column]:SetPoint('TOP', QuickTalents.Buttons[tier][column - 1], 'BOTTOM', 0, 1)
-				end
-
 				QuickTalentFlyoutBar.Flyout.Buttons[column]:SetPoint('BOTTOM', column == 1 and QuickTalentFlyoutBar.Flyout or QuickTalentFlyoutBar.Flyout.Buttons[column - 1], column == 1 and 'BOTTOM' or 'TOP', 0, 3)
 			end
 		end
