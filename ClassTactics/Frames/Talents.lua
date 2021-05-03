@@ -204,8 +204,10 @@ function CT:CanChangeTalents()
 		isTrue = IsResting() or CT:HasAuraTalentChange()
 	end
 
-	CT.TalentsFrames.Exchange.Status:SetVertexColor(unpack(isTrue and CT.ClassColor or {1, 1, 1}))
-	CT.TalentsFrames.Exchange.Status:SetAlpha(isTrue and 1 or .3)
+	if CT.TalentsFrames then
+		CT.TalentsFrames.Exchange.Status:SetVertexColor(unpack(isTrue and CT.ClassColor or {1, 1, 1}))
+		CT.TalentsFrames.Exchange.Status:SetAlpha(isTrue and 1 or .3)
+	end
 
 	return isTrue
 end
