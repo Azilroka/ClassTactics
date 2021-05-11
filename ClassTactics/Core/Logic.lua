@@ -109,7 +109,7 @@ function CT:NameDuplicates(current, default)
 		if option ~= 'selected' then
 			if type(value) == 'table' then
 				default[option] = CT:NameDuplicates(current[option], default[option])
-			elseif default[option] and value ~= default[option] then
+			elseif default[option] and value ~= default[option] and CT:ReturnTimeHex() then
 				default[format('%s %s', option, CT:ReturnTimeHex())] = default[option]
 				default[option] = nil
 			end
