@@ -404,8 +404,6 @@ function CT:TalentProfiles_Update()
 	else
 		CT.TalentsFrames.PvPTalents:SetHeight(maxHeight)
 	end
-
-	CT:SkinTalentManager()
 end
 
 function CT:SetupTalentMarkers()
@@ -483,38 +481,4 @@ function CT:IsPvPTalentSetSelected(name)
 	end
 
 	return false
-end
-
-function CT:SkinTalentManager()
-	if CT.AddOnSkins then
-		local AS = _G.AddOnSkins[1]
-		AS:SkinBackdropFrame(CT.TalentsFrames)
-		AS:SkinBackdropFrame(CT.TalentsFrames.PvPTalents)
-		AS:SkinButton(CT.TalentsFrames.NewButton)
-		AS:SkinButton(CT.TalentsFrames.PvPTalents.NewButton)
-		AS:SkinButton(CT.TalentsFrames.ToggleButton)
-		AS:SkinButton(CT.TalentsFrames.PvPTalents.ToggleButton)
-
-		CT.TalentsFrames:SetPoint('TOPLEFT', _G.PlayerTalentFrame, 'TOPRIGHT', 2, -1)
-		CT.TalentsFrames.TitleText:SetFont(CT.Libs.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
-		CT.TalentsFrames.PvPTalents.TitleText:SetFont(CT.Libs.LSM:Fetch('font', 'Expressway'), 12, 'OUTLINE')
-
-		for _, Frame in next, CT.TalentsFrames.Buttons do
-			for _, Button in next, { 'Load', 'Options' } do
-				AS:SkinButton(Frame[Button])
-			end
-		end
-
-		for _, Frame in next, CT.TalentsFrames.PvPTalents.Buttons do
-			for _, Button in next, { 'Load', 'Options' } do
-				AS:SkinButton(Frame[Button])
-			end
-		end
-
-		for _, Button in next, CT.TalentsFrames.ExtraButtons do
-			AS:SkinButton(Button)
-			AS:SkinTexture(Button.icon)
-			AS:SetInside(Button.icon)
-		end
-	end
 end
