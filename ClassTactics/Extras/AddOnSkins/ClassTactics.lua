@@ -19,24 +19,28 @@ function AS:ClassTactics(event, addon)
 	end)
 
 	hooksecurefunc(CT, "TalentProfiles_Update", function()
-		for _, Frame in next, CT.TalentsFrames.Buttons do
-			for _, Button in next, { 'Load', 'Options' } do
-				AS:SkinButton(Frame[Button])
+		if CT.TalentsFrames then
+			for _, Frame in next, CT.TalentsFrames.Buttons do
+				for _, Button in next, { 'Load', 'Options' } do
+					AS:SkinButton(Frame[Button])
+				end
 			end
-		end
 
-		for _, Frame in next, CT.TalentsFrames.PvPTalents.Buttons do
-			for _, Button in next, { 'Load', 'Options' } do
-				AS:SkinButton(Frame[Button])
+			for _, Frame in next, CT.TalentsFrames.PvPTalents.Buttons do
+				for _, Button in next, { 'Load', 'Options' } do
+					AS:SkinButton(Frame[Button])
+				end
 			end
 		end
 	end)
 
 	hooksecurefunc(CT, "TalentProfiles_CreateExtraButton", function()
-		for _, Button in next, CT.TalentsFrames.ExtraButtons do
-			AS:SkinButton(Button)
-			AS:SkinTexture(Button.icon)
-			AS:SetInside(Button.icon)
+		if CT.TalentsFrames then
+			for _, Button in next, CT.TalentsFrames.ExtraButtons do
+				AS:SkinButton(Button)
+				AS:SkinTexture(Button.icon)
+				AS:SetInside(Button.icon)
+			end
 		end
 	end)
 end
