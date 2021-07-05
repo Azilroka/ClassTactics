@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 90100
 ## Title: |cff16C3F2Class|r|cFFFFFFFFTactics|r
 ## Version: 1.01
 ## Author: Azilroka
