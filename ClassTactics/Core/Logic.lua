@@ -324,6 +324,8 @@ function CT:GetMaximumTalentsByString(talentString)
 			local talentID, _, _, selected = GetTalentInfo(tier, column, GetActiveSpecGroup())
 			if talentID and not compareTable[tier] and selected then
 				compareTable[tier] = talentID
+			else
+				break
 			end
 		end
 	end
