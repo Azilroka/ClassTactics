@@ -20,17 +20,19 @@ function CT:Init()
 		CT:GetOptions()
 	end
 
-	CT:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", 'TalentProfiles_Update')
-	CT:RegisterEvent("PLAYER_LEVEL_UP", 'DelayAutoTalent')
+	if CT.Retail then
+		CT:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED", 'TalentProfiles_Update')
+		CT:RegisterEvent("PLAYER_LEVEL_UP", 'DelayAutoTalent')
 
-	if IsAddOnLoaded('Blizzard_TalentUI') then
-		CT:ADDON_LOADED('ADDON_LOADED', 'Blizzard_TalentUI')
-	else
-		CT:RegisterEvent('ADDON_LOADED')
+		if IsAddOnLoaded('Blizzard_TalentUI') then
+			CT:ADDON_LOADED('ADDON_LOADED', 'Blizzard_TalentUI')
+		else
+			CT:RegisterEvent('ADDON_LOADED')
+		end
+
+		CT:AutoTalent()
+		CT:QuickTalents_Create()
 	end
-
-	CT:AutoTalent()
-	CT:QuickTalents_Create()
 end
 
 function CT:ADDON_LOADED(event, addon)

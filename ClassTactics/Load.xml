@@ -1,8 +1,3 @@
 <Ui>
-	<Include file="Libs\Load_Libs.xml"/>
-	<Script file="Init.lua"/>
-	<Include file="Core\Load.xml"/>
-	<Include file="Data\Load.xml"/>
-	<Include file="Frames\Load.xml"/>
-	<Include file="Extras\Load.xml"/>
+
 </Ui>

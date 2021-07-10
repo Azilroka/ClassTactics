@@ -20,53 +20,55 @@ local next = next
 local sort = sort
 local min = min
 
+local ClearCursor = ClearCursor
 local CopyTable = CopyTable
-local tInvert = tInvert
-local LearnPvpTalent = LearnPvpTalent
-local GetSpecialization = GetSpecialization
+local CreateMacro = CreateMacro
+local FindBaseSpellByID = FindBaseSpellByID
+local GetActionInfo = GetActionInfo
+local GetActionText = GetActionText
+local GetActionTexture = GetActionTexture
 local GetActiveSpecGroup = GetActiveSpecGroup
+local GetBinding = GetBinding
+local GetBindingKey = GetBindingKey
+local GetCurrentBindingSet = GetCurrentBindingSet
+local GetCursorInfo = GetCursorInfo
+local GetMacroIndexByName = GetMacroIndexByName
+local GetMacroInfo = GetMacroInfo
+local GetNumBindings = GetNumBindings
+local GetNumMacros = GetNumMacros
+local GetNumSpellTabs = GetNumSpellTabs
+local GetPvpTalentInfoByID = GetPvpTalentInfoByID
+local GetSpecialization = GetSpecialization
+local GetSpellBookItemInfo = GetSpellBookItemInfo
+local GetSpellTabInfo = GetSpellTabInfo
 local GetTalentInfo = GetTalentInfo
 local GetTalentInfoByID = GetTalentInfoByID
 local GetTalentTierInfo = GetTalentTierInfo
-local LearnTalents = LearnTalents
-local UnitLevel = UnitLevel
 local InCombatLockdown = InCombatLockdown
-local GetPvpTalentInfoByID = GetPvpTalentInfoByID
-local GetMacroInfo = GetMacroInfo
-local CreateMacro = CreateMacro
-local GetNumBindings = GetNumBindings
-local GetBinding = GetBinding
-local GetCurrentBindingSet = GetCurrentBindingSet
-local GetBindingKey = GetBindingKey
-local SetBinding = SetBinding
-local GetActionInfo = GetActionInfo
-local GetActionTexture = GetActionTexture
-local GetActionText = GetActionText
-local FindBaseSpellByID = FindBaseSpellByID
-local PickupAction = PickupAction
-local ClearCursor = ClearCursor
-local GetMacroIndexByName = GetMacroIndexByName
-local GetNumMacros = GetNumMacros
-local PickupMacro = PickupMacro
-local GetNumSpellTabs = GetNumSpellTabs
-local GetSpellTabInfo = GetSpellTabInfo
-local GetSpellBookItemInfo = GetSpellBookItemInfo
-local PickupSpellBookItem = PickupSpellBookItem
-local PickupPvpTalent = PickupPvpTalent
-local GetCursorInfo = GetCursorInfo
 local IsSpellKnown = IsSpellKnown
-local PickupPetSpell = PickupPetSpell
-local PickupSpell = PickupSpell
+local LearnPvpTalent = LearnPvpTalent
+local LearnTalents = LearnTalents
+local PickupAction = PickupAction
 local PickupItem = PickupItem
+local PickupMacro = PickupMacro
+local PickupPetSpell = PickupPetSpell
+local PickupPvpTalent = PickupPvpTalent
+local PickupSpell = PickupSpell
+local PickupSpellBookItem = PickupSpellBookItem
 local PlaceAction = PlaceAction
+local SetBinding = SetBinding
+local tInvert = tInvert
+local UnitLevel = UnitLevel
 
 local SaveBindings = SaveBindings or AttemptToSaveBindings
 
 local TALENT_NOT_SELECTED = TALENT_NOT_SELECTED
-local MAX_TALENT_TIERS = MAX_TALENT_TIERS
-local NUM_TALENT_COLUMNS = NUM_TALENT_COLUMNS
 local MAX_ACCOUNT_MACROS = MAX_ACCOUNT_MACROS
 local MAX_CHARACTER_MACROS = MAX_CHARACTER_MACROS
+
+local GetClassInfo = _G.GetClassInfo or CT.Libs.LCS.GetClassInfo
+local MAX_TALENT_TIERS = _G.MAX_TALENT_TIERS or CT.Libs.LCS.MAX_TALENT_TIERS
+local NUM_TALENT_COLUMNS = _G.NUM_TALENT_COLUMNS or CT.Libs.LCS.NUM_TALENT_COLUMNS
 
 CT.ClassData = {
 	Sorted = CopyTable(CLASS_SORT_ORDER),
@@ -77,10 +79,12 @@ CT.ClassData = {
 CT.CurrentTalentTable = {}
 CT.CurrentPvPTalentTable = {}
 
-for i = 1, GetNumClasses() do
+for i = 1, MAX_CLASSES do
 	local name, tag, id = GetClassInfo(i)
-	CT.ClassData.Numerical[tag] = id
-	CT.ClassData.Name[tag] = name
+	if name then
+		CT.ClassData.Numerical[tag] = id
+		CT.ClassData.Name[tag] = name
+	end
 end
 
 sort(CT.ClassData.Sorted)

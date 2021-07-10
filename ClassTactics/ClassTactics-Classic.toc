@@ -1,4 +1,4 @@
-## Interface: 90100
+## Interface: 11307
 ## Title: |cff16C3F2Class|r|cFFFFFFFFTactics|r
 ## Version: 1.01
 ## Author: Azilroka
@@ -13,7 +13,6 @@ Init.lua
 
 Core\Load.xml
 
-Data\Retail.lua
+Data\Classic.lua
 
-Frames\Load.xml
 Extras\Load.xml

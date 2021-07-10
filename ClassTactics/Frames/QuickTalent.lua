@@ -38,6 +38,16 @@ function CT:QuickTalents_Create()
 	QuickTalents:SetBackdrop({bgFile = 'Interface/Buttons/WHITE8X8'})
 	QuickTalents:SetBackdropColor(0, 0, 0, .6)
 
+	QuickTalents:SetScript('OnEnter', function(f)
+		local combatOnly = not CT.db.general.quicktalents.onEnterOnlyWhenUsable or CT:HasUnselectedRow()
+		if InCombatLockdown() or (not combatOnly and not CT:CanChangeTalents()) then return end
+		UIFrameFadeIn(f, .1, f:GetAlpha(), 1)
+	end)
+
+	QuickTalents:SetScript('OnLeave', function(f)
+		UIFrameFadeOut(f, .1, f:GetAlpha(), CT.db.general.quicktalents.alpha)
+	end)
+
 	QuickTalentFlyoutBar:SetBackdrop({bgFile = 'Interface/Buttons/WHITE8X8'})
 	QuickTalentFlyoutBar:SetBackdropColor(0, 0, 0, .6)
 

@@ -2,128 +2,6 @@ local CT = unpack(_G.ClassTactics)
 
 CT.Data = {}
 
-CT.Data['DEATHKNIGHT'] = {
-	Discord =  {
-		["Acherus"] = "https://discord.gg/acherus"
-	},
-	[1] = { -- Blood
-		Guides = {
-			["Wowhead"] = "https://www.wowhead.com/blood-death-knight-guide",
-			["IcyVeins"] = "https://www.icy-veins.com/wow/blood-death-knight-pve-tank-guide",
-		},
-		Talents = {
-			["Raiding"] = "19166,19219,22134,22013,19227,19232,21207",
-			["Mythic+ / Dungeons"] = "19165,19219,22134,22013,19227,19232,21209",
-			["Leveling"] = "19166,19219,22135,22013,19228,19232,21209",
-			["World"] = "19165,19219,22134,22013,19227,19232,21208",
-		},
-		Macros = {
-			["Death and Decay"] = "#showtooltip Death and Decay\n/cast [mod,@cursor][@player] Death and Decay",
-			["Gorefiend's Grasp"] = "#showtooltip Gorefiend's Grasp\n/cast [@mouseover,exists,nodead][@focus,exists][@player] Gorefiend's Grasp",
-			["Mind Freeze"] = "#showtooltip Mind Freeze\n/cast [@focus,harm,nodead][] Mind Freeze",
-			["Raise Ally"] = "#showtooltip Raise Ally\n/cast [@mouseover,exists,help,dead][] Raise Ally",
-			["Raise Dead / Sacrificial Pact"] = "#showtooltip\n/castsequence reset=61 Raise Dead, Sacrificial Pact",
-			["Re-Control Pet"] = "/target pet\n/run PetDismiss()\n/use Control Undead\n/petassist",
-		}
-	},
-	[2] = { -- Frost
-		Guides = {
-			["Wowhead"] = "https://www.wowhead.com/frost-death-knight-guide",
-			["IcyVeins"] = "https://www.icy-veins.com/wow/frost-death-knight-pve-dps-guide",
-		},
-		Talents = {
-			["BoS - Raid / Mythic+"] = "22018,22019,22517,22525,22530,22531,22537",
-			["Leveling"] = "22018,22019,22517,22525,23373,22531,22023",
-			["Obliterate - 2H"] = "22016,22020,22517,22521,22530,22531,22109",
-			["Obliterate - Dual Wield"] = "22016,22020,22517,22525,22530,22531,22109",
-			["Raiding - Dual Wield"] = "22018,22019,22517,22523,22530,22531,22023",
-		},
-		Macros = {
-			["Asphyxiate"] = "#showtooltip Asphyxiate\n/cast [@mouseover,exists][] Asphyxiate",
-			["Breath of Sindragosa"] = "#showtooltip Breath of Sindragosa\n/cast !Breath of Sindragosa",
-			["Death and Decay"] = "#showtooltip Death and Decay\n/cast [mod,@cursor][@player] Death and Decay",
-			["Death Grip"] = "#showtooltip Death Grip\n/cast [@focus,exists][@mouseover,exists][] Death Grip",
-			["Icebound Fortitude"] = "#showtooltip Icebound Fortitude\n/cancelaura Lichborne\n/cast Icebound Fortitude",
-			["Mind Freeze"] = "#showtooltip Mind Freeze\n/cast [@focus,harm,nodead][] Mind Freeze",
-			["Raise Ally"] = "#showtooltip Raise Ally\n/cast [@mouseover,help,dead][] Raise Ally",
-			["Wraith Walk or Death Pact"] = "#showtooltip\n/cast [talent:5/2] Wraith Walk; [talent:5/3] Death Pact",
-		}
-	},
-	[3] = { -- Unholy
-		Guides = {
-			["Wowhead"] = "https://www.wowhead.com/unholy-death-knight-guide",
-			["IcyVeins"] = "https://www.icy-veins.com/wow/unholy-death-knight-pve-dps-guide",
-		},
-		Talents = {
-			["Single Target - Raid"] = "22025,22029,22520,22526,22529,22534,22030",
-			["Wound Build - Mythic +"] = "22024,22027,22520,22522,22529,22534,22538",
-			["Unholy Blight - Mythic +"] = "22024,22029,22520,22522,22529,22534,22030",
-			["Leveling - Pet"] = "22026,22029,22518,22526,22529,22534,22538",
-			["Leveling - Solo"] = "22026,22029,22518,22526,22529,22534,22538",
-		},
-		Macros = {
-			["Asphyxiate"] = "#showtooltip Asphyxiate\n/cast [@mouseover,exists][] Asphyxiate",
-			["Death and Decay"] = "#showtooltip Death and Decay\n/cast [mod,@cursor][@player] Death and Decay",
-			["Death Grip"] = "#showtooltip Death Grip\n/cast [@focus,exists][@mouseover,exists][] Death Grip",
-			["Mind Freeze"] = "#showtooltip Mind Freeze\n/cast [@focus,exists,harm,nodead][] Mind Freeze",
-			["Outbreak / Chains of Ice"] = "#showtooltip\n/cast [nomod,@mouseover,nodead,harm][nomod,@target,nodead,harm] Outbreak;\n/cast [mod:shift,@mouseover,nodead,harm][mod:shift,@target,nodead,harm] Chains of Ice",
-			["Outbreak"] = "#showtooltip Outbreak\n/cast [@mouseover,exists][] Outbreak",
-			["Raise Ally"] = "#showtooltip Raise Ally\n/cast [@mouseover,help,dead][] Raise Ally",
-			["Summon Gargoyle or Unholy Assault"] = "#showtooltip\n/cast [talent:7/2] Summon Gargoyle; [talent:7/3] Unholy Assault",
-			["Wraith Walk or Death Pact"] = "#showtooltip\n/cast [talent:5/2] Wraith Walk; [talent:5/3] Death Pact",
-		}
-	},
-}
-
-CT.Data['DEMONHUNTER'] = {
-	Discord =  {
-		["Fel Hammer"] = "https://discord.gg/zGGkNGC"
-	},
-	[1] = { -- Havoc
-		Guides  = {
-			["Wowhead"] = "https://www.wowhead.com/havoc-demon-hunter-guide",
-			["IcyVeins"] = "https://www.icy-veins.com/wow/havoc-demon-hunter-pve-dps-guide",
-		},
-		Talents = {
-			["Demonic - Mythic+"] = "21854,21857,21862,21863,21866,22767,21900",
-			["Leveling"] = "22493,22765,22494,21863,21867,22767,21900",
-			["Momentum - Mythic+"] = "21854,21857,21862,21863,21867,22767,21901",
-			["Raiding / Mythic+"] = "21854,21857,21862,21863,21866,22767,21900",
-			["Felblade / Demon Blades"] = "22416,22799,22909,21863,21867,21870,21900",
-		},
-		Macros = {
-			["Consume Magic"] = "#showtooltip\n/cast [mod:alt,@target][@focus,harm,nodead][] Consume Magic",
-			["Disrupt"] = "#showtooltip\n/cast [mod:alt,@target][@focus,harm,nodead][] Disrupt",
-			["Imprison"] = "#showtooltip\n/cast [mod:alt,@target][@focus,harm,nodead][] Imprison",
-			["Metamorphosis"] = "#showtooltip\n/stopmacro [channeling:Eye Beam]\n/stopmacro [channeling:Fel Barrage]\n/cast [mod,@cursor][@player] Metamorphosis",
-		}
-	},
-	[2] = { -- Vengence
-		Guides  = { -- Vengence
-			["Wowhead"] = "https://www.wowhead.com/vengeance-demon-hunter-guide",
-			["IcyVeins"] = "https://www.icy-veins.com/wow/vengeance-demon-hunter-pve-tank-guide",
-		},
-		Talents = {
-			["Fiery Brand - Mythic+"] = "22503,22507,22541,22770,22511,22513,22543",
-			["Leveling"] = "22502,22766,22540,22770,22511,22513,21902",
-			["Hybird Control - Mythic+"] = "22502,22507,22324,22770,22511,22513,22543",
-			["Spirit Bomb - Mythic+"] = "22502,22766,22540,22770,22511,22513,22543",
-			["Spirit Bomb"] = "22502,22766,22540,22770,22511,22513,22543",
-		},
-		Macros = {
-			["Consume Magic"] = "#showtooltip\n/cast [mod:alt,@target][@focus,harm,nodead][] Consume Magic",
-			["Disrupt"] = "#showtooltip\n/cast [mod:alt,@target][@focus,harm,nodead][] Disrupt",
-			["Imprison"] = "#showtooltip\n/cast [mod:alt,@target][@focus,harm,nodead][] Imprison",
-			["Sigil of Chains"] = "#showtooltip\n/cast [@cursor] Sigil of Chains",
-			["Sigil of Elysian Decree"] = "#showtooltip\n/cast [@cursor] Elysian Decree",
-			["Sigil of Flame"] = "#showtooltip\n/cast [@cursor] Sigil of Flame",
-			["Sigil of Mastery"] = "#showtooltip\n/cast [@cursor] Sigil of Misery",
-			["Sigil of Silence"] = "#showtooltip\n/cast [@cursor] Sigil of Silence",
-			["Torment"] = "#showtooltip\n/cast [mod:alt,@target][@focus,harm,nodead][] Torment",
-		}
-	}
-}
-
 CT.Data['DRUID'] = {
 	Discord =  {
 		["Dreamgrove"] = "https://discordapp.gg/dreamgrove"
@@ -209,7 +87,7 @@ CT.Data['DRUID'] = {
 	},
 }
 
-local petAttack = format('/petattack\n/cast %s\n/cast %s\n/cast %s', GetSpellInfo(16827), GetSpellInfo(17253), GetSpellInfo(49966))
+local petAttack = format('/petattack\n/cast %s\n/cast %s', GetSpellInfo(16827), GetSpellInfo(17253))
 
 CT.Data['HUNTER'] = {
 	Discord =  {
@@ -335,67 +213,6 @@ CT.Data['MAGE'] = {
 			["Frostbolt"] = "#showtooltip\n/cast Frostbolt\n/petattack",
 			["Ice Block"] = "#showtooltip\n/stopcasting\n/cast Ice Block\n/cancelaura Ice Block",
 			["Water Elemental / Freeze"] = "#showtooltip\n/cast [pet] Freeze; Summon Water Elemental",
-		}
-	},
-}
-
-CT.Data['MONK'] = {
-	Discord =  {
-		["Peak of Serenity"] = "https://discord.gg/peakofserenity",
-	},
-	[1] = { -- Brewmaster
-		Guides = {
-			["Wowhead"] = "https://www.wowhead.com/brewmaster-monk-guide",
-			["IcyVeins"] = "https://www.icy-veins.com/wow/brewmaster-monk-pve-tank-guide",
-		},
-		Talents = {
-			["Leveling"] = "23106,19302,22099,19994,23363,20184,22106",
-			["Raiding / Mythic+"] = "23106,19302,22099,19995,20175,20184,22106",
-			["Charred Passions"] = "19820,19302,22099,19995,20175,20184,22106",
-			["World Quest / Leveling"] = "23106,19302,22099,19994,23363,20184,22106",
-		},
-		Macros = {
-			["Bonedust Brew"] = "#showtooltip\n/cast [mod, @cursor][@player] Bonedust Brew",
-			["Healing Elixir / Dampen Harm"] = "#showtooltip\n/cast [talent:5/2] Healing Elixir; [talent:5/3] Dampen Harm",
-			["Provoke"] = "#showtooltip\n/cast [mod,@focus][] Provoke",
-			["Spear Hand Strike"] = "#showtooltip\n/cast [mod:alt,@focus,exists][] Spear Hand Strike",
-			["Taunt / Black Ox Statue"] = "#showtooltip\n/tar [mod] Black Ox Statue\n/cast [mod] Provoke; Summon Black Ox Statue\n/targetlasttarget [mod]",
-			["Tiger's Lust"] = "#showtooltip /cast [@mouseover,help][@player] Tiger’s Lust",
-		}
-	},
-	[2] = { -- Mistweaver
-		Guides = {
-			["Wowhead"] = "https://www.wowhead.com/mistweaver-monk-guide",
-			["IcyVeins"] = "https://www.icy-veins.com/wow/mistweaver-monk-pve-healing-guide",
-		},
-		Talents = {
-			["Leveling"] = "20185,19304,22167,19993,23371,22214,22170",
-			["Dungeon / Mythic+"] = "19823,19302,22168,19995,20173,23107,22170",
-			["Raid - Fistweaving"] = "19823,19302,22166,19995,20173,22214,22170",
-			["Raid - Mistweaving"] = "20185,19302,22166,19995,20173,22101,22169",
-		},
-		Macros = {
-			["Rising Sun Kick"] = "#showtooltip\n/stopmacro [channeling:Essence Font]\n/cast Rising Sun Kick",
-			["Soothing Mist"] = "#showtooltip\n/cast [@mouseover,nodead,help][] Soothing Mist",
-			["Tier 5 Talents"] = "#showtooltip\n/cast [talent:5/1] Healing Elixir; [talent:5/2] Diffuse Magic; [talent:5/3] Dampen Harm",
-			["Tier 6 Talents"] = "#showtooltip\n/cast [talent:6/1] Summon Jade Serpent Statue; [talent:6/2] Refreshing Jade Wind; [talent:6/3] Invoke Chi-Ji, the Red Crane",
-		}
-	},
-	[3] = { -- Windwalker
-		Guides = {
-			["Wowhead"] = "https://www.wowhead.com/windwalker-monk-guide",
-			["IcyVeins"] = "https://www.icy-veins.com/wow/windwalker-monk-pve-dps-guide",
-		},
-		Talents = {
-			["Leveling"] = "20185,19304,19771,23364,23258,22102,22105",
-			["Single Target"] = "19820,19302,19771,19995,20173,22093,22105",
-			["Multi Target / Mythic+"] = "20185,19302,22096,19995,20173,22102,22105",
-		},
-		Macros = {
-			["Tier 1 Talents"] = "#showtooltip\n/stopmacro [channeling:Fists of Fury]\n/cast [talent:1/1] Eye of the Tiger; [talent:1/2] Chi Wave; [talent:1/3] Chi Burst",
-			["Tier 5 Talents"] = "#showtooltip\n/cast [talent:5/1] Inner Strength; [talent:5/2] Diffuse Magic; [talent:5/3] Dampen Harm",
-			["Tier 6 Talents"] = "#showtooltip\n/stopmacro [channeling:Fists of Fury]\n/cast [talent:6/1] Hit Combo; [talent:6/2] Rushing Jade Wind; [talent:6/3] Dance of Chi-Ji",
-			["Tiger's Palm"] = "#showtooltip\n/stopmacro [channeling:Fists of Fury]\n/cast Tiger Palm",
 		}
 	},
 }
