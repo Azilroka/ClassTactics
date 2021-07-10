@@ -632,7 +632,7 @@ end
 
 function CT:GetActionBarSets(classTag, specGroup)
 	wipe(ActionBarTable)
-	print(classTag, specGroup)
+
 	for name in next, CT.db.actionbars[classTag or CT.MyClass][specGroup or GetSpecialization()] do
 		ActionBarTable[name] = name
 	end
