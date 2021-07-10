@@ -544,14 +544,14 @@ function LCS.GetNumClasses()
 end
 
 -- Expose Entire Lib
-MAX_TALENT_TIERS = LCS.MAX_TALENT_TIERS
-NUM_TALENT_COLUMNS = LCS.NUM_TALENT_COLUMNS
-GetNumClasses = LCS.GetNumClasses
-GetClassInfo = LCS.GetClassInfo
-GetNumSpecializationsForClassID = LCS.GetNumSpecializationsForClassID
-GetActiveSpecGroup = LCS.GetActiveSpecGroup
-GetSpecialization = LCS.GetSpecialization
-GetSpecializationInfo = LCS.GetSpecializationInfo
-GetSpecializationInfoForClassID = LCS.GetSpecializationInfoForClassID
-GetSpecializationRole = LCS.GetSpecializationRole
-GetSpecializationRoleByID = LCS.GetSpecializationRoleByID
+if not MAX_TALENT_TIERS then MAX_TALENT_TIERS = LCS.MAX_TALENT_TIERS end
+if not NUM_TALENT_COLUMNS then NUM_TALENT_COLUMNS = LCS.NUM_TALENT_COLUMNS end
+if not GetNumClasses then GetNumClasses = LCS.GetNumClasses end
+if not GetClassInfo then GetClassInfo = LCS.GetClassInfo end
+if not GetNumSpecializationsForClassID then GetNumSpecializationsForClassID = LCS.GetNumSpecializationsForClassID end
+if not GetActiveSpecGroup then GetActiveSpecGroup = LCS.GetActiveSpecGroup end
+if not GetSpecialization then GetSpecialization = LCS.GetSpecialization end
+if not GetSpecializationInfo then GetSpecializationInfo = LCS.GetSpecializationInfo end
+if not GetSpecializationInfoForClassID then GetSpecializationInfoForClassID = LCS.GetSpecializationInfoForClassID end
+if not GetSpecializationRole then GetSpecializationRole = LCS.GetSpecializationRole end
+if not GetSpecializationRoleByID then GetSpecializationRoleByID = LCS.GetSpecializationRoleByID end
