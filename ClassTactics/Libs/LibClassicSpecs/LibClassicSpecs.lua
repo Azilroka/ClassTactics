@@ -1,13 +1,12 @@
 if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then return end
 
-local MAJOR, MINOR = "LibClassicSpecs", 1001
+local MAJOR, MINOR = 'LibClassicSpecs', 1001
 local LCS = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not LCS then
 	return
 end
 
-local pairs = pairs
 local select = select
 
 local UnitClass = UnitClass
@@ -24,533 +23,417 @@ local DRUID_RESTO_SPEC_INDEX = 4
 LCS.MAX_TALENT_TIERS = 7
 LCS.NUM_TALENT_COLUMNS = 4
 
-local Warrior = {
-	ID = 1,
-	displayName = "Warrior",
-	name = "WARRIOR",
-	Arms = 71,
-	Fury = 72,
-	Prot = 73,
-	specs = {71, 72, 73}
+local WARRIOR = {
+	name = 'WARRIOR',
+	specs = { 71, 72, 73 }
 }
-local Paladin = {
-	ID = 2,
-	displayName = "Paladin",
-	name = "PALADIN",
-	Holy = 65,
-	Prot = 66,
-	Ret = 70,
-	specs = {65, 66, 70}
+
+local PALADIN = {
+	name = 'PALADIN',
+	specs = { 65, 66, 70 }
 }
-local Hunter = {
-	ID = 3,
-	displayName = "Hunter",
-	name = "HUNTER",
-	BM = 253,
-	MM = 254,
-	SV = 255,
-	specs = {253, 254, 255}
+
+local HUNTER = {
+	name = 'HUNTER',
+	specs = { 253, 254, 255 }
 }
-local Rogue = {
-	ID = 4,
-	displayName = "Rogue",
-	name = "ROGUE",
-	Assassin = 259,
-	Combat = 260,
-	Sub = 261,
-	specs = {259, 260, 261}
+
+local ROGUE = {
+	name = 'ROGUE',
+	specs = { 259, 260, 261 }
 }
-local Priest = {
-	ID = 5,
-	displayName = "Priest",
-	name = "PRIEST",
-	Disc = 256,
-	Holy = 257,
-	Shadow = 258,
-	specs = {256, 257, 258}
+
+local PRIEST = {
+	name = 'PRIEST',
+	specs = { 256, 257, 258 }
 }
-local DK = {
-	ID = 6,
-	displayName = "Death knight",
-	name = "DEATHKNIGHT",
-	Blood = 250,
-	Frost = 251,
-	Unholy = 252,
-	specs = {250, 251, 252}
+
+local DEATHKNIGHT = {
+	name = 'DEATHKNIGHT',
+	specs = { 250, 251, 252 }
 }
-local Shaman = {
-	ID = 7,
-	displayName = "Shaman",
-	name = "SHAMAN",
-	Ele = 262,
-	Enh = 263,
-	Resto = 264,
-	specs = {262, 263, 264}
+
+local SHAMAN = {
+	name = 'SHAMAN',
+	specs = { 262, 263, 264 }
 }
-local Mage = {
-	ID = 8,
-	displayName = "Mage",
-	name = "MAGE",
-	Arcane = 62,
-	Fire = 63,
-	Frost = 64,
-	specs = {62, 63, 64}
+
+local MAGE = {
+	name = 'MAGE',
+	specs = { 62, 63, 64 }
 }
-local Warlock = {
-	ID = 9,
-	displayName = "Warlock",
-	name = "WARLOCK",
-	Affl = 265,
-	Demo = 266,
-	Destro = 267,
-	specs = {265, 266, 267}
+
+local WARLOCK = {
+	name = 'WARLOCK',
+	specs = { 265, 266, 267 }
 }
-local Monk = {
-	ID = 10,
-	displayName = "Monk",
-	name = "MONK",
-	BRM = 268,
-	WW = 269,
-	MW = 270,
-	specs = {268, 269, 270}
+
+local MONK = {
+	name = 'MONK',
+	specs = { 268, 269, 270 }
 }
-local Druid = {
-	ID = 11,
-	displayName = "Druid",
-	name = "DRUID",
-	Balance = 102,
-	Feral = 103,
-	Guardian = 104,
-	Resto = 105,
-	specs = {102, 103, 104, 105}
+
+local DRUID = {
+	name = 'DRUID',
+	specs = { 102, 103, 104, 105 }
 }
-local DH = {
-	ID = 12,
-	displayName = "Demon hunter",
-	name = "DEMONHUNTER",
-	Havoc = 577,
-	Veng = 581,
-	specs = {577, 581}
+
+local DEMONHUNTER = {
+	name = 'DEMONHUNTER',
+	specs = { 577, 581 }
 }
 
 local ClassByID = {
-	Warrior,
-	Paladin,
-	Hunter,
-	Rogue,
-	Priest,
-	DK,
-	Shaman,
-	Mage,
-	Warlock,
-	Monk,
-	Druid,
-	DH
+	WARRIOR,
+	PALADIN,
+	HUNTER,
+	ROGUE,
+	PRIEST,
+	DEATHKNIGHT,
+	SHAMAN,
+	MAGE,
+	WARLOCK,
+	MONK,
+	DRUID,
+	DEMONHUNTER
 }
 
-local Stat = {
-	Strength = 1,
-	Agility = 2,
-	Stamina = 3,
-	Intellect = 4,
-	Spirit = 5
-}
+for _, classInfo in pairs(ClassByID) do classInfo.displayName = LOCALIZED_CLASS_NAMES_MALE[classInfo.name] end
 
-LCS.Stat = Stat
-
-local Role = {
-	Damager = "DAMAGER",
-	Tank = "TANK",
-	Healer = "HEALER"
-}
-
-LCS.Role = Role
-
--- Map of spec (tab) index to spec id
-local NAME_TO_SPEC_MAP = {
-	[Warrior.name] = Warrior.specs,
-	[Paladin.name] = Paladin.specs,
-	[Hunter.name] = Hunter.specs,
-	[Rogue.name] = Rogue.specs,
-	[Priest.name] = Priest.specs,
-	[DK.name] = DK.specs,
-	[Shaman.name] = Shaman.specs,
-	[Mage.name] = Mage.specs,
-	[Warlock.name] = Warlock.specs,
-	[Monk.name] = Monk.specs,
-	[Druid.name] = Druid.specs,
-	[DH.name] = DH.specs
-}
+local Stat = { Strength = 1, Agility = 2, Stamina = 3, Intellect = 4, Spirit = 5 }
+local Role = { Damager = 'DAMAGER', Tank = 'TANK', Healer = 'HEALER' }
 
 -- Detailed info for each spec
 local SpecInfo = {
-	[Warrior.Arms] = {
-		ID = Warrior.Arms,
-		name = "Arms",
-		description = "",
-		icon = "",
-		background = "",
+	[71] = { -- Warrior: Arms
+		name = 'Arms',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = false,
 		primaryStat = Stat.Strength
 	},
-	[Warrior.Fury] = {
-		ID = Warrior.Fury,
-		name = "Fury",
-		description = "",
-		icon = "",
-		background = "",
+	[72] = { -- Warrior:  Fury
+		name = 'Fury',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Strength
 	},
-	[Warrior.Prot] = {
-		ID = Warrior.Prot,
-		name = "Protection",
-		description = "",
-		icon = "",
-		background = "",
+	[73] = { -- Warrior: Protection
+		name = 'Protection',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Tank,
 		isRecommended = false,
 		primaryStat = Stat.Strength
 	},
-	[Paladin.Holy] = {
-		ID = Paladin.Holy,
-		name = "Holy",
-		description = "",
-		icon = "",
-		background = "",
+	[65] = { -- Paladin: Holy
+		name = 'Holy',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Healer,
 		isRecommended = false,
 		primaryStat = Stat.Intellect
 	},
-	[Paladin.Prot] = {
-		ID = Paladin.Prot,
-		name = "Protection",
-		description = "",
-		icon = "",
-		background = "",
+	[66] = { -- Paladin: Protection
+		name = 'Protection',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Tank,
 		isRecommended = false,
 		primaryStat = Stat.Strength
 	},
-	[Paladin.Ret] = {
-		ID = Paladin.Ret,
-		name = "Retribution",
-		description = "",
-		icon = "",
-		background = "",
+	[70] = { -- Paladin: Retribution
+		name = 'Retribution',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Strength
 	},
-	[Hunter.BM] = {
-		ID = Hunter.BM,
-		name = "Beast Mastery",
-		description = "",
-		icon = "",
-		background = "",
+	[253] = { -- Hunter: Beast Mastery
+		name = 'Beast Mastery',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Agility
 	},
-	[Hunter.MM] = {
-		ID = Hunter.MM,
-		name = "Marksman",
-		description = "",
-		icon = "",
-		background = "",
+	[254] = { -- Hunter: Marksman
+		name = 'Marksman',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Agility
 	},
-	[Hunter.SV] = {
-		ID = Hunter.SV,
-		name = "Survival",
-		description = "",
-		icon = "",
-		background = "",
+	[255] = { -- Hunter: Survival
+		name = 'Survival',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = false,
 		primaryStat = Stat.Agility
 	},
-	[Rogue.Assassin] = {
-		ID = Rogue.Assassin,
-		name = "assassination",
-		description = "",
-		icon = "",
-		background = "",
+	[259] = { -- Rogue: Assassination
+		name = 'assassination',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Agility
 	},
-	[Rogue.Combat] = {
-		ID = Rogue.Combat,
-		name = "Combat",
-		description = "",
-		icon = "",
-		background = "",
+	[260] = { -- Rogue: Combat
+		name = 'Combat',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Agility
 	},
-	[Rogue.Sub] = {
-		ID = Rogue.Sub,
-		name = "Subtlety",
-		description = "",
-		icon = "",
-		background = "",
+	[261] = { -- Rogue: Sublety
+		name = 'Subtlety',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = false,
 		primaryStat = Stat.Agility
 	},
-	[Priest.Disc] = {
-		ID = Priest.Disc,
-		name = "Discipline",
-		description = "",
-		icon = "",
-		background = "",
+	[256] = { -- Priest: Discipline
+		name = 'Discipline',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Healer,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Priest.Holy] = {
-		ID = Priest.Holy,
-		name = "Holy",
-		description = "",
-		icon = "",
-		background = "",
+	[257] = { -- Priest: Holy
+		name = 'Holy',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Healer,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Priest.Shadow] = {
-		ID = Priest.Shadow,
-		name = "Shadow",
-		description = "",
-		icon = "",
-		background = "",
+	[258] = { -- Priest: Shadow
+		name = 'Shadow',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = false,
 		primaryStat = Stat.Intellect
 	},
-	[Shaman.Ele] = {
-		ID = Shaman.Ele,
-		name = "Elemental",
-		description = "",
-		icon = "",
-		background = "",
+	[262] = { -- Shaman: Elemental
+		name = 'Elemental',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Shaman.Enh] = {
-		ID = Shaman.Enh,
-		name = "Enhancement",
-		description = "",
-		icon = "",
-		background = "",
+	[263] = { -- Shaman: Enhancement
+		name = 'Enhancement',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Strength
 	},
-	[Shaman.Resto] = {
-		ID = Shaman.Resto,
-		name = "Restoration",
-		description = "",
-		icon = "",
-		background = "",
+	[264] = { -- Shaman: Restoration
+		name = 'Restoration',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Healer,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Mage.Arcane] = {
-		ID = Mage.Arcane,
-		name = "Arcane",
-		description = "",
-		icon = "",
-		background = "",
+	[62] = { -- Mage: Arcane
+		name = 'Arcane',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = false,
 		primaryStat = Stat.Intellect
 	},
-	[Mage.Fire] = {
-		ID = Mage.Fire,
-		name = "Fire",
-		description = "",
-		icon = "",
-		background = "",
+	[63] = { -- Mage: Fire
+		name = 'Fire',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Mage.Frost] = {
-		ID = Mage.Frost,
-		name = "Frost",
-		description = "",
-		icon = "",
-		background = "",
+	[64] = { -- Mage: Frost
+		name = 'Frost',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Warlock.Affl] = {
-		ID = Warlock.Affl,
-		name = "Affliction",
-		description = "",
-		icon = "",
-		background = "",
+	[265] = { -- Warlock: Affliction
+		name = 'Affliction',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = false,
 		primaryStat = Stat.Intellect
 	},
-	[Warlock.Demo] = {
-		ID = Warlock.Demo,
-		name = "Demonology",
-		description = "",
-		icon = "",
-		background = "",
+	[266] = { -- Warlock: Demonology
+		name = 'Demonology',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Warlock.Destro] = {
-		ID = Warlock.Destro,
-		name = "Destruction",
-		description = "",
-		icon = "",
-		background = "",
+	[267] = { -- Warlock: Destruction
+		name = 'Destruction',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = false,
 		primaryStat = Stat.Intellect
 	},
-	[Druid.Balance] = {
-		ID = Druid.Balance,
-		name = "Balance",
-		description = "",
-		icon = "",
-		background = "",
+	[102] = { -- Druid: Balance
+		name = 'Balance',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Druid.Feral] = {
-		ID = Druid.Feral,
-		name = "Feral",
-		description = "",
-		icon = "",
-		background = "",
+	[103] = { -- Druid: Feral
+		name = 'Feral',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Strength
 	},
-	[Druid.Guardian] = {
-		ID = Druid.Guardian,
-		name = "Guardian",
-		description = "",
-		icon = "",
-		background = "",
+	[104] = { -- Druid: Guardian
+		name = 'Guardian',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Tank,
 		isRecommended = true,
 		primaryStat = Stat.Strength
 	},
-	[Druid.Resto] = {
-		ID = Druid.Resto,
-		name = "Restoration",
-		description = "",
-		icon = "",
-		background = "",
+	[105] = { -- Druid: Restoration
+		name = 'Restoration',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Healer,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[DK.Frost] = {
-		ID = DK.Frost,
-		name = "Frost",
-		description = "",
-		icon = "",
-		background = "",
+	[251] = { -- Death Knight: Frost
+		name = 'Frost',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Tank,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[DK.Blood] = {
-		ID = DK.Blood,
-		name = "Blood",
-		description = "",
-		icon = "",
-		background = "",
+	[250] = { -- Death Knight: Blood
+		name = 'Blood',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[DK.Unholy] = {
-		ID = DK.Unholy,
-		name = "Unholy",
-		description = "",
-		icon = "",
-		background = "",
+	[252] = { -- Death Knight: Unholy
+		name = 'Unholy',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[DH.Havoc] = {
-		ID = DH.Havoc,
-		name = "Havoc",
-		description = "",
-		icon = "",
-		background = "",
+	[577] = { -- Demon Hunter: Havoc
+		name = 'Havoc',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[DH.Veng] = {
-		ID = DH.Veng,
-		name = "Vengeance",
-		description = "",
-		icon = "",
-		background = "",
+	[581] = { -- Demon Hunter: Vengence
+		name = 'Vengeance',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Tank,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Monk.BRM] = {
-		ID = Monk.BRM,
-		name = "Brewmaster",
-		description = "",
-		icon = "",
-		background = "",
+	[268] = { -- Monk: Brewmaster
+		name = 'Brewmaster',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Tank,
 		isRecommended = true,
 		primaryStat = Stat.Agility
 	},
-	[Monk.MW] = {
-		ID = Monk.MW,
-		name = "Mistweaver",
-		description = "",
-		icon = "",
-		background = "",
+	[270] = { -- Monk: Mistweaver
+		name = 'Mistweaver',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Healer,
 		isRecommended = true,
 		primaryStat = Stat.Intellect
 	},
-	[Monk.WW] = {
-		ID = Monk.WW,
-		name = "Windwalker",
-		description = "",
-		icon = "",
-		background = "",
+	[269] = { -- Monk: Windwalker
+		name = 'Windwalker',
+		description = '',
+		icon = '',
+		background = '',
 		role = Role.Damager,
 		isRecommended = true,
 		primaryStat = Stat.Agility
 	}
 }
 
+LCS.Stat = Stat
+LCS.Role = Role
 LCS.SpecInfo = SpecInfo
-
-local ROLE_MAP = {}
-
-for specId, v in pairs(SpecInfo) do ROLE_MAP[specId] = v.role end
 
 function LCS.GetClassInfo(classId)
 	local info = ClassByID[classId]
@@ -558,18 +441,15 @@ function LCS.GetClassInfo(classId)
 		return
 	end
 
-	return info.displayName, info.name, info.ID
+	return info.displayName, info.name, classId
 end
 
 function LCS.GetNumSpecializationsForClassID(classId)
 	if (classId <= 0 or classId > LCS:GetNumClasses()) then
-		return nil
+		return
 	end
 
-	local class = ClassByID[classId]
-	local specs = NAME_TO_SPEC_MAP[class.name]
-
-	return #specs
+	return #ClassByID[classId].specs
 end
 
 function LCS.GetInspectSpecialization() return end
@@ -578,10 +458,10 @@ function LCS.GetActiveSpecGroup() return 1 end
 
 function LCS.GetSpecialization(isInspect, isPet)
 	if (isInspect or isPet) then
-		return nil
+		return
 	end
 
-	local specIndex, maxSpent = 0
+	local specIndex, maxSpent = 0, 0
 
 	for tabIndex = 1, GetNumTalentTabs() do
 		local spent = select(3, GetTalentTabInfo(tabIndex))
@@ -590,9 +470,9 @@ function LCS.GetSpecialization(isInspect, isPet)
 		end
 	end
 
-	local classId = select(3, UnitClass("player"))
+	local classId = select(3, UnitClass('player'))
 
-	if (classId == Druid.ID) then
+	if (classId == DRUID.ID) then
 		local feralInstinctPoints = select(5, GetTalentInfo(DRUID_FERAL_TAB, DRUID_FERAL_INSTINCT))
 		local thickHidePoints = select(5, GetTalentInfo(DRUID_FERAL_TAB, DRUID_THICK_HIDE))
 		if (feralInstinctPoints == 5 and thickHidePoints == 5) then
@@ -613,8 +493,8 @@ function LCS.GetSpecializationInfo(specIndex, isInspect, isPet)
 		return
 	end
 
-	local _, className = UnitClass("player")
-	local specId = NAME_TO_SPEC_MAP[className][specIndex]
+	local _, _, classId = UnitClass('player')
+	local specId = ClassByID[classId].specs[specIndex]
 
 	if not specId then
 		return
@@ -622,30 +502,30 @@ function LCS.GetSpecializationInfo(specIndex, isInspect, isPet)
 
 	local spec = SpecInfo[specId]
 
-	return spec.ID, spec.name, spec.description, spec.icon, spec.background, spec.role, spec.primaryStat
+	return specId, spec.name, spec.description, spec.icon, spec.background, spec.role, spec.primaryStat
 end
 
 function LCS.GetSpecializationInfoForClassID(classId, specIndex)
-	local class = ClassByID[classId]
+	local classInfo = ClassByID[classId]
 
-	if not class then
+	if not classInfo then
 		return
 	end
 
-	local specId = NAME_TO_SPEC_MAP[class.name][specIndex]
+	local specId = classInfo.specs[specIndex]
 	local info = SpecInfo[specId]
 
 	if not info then
 		return
 	end
 
-	local isAllowed = classId == select(3, UnitClass("player"))
+	local isAllowed = classId == select(3, UnitClass('player'))
 
-	return info.ID, info.name, info.description, info.icon, info.role, info.isRecommended, isAllowed
+	return specId, info.name, info.description, info.icon, info.role, info.isRecommended, isAllowed
 end
 
 function LCS.GetSpecializationRoleByID(specId)
-	return ROLE_MAP[specId]
+	return SpecInfo[specId].role
 end
 
 function LCS.GetSpecializationRole(specIndex, isInspect, isPet)
@@ -653,10 +533,10 @@ function LCS.GetSpecializationRole(specIndex, isInspect, isPet)
 		return
 	end
 
-	local _, className = UnitClass("player")
-	local specId = NAME_TO_SPEC_MAP[className][specIndex]
+	local _, _, classId = UnitClass('player')
+	local specId = ClassByID[classId][specIndex]
 
-	return ROLE_MAP[specId]
+	return SpecInfo[specId].role
 end
 
 function LCS.GetNumClasses()

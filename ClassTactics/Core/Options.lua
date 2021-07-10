@@ -68,7 +68,8 @@ function CT:BuildProfile()
 		},
 	}
 
-	for classTag, classID in next, CT.ClassData.Numerical do
+	for index = 1, 12 do
+		local _, classTag, classID = GetClassInfo(index)
 		Defaults.profile.talentBuilds[classTag] = {}
 		Defaults.profile.talentBuildsPvP[classTag] = {}
 		Defaults.profile.actionbars[classTag] = {}
@@ -88,7 +89,8 @@ function CT:BuildProfile()
 
 	CT.db.autoTalents[CT.MyRealm][CT.MyName].classTag = CT.MyClass
 
-	for _, classID in next, CT.ClassData.Numerical do
+	for index = 1, 12 do
+		local _, _, classID = GetClassInfo(index)
 		for k = 1, GetNumSpecializationsForClassID(classID) do
 			if not CT.db.autoTalents[CT.MyRealm][CT.MyName][k] then
 				CT.db.autoTalents[CT.MyRealm][CT.MyName][k] = 'None'
@@ -144,7 +146,8 @@ CT.OptionsData = {
 	Keybind = {},
 }
 
-for classTag, classID in next, CT.ClassData.Numerical do
+for index = 1, 12 do
+	local _, classTag, classID = GetClassInfo(index)
 	CT.OptionsData[classTag] = {}
 	for i = 1, GetNumSpecializationsForClassID(classID) do
 		CT.OptionsData[classTag][i] = {}
