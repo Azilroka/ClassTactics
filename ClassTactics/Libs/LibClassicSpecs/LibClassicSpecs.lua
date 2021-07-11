@@ -23,79 +23,19 @@ local DRUID_RESTO_SPEC_INDEX = 4
 LCS.MAX_TALENT_TIERS = 7
 LCS.NUM_TALENT_COLUMNS = 4
 
-local WARRIOR = {
-	name = 'WARRIOR',
-	specs = { 71, 72, 73 }
-}
-
-local PALADIN = {
-	name = 'PALADIN',
-	specs = { 65, 66, 70 }
-}
-
-local HUNTER = {
-	name = 'HUNTER',
-	specs = { 253, 254, 255 }
-}
-
-local ROGUE = {
-	name = 'ROGUE',
-	specs = { 259, 260, 261 }
-}
-
-local PRIEST = {
-	name = 'PRIEST',
-	specs = { 256, 257, 258 }
-}
-
-local DEATHKNIGHT = {
-	name = 'DEATHKNIGHT',
-	specs = { 250, 251, 252 }
-}
-
-local SHAMAN = {
-	name = 'SHAMAN',
-	specs = { 262, 263, 264 }
-}
-
-local MAGE = {
-	name = 'MAGE',
-	specs = { 62, 63, 64 }
-}
-
-local WARLOCK = {
-	name = 'WARLOCK',
-	specs = { 265, 266, 267 }
-}
-
-local MONK = {
-	name = 'MONK',
-	specs = { 268, 269, 270 }
-}
-
-local DRUID = {
-	name = 'DRUID',
-	specs = { 102, 103, 104, 105 }
-}
-
-local DEMONHUNTER = {
-	name = 'DEMONHUNTER',
-	specs = { 577, 581 }
-}
-
 local ClassByID = {
-	WARRIOR,
-	PALADIN,
-	HUNTER,
-	ROGUE,
-	PRIEST,
-	DEATHKNIGHT,
-	SHAMAN,
-	MAGE,
-	WARLOCK,
-	MONK,
-	DRUID,
-	DEMONHUNTER
+	{ name = 'WARRIOR', specs = { 71, 72, 73 } },
+	{ name = 'PALADIN', specs = { 65, 66, 70 } },
+	{ name = 'HUNTER', specs = { 253, 254, 255 } },
+	{ name = 'ROGUE', specs = { 259, 260, 261 } },
+	{ name = 'PRIEST', specs = { 256, 257, 258 } },
+	{ name = 'DEATHKNIGHT', specs = { 250, 251, 252 } },
+	{ name = 'SHAMAN', specs = { 262, 263, 264 } },
+	{ name = 'MAGE', specs = { 62, 63, 64 } },
+	{ name = 'WARLOCK', specs = { 265, 266, 267 } },
+	{ name = 'MONK', specs = { 268, 269, 270 } },
+	{ name = 'DRUID', specs = { 102, 103, 104, 105 } },
+	{ name = 'DEMONHUNTER', specs = { 577, 581 } },
 }
 
 for _, classInfo in pairs(ClassByID) do classInfo.displayName = LOCALIZED_CLASS_NAMES_MALE[classInfo.name] end
@@ -472,7 +412,7 @@ function LCS.GetSpecialization(isInspect, isPet)
 
 	local classId = select(3, UnitClass('player'))
 
-	if (classId == DRUID.ID) then
+	if (classId == 11) then -- Druid
 		local feralInstinctPoints = select(5, GetTalentInfo(DRUID_FERAL_TAB, DRUID_FERAL_INSTINCT))
 		local thickHidePoints = select(5, GetTalentInfo(DRUID_FERAL_TAB, DRUID_THICK_HIDE))
 		if (feralInstinctPoints == 5 and thickHidePoints == 5) then

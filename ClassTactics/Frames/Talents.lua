@@ -332,7 +332,7 @@ function CT:TalentProfiles_Update()
 	wipe(CT.CurrentTalentProfiles)
 
 	local activeSpecIndex = GetSpecialization()
-	for name, _ in next, CT.RetailData[CT.MyClass][activeSpecIndex].Talents do tinsert(CT.CurrentTalentProfiles, name) end
+	for name, _ in next, CT.Data[CT.MyClass][activeSpecIndex].Talents do tinsert(CT.CurrentTalentProfiles, name) end
 
 	sort(CT.CurrentTalentProfiles)
 

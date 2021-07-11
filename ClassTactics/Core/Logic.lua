@@ -253,7 +253,7 @@ end
 
 -- Talents
 function CT:GetTalentIDByString(classTag, specGroup, name)
-	local defaultString = CT.RetailData[classTag] and CT.RetailData[classTag][specGroup] and CT.RetailData[classTag][specGroup].Talents[name]
+	local defaultString = CT.Data[classTag] and CT.Data[classTag][specGroup] and CT.Data[classTag][specGroup].Talents[name]
 	local customString = CT.db.talentBuilds[classTag] and CT.db.talentBuilds[classTag][specGroup] and CT.db.talentBuilds[classTag][specGroup][name]
 
 	local talentString = customString or defaultString
@@ -341,12 +341,12 @@ end
 
 function CT:AddDefaultBuild(classTag, specGroup, selected)
 	if classTag == CT.MyClass and specGroup == GetSpecialization() then
-		CT.db.talentBuilds[classTag][specGroup][selected] = CT.RetailData[classTag][specGroup].Talents[selected]
+		CT.db.talentBuilds[classTag][specGroup][selected] = CT.Data[classTag][specGroup].Talents[selected]
 	end
 end
 
 function CT:CanAddDefaultBuild(classTag, specGroup, selected)
-	if classTag == CT.MyClass and specGroup == GetSpecialization() and CT.RetailData[classTag][specGroup].Talents[selected] then
+	if classTag == CT.MyClass and specGroup == GetSpecialization() and CT.Data[classTag][specGroup].Talents[selected] then
 		return true
 	end
 	return false
@@ -515,12 +515,12 @@ function CT:DeleteImportedMacro(macroName)
 end
 
 function CT:AddDefaultMacro(macroName, newName, perCharacter)
-	local text = CT.RetailData[CT.MyClass][GetSpecialization()].Macros[macroName]
+	local text = CT.Data[CT.MyClass][GetSpecialization()].Macros[macroName]
 	CreateMacro(newName, 'INV_MISC_QUESTIONMARK', text, perCharacter)
 end
 
 function CT:CanAddDefaultMacro(classTag, specGroup, selected)
-	if classTag == CT.MyClass and specGroup == GetSpecialization() and CT.RetailData[classTag][specGroup].Macros[selected] then
+	if classTag == CT.MyClass and specGroup == GetSpecialization() and CT.Data[classTag][specGroup].Macros[selected] then
 		return true
 	end
 	return false
