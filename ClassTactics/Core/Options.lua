@@ -333,11 +333,10 @@ function CT:BuildOptions()
 end
 
 function CT:GetOptions()
-	local Ace3OptionsPanel = _G.ElvUI and _G.ElvUI[1] or _G.Enhanced_Config
-	if Ace3OptionsPanel then
-		CT.Options.childGroups = _G.ElvUI and 'tree' or 'tab'
-		Ace3OptionsPanel.Options.args.ClassTactics = CT.Options
-	elseif _G.ClassTactics_Config then
-		_G.ClassTactics_Config.Options.args = CT.Options.args
+	if _G.ElvUI then
+		_G.ElvUI[1].Options.args.ClassTactics = CT.Options
+	else
+		CT.Libs.AC:RegisterOptionsTable('ClassTactics', CT.Options)
+		CT.Libs.ACD:AddToBlizOptions('ClassTactics', 'ClassTactics')
 	end
 end
