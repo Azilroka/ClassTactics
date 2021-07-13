@@ -70,14 +70,16 @@ function CT:BuildProfile()
 
 	for index = 1, 12 do
 		local _, classTag, classID = GetClassInfo(index)
-		Defaults.profile.talentBuilds[classTag] = {}
-		Defaults.profile.talentBuildsPvP[classTag] = {}
-		Defaults.profile.actionbars[classTag] = {}
+		if classTag then
+			Defaults.profile.talentBuilds[classTag] = {}
+			Defaults.profile.talentBuildsPvP[classTag] = {}
+			Defaults.profile.actionbars[classTag] = {}
 
-		for k = 1, GetNumSpecializationsForClassID(classID) do
-			Defaults.profile.talentBuilds[classTag][k] = {}
-			Defaults.profile.talentBuildsPvP[classTag][k] = {}
-			Defaults.profile.actionbars[classTag][k] = {}
+			for k = 1, GetNumSpecializationsForClassID(classID) do
+				Defaults.profile.talentBuilds[classTag][k] = {}
+				Defaults.profile.talentBuildsPvP[classTag][k] = {}
+				Defaults.profile.actionbars[classTag][k] = {}
+			end
 		end
 	end
 
@@ -91,9 +93,11 @@ function CT:BuildProfile()
 
 	for index = 1, 12 do
 		local _, _, classID = GetClassInfo(index)
-		for k = 1, GetNumSpecializationsForClassID(classID) do
-			if not CT.db.autoTalents[CT.MyRealm][CT.MyName][k] then
-				CT.db.autoTalents[CT.MyRealm][CT.MyName][k] = 'None'
+		if classID then
+			for k = 1, GetNumSpecializationsForClassID(classID) do
+				if not CT.db.autoTalents[CT.MyRealm][CT.MyName][k] then
+					CT.db.autoTalents[CT.MyRealm][CT.MyName][k] = 'None'
+				end
 			end
 		end
 	end
@@ -148,21 +152,15 @@ CT.OptionsData = {
 
 for index = 1, 12 do
 	local _, classTag, classID = GetClassInfo(index)
-	CT.OptionsData[classTag] = {}
-	for i = 1, GetNumSpecializationsForClassID(classID) do
-		CT.OptionsData[classTag][i] = {}
+	if classTag then
+		CT.OptionsData[classTag] = {}
+		for i = 1, GetNumSpecializationsForClassID(classID) do
+			CT.OptionsData[classTag][i] = {}
+		end
 	end
 end
 
 function CT:BuildOptions()
-	CT.Options.args.general.args.QuickTalents = ACH:Group('Quick Talents', nil, 2, nil, function(info) return CT.db.general.quicktalents[info[#info]] end, function(info, value) CT.db.general.quicktalents[info[#info]] = value CT:QuickTalents_Update() end)
-	CT.Options.args.general.args.QuickTalents.args.enable = ACH:Toggle('Enable', nil, 0)
-	CT.Options.args.general.args.QuickTalents.args.style = ACH:Select('Style', nil, 1, { classic = 'Classic', flyout = 'Flyout' })
-	CT.Options.args.general.args.QuickTalents.args.layout = ACH:Select('Layout', nil, 2, { horizontal = 'Horizontal', vertical = 'Vertical' })
-	CT.Options.args.general.args.QuickTalents.args.buttonSize = ACH:Range('Size', nil, 3, { min = 16, max = 60, step = 2 })
-	CT.Options.args.general.args.QuickTalents.args.alpha = ACH:Range('Mouseover Alpha', nil, 4, { min = 0, max = 1, isPercent = true })
-    CT.Options.args.general.args.QuickTalents.args.onEnterOnlyWhenUsable = ACH:Toggle('On Enter Only When Usable', nil, 5)
-
 	-- Import / Export
 	CT.Options.args.DataHandle = ACH:Group('Import / Export', nil, 1, 'tab')
 
@@ -216,26 +214,36 @@ function CT:BuildOptions()
 	CT.Options.args.Keybind.args.KeyBindSets = ACH:MultiSelect('Binding Sets', nil, 4, function() return CT:GetKeybinds() end, nil, nil, function(_, key) return CT.OptionsData.Keybind.SelectedSet == key end, function(_, key) CT.OptionsData.Keybind.SelectedSet = key end)
 	CT.Options.args.Keybind.args.KeybindTextExport = ACH:Input('Export Keybinds', nil, -4, 10, 'full', function() local name, dbKey = CT.OptionsData.Keybind.SelectedSet, 'keybinds' return CT:ExportData(name, dbKey) end, nil, nil, function() return not CT.OptionsData.Keybind.SelectedSet or CT.OptionsData.Keybind.SelectedSet == '' or CT.OptionsData.Keybind.SelectedSet == 'NONE' end)
 
-	-- Auto Talent
-	CT.Options.args.AutoTalent = ACH:Group('Auto Level Talents', nil, 1, 'select')
+	if CT.Retail then
+		CT.Options.args.general.args.QuickTalents = ACH:Group('Quick Talents', nil, 2, nil, function(info) return CT.db.general.quicktalents[info[#info]] end, function(info, value) CT.db.general.quicktalents[info[#info]] = value CT:QuickTalents_Update() end)
+		CT.Options.args.general.args.QuickTalents.args.enable = ACH:Toggle('Enable', nil, 0)
+		CT.Options.args.general.args.QuickTalents.args.style = ACH:Select('Style', nil, 1, { classic = 'Classic', flyout = 'Flyout' })
+		CT.Options.args.general.args.QuickTalents.args.layout = ACH:Select('Layout', nil, 2, { horizontal = 'Horizontal', vertical = 'Vertical' })
+		CT.Options.args.general.args.QuickTalents.args.buttonSize = ACH:Range('Size', nil, 3, { min = 16, max = 60, step = 2 })
+		CT.Options.args.general.args.QuickTalents.args.alpha = ACH:Range('Mouseover Alpha', nil, 4, { min = 0, max = 1, isPercent = true })
+	    CT.Options.args.general.args.QuickTalents.args.onEnterOnlyWhenUsable = ACH:Toggle('On Enter Only When Usable', nil, 5)
 
-	for realm, playerInfo in next, CT.db.autoTalents do
-		local RealmInfo = ACH:Group(realm)
-		RealmInfo.inline = false
+		-- Auto Talent
+		CT.Options.args.AutoTalent = ACH:Group('Auto Level Talents', nil, 1, 'select')
 
-		for player, option in next, playerInfo do
-			local _, specInfo = CT:GetClassInfoByToken(option.classTag)
-			local playerOption = ACH:Group(WrapTextInColorCode(player, RAID_CLASS_COLORS[option.classTag].colorStr), nil, CT:GetClassOrder(option.classTag))
-			playerOption.inline = true
+		for realm, playerInfo in next, CT.db.autoTalents do
+			local RealmInfo = ACH:Group(realm)
+			RealmInfo.inline = false
 
-			for specGroup, specName in next, specInfo do
-				playerOption.args[''..specGroup]= ACH:Select(specName, nil, specGroup, function() return CT:GetTalentBuildOptions(option.classTag, specGroup) end, nil, nil, function() return CT.db.autoTalents[realm][player][specGroup] end, function(_, value) CT.db.autoTalents[realm][player][specGroup] = value end)
+			for player, option in next, playerInfo do
+				local _, specInfo = CT:GetClassInfoByToken(option.classTag)
+				local playerOption = ACH:Group(WrapTextInColorCode(player, RAID_CLASS_COLORS[option.classTag].colorStr), nil, CT:GetClassOrder(option.classTag))
+				playerOption.inline = true
+
+				for specGroup, specName in next, specInfo do
+					playerOption.args[''..specGroup]= ACH:Select(specName, nil, specGroup, function() return CT:GetTalentBuildOptions(option.classTag, specGroup) end, nil, nil, function() return CT.db.autoTalents[realm][player][specGroup] end, function(_, value) CT.db.autoTalents[realm][player][specGroup] = value end)
+				end
+
+				RealmInfo.args[player] = playerOption
 			end
 
-			RealmInfo.args[player] = playerOption
+			CT.Options.args.AutoTalent.args[realm] = RealmInfo
 		end
-
-		CT.Options.args.AutoTalent.args[realm] = RealmInfo
 	end
 
 	-- Class Section
