@@ -1,6 +1,6 @@
 ## Interface: 90100
 ## Title: |cff16C3F2Class|r|cFFFFFFFFTactics|r
-## Version: 1.01
+## Version: 1.02
 ## Author: Azilroka
 ## SavedVariables: ClassTacticsDB
 ## OptionalDeps: ElvUI, AddOnSkins, ProjectAzilroka
