@@ -1,6 +1,8 @@
-## Interface: 90100
+## Interface-Retail: 90100
+## Interface-Classic: 11307
+## Interface-BCC: 20501
 ## Title: |cff16C3F2Class|r|cFFFFFFFFTactics|r
-## Version: 1.02
+## Version: 1.03
 ## Author: Azilroka
 ## SavedVariables: ClassTacticsDB
 ## OptionalDeps: ElvUI, AddOnSkins, ProjectAzilroka
