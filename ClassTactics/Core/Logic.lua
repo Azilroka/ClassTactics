@@ -330,7 +330,7 @@ function CT:GetMaximumTalentsByString(talentString)
 				compareTable[tier] = talentID
 			end
 		end
-		if not (compareTable[1] or tier > 1 and compareTable[tier - 1]) then
+		if (not compareTable[1] or (tier > 1 and not compareTable[tier - 1])) then
 			break
 		end
 	end
