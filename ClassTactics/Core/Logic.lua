@@ -605,9 +605,7 @@ function CT:SaveAllActionSlots(profileName)
 		local actionType, id, subType = GetActionInfo(slot)
 		local icon, name, macroText = GetActionTexture(slot), GetActionText(slot)
 
-		if actionType == 'spell' then
-			id = FindBaseSpellByID(id) or id
-		elseif actionType == 'macro' then
+		if actionType == 'macro' then
 			if id == 0 then
 				actionType, id, subType, icon, name, macroText = nil, nil, nil, nil, nil, nil
 			else
@@ -666,7 +664,7 @@ function CT:SetActionSlot(slot, slotInfo)
 		PickupItem(id)
 	elseif actionType == 'spell' or actionType == 'flyout' then
 		if actionType == 'spell' then
-			id = FindBaseSpellByID(id) or id
+			id = IsSpellKnown(id) and id or FindBaseSpellByID(id)
 		end
 
 		if not subType or actionType == 'flyout' then

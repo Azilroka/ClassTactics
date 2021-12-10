@@ -476,7 +476,7 @@ function LCS.GetSpecializationRole(specIndex, isInspect, isPet)
 	local _, _, classId = UnitClass('player')
 	local specId = ClassByID[classId][specIndex]
 
-	return SpecInfo[specId].role
+	return SpecInfo[specId] and SpecInfo[specId].role
 end
 
 function LCS.GetNumClasses()
