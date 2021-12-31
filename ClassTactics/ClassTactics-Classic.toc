@@ -1,4 +1,4 @@
-## Interface: 11307
+## Interface: 11401
 ## Title: |cff16C3F2Class|r|cFFFFFFFFTactics|r
 ## Version: 1.03
 ## Author: Azilroka
