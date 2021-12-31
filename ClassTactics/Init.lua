@@ -50,7 +50,7 @@ CT.Libs = {
 	ACD = _G.LibStub('AceConfigDialog-3.0'),
 	ACL = Engine[2],
 	ADB = _G.LibStub('AceDB-3.0'),
-	LCS = _G.LibStub("LibClassicSpecs", true)
+	LCS = _G.LibStub("LibClassicSpecs-CT", true)
 }
 
 CT.AddOnSkins = CT:IsAddOnEnabled('AddOnSkins', CT.MyName)

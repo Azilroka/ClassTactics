@@ -1,6 +1,6 @@
 if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then return end
 
-local MAJOR, MINOR = 'LibClassicSpecs', 1001
+local MAJOR, MINOR = 'LibClassicSpecs-CT', 1001
 local LCS = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not LCS then
@@ -474,7 +474,7 @@ function LCS.GetSpecializationRole(specIndex, isInspect, isPet)
 	end
 
 	local _, _, classId = UnitClass('player')
-	local specId = ClassByID[classId][specIndex]
+	local specId = ClassByID[classId].specs[specIndex]
 
 	return SpecInfo[specId] and SpecInfo[specId].role
 end
