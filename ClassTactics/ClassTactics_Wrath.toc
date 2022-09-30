@@ -1,4 +1,4 @@
-## Interface: 34000
+## Interface: 30400
 ## Title: |cff16C3F2Class|r|cFFFFFFFFTactics|r
 ## Version: 1.04
 ## Author: Azilroka
