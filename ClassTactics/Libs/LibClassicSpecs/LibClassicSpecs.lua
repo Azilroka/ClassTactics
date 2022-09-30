@@ -40,7 +40,7 @@ local ClassByID = {
 
 for _, classInfo in pairs(ClassByID) do classInfo.displayName = LOCALIZED_CLASS_NAMES_MALE[classInfo.name] end
 
-local Stat = { Strength = 1, Agility = 2, Stamina = 3, Intellect = 4, Spirit = 5 }
+local Stat = { Strength = 1, Agility = 2, Stamina = 3, Intellect = 4 }
 local Role = { Damager = 'DAMAGER', Tank = 'TANK', Healer = 'HEALER' }
 
 -- Detailed info for each spec
@@ -54,7 +54,7 @@ local SpecInfo = {
 		isRecommended = false,
 		primaryStat = Stat.Strength
 	},
-	[72] = { -- Warrior:  Fury
+	[72] = { -- Warrior: Fury
 		name = 'Fury',
 		description = '',
 		icon = '',
@@ -370,6 +370,43 @@ local SpecInfo = {
 		primaryStat = Stat.Agility
 	}
 }
+
+SpecInfo[71].name = 'Arms'
+SpecInfo[72].name = 'Fury'
+SpecInfo[73].name = 'Protection'
+SpecInfo[65].name = 'Holy'
+SpecInfo[66].name = 'Protection'
+SpecInfo[70].name = 'Retribution'
+SpecInfo[253].name = 'Beast Mastery'
+SpecInfo[254].name = 'Marksman'
+SpecInfo[255].name = 'Survival'
+SpecInfo[259].name = 'Assassination'
+SpecInfo[260].name = 'Combat'
+SpecInfo[261].name = 'Subtlety'
+SpecInfo[256].name = 'Discipline'
+SpecInfo[257].name = 'Holy'
+SpecInfo[258].name = 'Shadow'
+SpecInfo[262].name = 'Elemental'
+SpecInfo[263].name = 'Enhancement'
+SpecInfo[264].name = 'Restoration'
+SpecInfo[62].name = 'Arcane'
+SpecInfo[63].name = 'Fire'
+SpecInfo[64].name = 'Frost'
+SpecInfo[265].name = 'Affliction'
+SpecInfo[266].name = 'Demonology'
+SpecInfo[267].name = 'Destruction'
+SpecInfo[102].name = 'Balance'
+SpecInfo[103].name = 'Feral'
+SpecInfo[104].name = 'Guardian'
+SpecInfo[105].name = 'Restoration'
+SpecInfo[251].name = 'Frost'
+SpecInfo[250].name = 'Blood'
+SpecInfo[252].name = 'Unholy'
+SpecInfo[577].name = 'Havoc'
+SpecInfo[581].name = 'Vengeance'
+SpecInfo[268].name = 'Brewmaster'
+SpecInfo[270].name = 'Mistweaver'
+SpecInfo[269].name = 'Windwalker'
 
 LCS.Stat = Stat
 LCS.Role = Role

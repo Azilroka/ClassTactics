@@ -1,0 +1,18 @@
+## Interface: 34000
+## Title: |cff16C3F2Class|r|cFFFFFFFFTactics|r
+## Version: 1.04
+## Author: Azilroka
+## SavedVariables: ClassTacticsDB
+## OptionalDeps: ElvUI, AddOnSkins, ProjectAzilroka
+## X-Curse-Project-ID: 473120
+## X-Wago-ID: rkGrqrKy
+
+Libs\Load_Libs.xml
+
+Init.lua
+
+Core\Load.xml
+
+Data\TBC.lua
+
+Extras\Load.xml

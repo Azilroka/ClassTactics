@@ -695,9 +695,11 @@ function CT:SetActionSlot(slot, slotInfo)
 		if index then
 			PickupSpellBookItem(index, subType)
 		elseif actionType == 'spell' then
-			for _, talentId in next, C_SpecializationInfo.GetAllSelectedPvpTalentIDs() do
-				if select(6, GetPvpTalentInfoByID(talentId)) == id then
-					PickupPvpTalent(talentId)
+			if CT.Retail then
+				for _, talentId in next, C_SpecializationInfo.GetAllSelectedPvpTalentIDs() do
+					if select(6, GetPvpTalentInfoByID(talentId)) == id then
+						PickupPvpTalent(talentId)
+					end
 				end
 			end
 
@@ -720,15 +722,15 @@ function CT:SetActionSlot(slot, slotInfo)
 		if index then
 			PickupMacro(index)
 		end
-	elseif actionType == 'summonmount' then
+	elseif actionType == 'summonmount' and CT.Retail then
 		if id == 0xFFFFFFF then
 			C_MountJournal.Pickup(0)
 		else
 			PickupSpell((select(2, C_MountJournal.GetMountInfoByID(id))))
 		end
-	elseif actionType == 'summonpet' then
+	elseif actionType == 'summonpet' and CT.Retail then
 		C_PetJournal.PickupPet(id)
-	elseif actionType == 'equipmentset' then
+	elseif actionType == 'equipmentset' and CT.Retail then
 		local equipID = C_EquipmentSet.GetEquipmentSetID(id)
 		if equipID then
 			C_EquipmentSet.PickupEquipmentSet(equipID)

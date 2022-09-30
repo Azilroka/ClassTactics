@@ -254,7 +254,7 @@ function CT:BuildOptions()
 		CT.Options.args[classTag].args.Discord = ACH:Group('Class Discord Links', nil, 0)
 		CT.Options.args[classTag].args.Discord.inline = true
 
-		for discordName, discordLink in next, CT.Data[classTag].Discord do
+		for discordName, discordLink in next, (CT.Data[classTag] and CT.Data[classTag].Discord or {}) do
 			CT.Options.args[classTag].args.Discord.args[discordName] = ACH:Input(discordName, nil, nil, nil, 'full', function() return discordLink end)
 		end
 
@@ -265,7 +265,7 @@ function CT:BuildOptions()
 			specOption.args.Guides = ACH:Group('Class Guides')
 			specOption.args.Guides.inline = true
 
-			for siteName, siteLink in next, CT.Data[classTag][specGroup].Guides do
+			for siteName, siteLink in next, (CT.Data[classTag] and CT.Data[classTag][specGroup].Guides or {}) do
 				specOption.args.Guides.args[siteName] = ACH:Input(siteName, nil, nil, nil, 'full', function() return siteLink end)
 			end
 
@@ -286,7 +286,7 @@ function CT:BuildOptions()
 			specOption.args.Macros = ACH:Group('Macros')
 			specOption.args.Macros.args.Defaults = ACH:MultiSelect('Defaults', nil, 1, {}, nil, nil, function(_, key) return CT.OptionsData[classTag][specGroup].SelectedMacro == key end, function(_, key) CT.OptionsData[classTag][specGroup].SelectedMacro = key end)
 
-			for macroName in next, CT.Data[classTag][specGroup].Macros do
+			for macroName in next, (CT.Data[classTag] and CT.Data[classTag][specGroup].Macros or {}) do
 				specOption.args.Macros.args.Defaults.values[macroName] = macroName
 			end
 
