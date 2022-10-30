@@ -68,7 +68,7 @@ function CT:BuildProfile()
 		},
 	}
 
-	for index = 1, 12 do
+	for index = 1, CT.Retail and 13 or 12 do
 		local _, classTag, classID = GetClassInfo(index)
 		if classTag then
 			Defaults.profile.talentBuilds[classTag] = {}
@@ -91,7 +91,7 @@ function CT:BuildProfile()
 
 	CT.db.autoTalents[CT.MyRealm][CT.MyName].classTag = CT.MyClass
 
-	for index = 1, 12 do
+	for index = 1, CT.Retail and 13 or 12 do
 		local _, _, classID = GetClassInfo(index)
 		if classID then
 			for k = 1, GetNumSpecializationsForClassID(classID) do
@@ -114,7 +114,7 @@ end
 function CT:GetClassInfoByToken(classTag)
 	local specTable = {}
 
-	for index = 1, 12 do
+	for index = 1, CT.Retail and 13 or 12 do
 		local name, tag, classID = GetClassInfo(index)
 		if tag == classTag then
 			for specGroup = 1, GetNumSpecializationsForClassID(classID) do
@@ -150,7 +150,7 @@ CT.OptionsData = {
 	Keybind = {},
 }
 
-for index = 1, 12 do
+for index = 1, CT.Retail and 13 or 12 do
 	local _, classTag, classID = GetClassInfo(index)
 	if classTag then
 		CT.OptionsData[classTag] = {}
