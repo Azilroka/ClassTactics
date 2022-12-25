@@ -22,7 +22,7 @@ local function OnUpdate(self, t)
 
 	local selectedTalentSet
 
-	if specIndex and CT.db then
+	if specIndex and CT.db and CT.db.talentBuilds[E.myclass][specIndex] then
 		for talentName in next, CT.db.talentBuilds[E.myclass][specIndex] do
 			if CT:IsTalentSetSelected(talentName) then
 				selectedTalentSet = talentName
